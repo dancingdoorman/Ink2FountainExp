@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RootNamespace>FountianExponential.InkCompiler</RootNamespace>
+    <Authors>Fountain Exponential, Marcel Sorger</Authors>
+    <Company>FountainExponentialFoundation</Company>
+    <Description>A library that compiles stories written in Ink to datatructures in a json, that can be used by the InkEngine.</Description>
+    <Copyright>MIT License</Copyright>
+    <RepositoryUrl>https://github.com/FountainExponential/Ink2FountainExp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fountainexponential ink compiler library</PackageTags>
+    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InkEngine\InkEngine.csproj" />
+  </ItemGroup>
+
+</Project>

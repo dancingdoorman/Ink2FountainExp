@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Ink2FountainExp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "CONSOLEAPPCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

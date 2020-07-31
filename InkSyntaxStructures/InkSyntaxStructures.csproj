@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>FountianExponential.InkSyntaxStructures</RootNamespace>
+    <Authors>Fountain Exponential, Marcel Sorger</Authors>
+    <Company>FountainExponentialFoundation</Company>
+    <Description>The Ink syntax structures that hold the data and meaning of the Ink scripting language.</Description>
+    <Copyright>MIT License</Copyright>
+    <RepositoryUrl>https://github.com/FountainExponential/Ink2FountainExp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fountainexponential ink syntax structures library</PackageTags>
+    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
+  </PropertyGroup>
+
+</Project>

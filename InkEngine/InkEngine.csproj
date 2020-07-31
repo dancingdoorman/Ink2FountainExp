@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>FountianExponential.InkEngine</RootNamespace>
+    <Authors>Fountain Exponential, Marcel Sorger</Authors>
+    <Company>FountainExponentialFoundation</Company>
+    <Description>An engine that reads the compiled Ink story and runs it.</Description>
+    <Copyright>MIT License</Copyright>
+    <RepositoryUrl>https://github.com/FountainExponential/Ink2FountainExp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fountainexponential ink engine library</PackageTags>
+    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
+  </PropertyGroup>
+
+</Project>
