@@ -99,7 +99,7 @@ namespace Ink.Ink2FountainExp
 
         #region Configuration and Logging
 
-        /// <summary> Read the configuration from the config files, enviroment and command line. </summary>
+        /// <summary> Read the configuration from the config files, environment and command line. </summary>
         /// <param name="args">The arguments.</param>
         /// <returns>Configuration object</returns>
         private static IConfigurationRoot ReadConfiguration(string[] args, ParsedCommandLineOptions options)
@@ -107,7 +107,7 @@ namespace Ink.Ink2FountainExp
             IConfigurationRoot config = GetConfig(args);
             if (config != null)
             {
-                // We do not get a whole object from a config section, because command line options whould have to be prepended with the region
+                // We do not get a whole object from a config section, because command line options would have to be prepended with the region
                 //config.GetSection("ConfiguredOptions").Get<ConfiguredOptions>();
 
                 options.InputFilePath = config.GetValue<string>("InputFile");
@@ -139,7 +139,7 @@ namespace Ink.Ink2FountainExp
             var environment = Environment.GetEnvironmentVariable("CONSOLEAPPCORE_ENVIRONMENT");
             if (environment != null)
             {
-                // The enviroment may be null in a unit test
+                // The environment may be null in a unit test
                 configurationBuilderWithEnviroment.AddJsonFile($"appsettings.{environment}.json", optional: true);
             }
 
@@ -235,7 +235,7 @@ namespace Ink.Ink2FountainExp
                 }
                 else if (argument.StartsWith("-"))
                 {
-                    // Determin options  
+                    // Determine options  
                     switch (argument)
                     {
                         case "-p": options.IsPlayMode = true; break;
@@ -256,7 +256,7 @@ namespace Ink.Ink2FountainExp
             }
         }
 
-        /// <summary>Proceses the output file path.</summary>
+        /// <summary>Process the output file path.</summary>
         /// <param name="parsedOptions">The parsed options.</param>
         /// <param name="processedOptions">The processed options.</param>
         /// <param name="startingDirectory">The starting directory.</param>
@@ -285,7 +285,7 @@ namespace Ink.Ink2FountainExp
             }
         }
 
-        /// <summary>Proceses the input file path.</summary>
+        /// <summary>Process the input file path.</summary>
         /// <param name="parsedOptions">The parsed options.</param>
         /// <param name="processedOptions">The processed options.</param>
         /// <param name="startingDirectory">The starting directory.</param>
@@ -307,7 +307,7 @@ namespace Ink.Ink2FountainExp
             processedOptions.InputFileDirectory = Path.GetDirectoryName(processedOptions.RootedInputFilePath);
         }
 
-        /// <summary>Proceses the flags by copying them from the parsed options to the processed options so we can always compare them.</summary>
+        /// <summary>Process the flags by copying them from the parsed options to the processed options so we can always compare them.</summary>
         /// <param name="parsedOptions">The parsed options.</param>
         /// <param name="processedOptions">The processed options.</param>
         public void ProcesFlags(ParsedCommandLineOptions parsedOptions, CommandLineToolOptions processedOptions)
@@ -316,7 +316,7 @@ namespace Ink.Ink2FountainExp
             if (parsedOptions == null || processedOptions == null)
                 return;
 
-            // Most of the flags are not changed while running exept for IsPlayMode.
+            // Most of the flags are not changed while running except for IsPlayMode.
             processedOptions.IsPlayMode = parsedOptions.IsPlayMode;
             processedOptions.IsVerboseMode = parsedOptions.IsVerboseMode;
             processedOptions.IsCountAllVisitsNeeded = parsedOptions.IsCountAllVisitsNeeded;
@@ -361,7 +361,7 @@ namespace Ink.Ink2FountainExp
             Parsed.Fiction parsedFiction;
             var story = CreateStory(fileContent, options, out parsedFiction);
 
-            // If we have a story without errors we have compiled succesfully.
+            // If we have a story without errors we have compiled successfully.
             var compileSuccess = !(story == null || Errors.Count > 0);
             OutputManager.ShowCompileSuccess(options, compileSuccess);
 
@@ -372,7 +372,7 @@ namespace Ink.Ink2FountainExp
 
             PrintAllMessages();
 
-            // Without having succesfully compiled we can not go on to play or flush Json.
+            // Without having successfully compiled we can not go on to play or flush JSON.
             if (!compileSuccess)
                 ConsoleInteractor.EnvironmentExitWithCodeError1();
 
@@ -434,7 +434,7 @@ namespace Ink.Ink2FountainExp
 
             if (!options.IsInputFileJson)
             {
-                // Loading a normal ink file (as opposed to an already compiled json file)
+                // Loading a normal ink file (as opposed to an already compiled JSON file)
                 var compiler = CreateCompiler(fileContent, options);
 
                 if (options.IsOnlyShowJsonStatsActive)
@@ -490,13 +490,13 @@ namespace Ink.Ink2FountainExp
             OutputManager.ShowStats(options, stats);
         }
 
-        /// <summary>Creates the story from json.</summary>
+        /// <summary>Creates the story from JSON.</summary>
         /// <param name="fileContent">Content of the file.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
         private Runtime.IStory CreateStoryFromJson(string fileContent, CommandLineToolOptions options)
         {
-            // Opening up a compiled json file for playing
+            // Opening up a compiled JSON file for playing
             var story = EngineInteractor.CreateStoryFromJson(fileContent);
 
             // No purpose for loading an already compiled file other than to play it
@@ -553,7 +553,7 @@ namespace Ink.Ink2FountainExp
             }
         }
 
-        /// <summary>Writes the compiled story to a json file.</summary>
+        /// <summary>Writes the compiled story to a JSON file.</summary>
         /// <param name="story">The story.</param>
         /// <param name="options">The options.</param>
         public void WriteStoryToJsonFile(Runtime.IStory story, CommandLineToolOptions options)

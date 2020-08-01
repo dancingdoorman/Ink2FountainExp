@@ -11,7 +11,7 @@ namespace Ink.Runtime
     /// including global variables, read counts, the pointer to the current
     /// point in the story, the call stack (for tunnels, functions, etc),
     /// and a few other smaller bits and pieces. You can save the current
-    /// state using the json serialisation functions ToJson and LoadJson.
+    /// state using the JSON serialization functions ToJson and LoadJson.
     /// </summary>
     public class StoryState
     {
@@ -22,9 +22,9 @@ namespace Ink.Runtime
         const int kMinCompatibleLoadVersion = 8;
 
         /// <summary>
-        /// Exports the current state to json format, in order to save the game.
+        /// Exports the current state to JSON format, in order to save the game.
         /// </summary>
-        /// <returns>The save state in json format.</returns>
+        /// <returns>The save state in JSON format.</returns>
         public string ToJson() {
             var writer = new SimpleJson.Writer();
             WriteJson(writer);
@@ -32,7 +32,7 @@ namespace Ink.Runtime
         }
 
         /// <summary>
-        /// Exports the current state to json format, in order to save the game.
+        /// Exports the current state to JSON format, in order to save the game.
         /// For this overload you can pass in a custom stream, such as a FileStream.
         /// </summary>
         public void ToJson(Stream stream) {
@@ -59,7 +59,7 @@ namespace Ink.Runtime
         /// 
         /// </summary>
         /// <returns>The number of times the specific knot or stitch has
-        /// been enountered by the ink engine.</returns>
+        /// been encountered by the ink engine.</returns>
         /// <param name="pathString">The dot-separated path string of
         /// the specific knot or stitch.</param>
         public int VisitCountAtPathString(string pathString)
@@ -156,7 +156,7 @@ namespace Ink.Runtime
 		}
 
         // REMEMBER! REMEMBER! REMEMBER!
-        // When adding state, update the Copy method, and serialisation.
+        // When adding state, update the Copy method, and serialization.
         // REMEMBER! REMEMBER! REMEMBER!
 
         public List<Runtime.Object> outputStream { get { return _outputStream; } }
@@ -268,7 +268,7 @@ namespace Ink.Runtime
         }
 		string _currentText;
 
-        // Cleans inline whitespace in the following way:
+        // Cleans in-line whitespace in the following way:
         //  - Removes all whitespace from the start and end of line (including just before a \n)
         //  - Turns all consecutive space and tab runs into single spaces (HTML style)
         string CleanOutputWhitespace(string str)
@@ -750,7 +750,7 @@ namespace Ink.Runtime
                     }
                 }
 
-                // Where is the most agressive (earliest) trim point?
+                // Where is the most aggressive (earliest) trim point?
                 var trimIndex = -1;
                 if (glueTrimIndex != -1 && functionTrimIndex != -1)
                     trimIndex = Math.Min (functionTrimIndex, glueTrimIndex);
@@ -1127,7 +1127,7 @@ namespace Ink.Runtime
 		}
 
         // REMEMBER! REMEMBER! REMEMBER!
-        // When adding state, update the Copy method and serialisation
+        // When adding state, update the Copy method and serialization
         // REMEMBER! REMEMBER! REMEMBER!
 
 

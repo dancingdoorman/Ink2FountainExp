@@ -43,7 +43,7 @@ namespace Ink.Ink2FountainExp
 
             SetOutputFormat(options);
 
-            // Add a handeler for the story errors
+            // Add a handler for the story errors
             story.StoryError += StoryErrorHandler;
 
 
@@ -110,7 +110,7 @@ namespace Ink.Ink2FountainExp
             return true;
         }
 
-        /// <summary>Gets a propper user interaction result.</summary>
+        /// <summary>Gets a proper user interaction result.</summary>
         /// <param name="runtimeStory"></param>
         /// <param name="parsedFiction"></param>
         /// <param name="options">The options.</param>

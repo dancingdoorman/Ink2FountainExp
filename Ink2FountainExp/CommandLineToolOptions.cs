@@ -23,9 +23,9 @@ namespace Ink.Ink2FountainExp
 
         public List<string> PluginNames { get; set; } = new List<string>();
 
-        /// <summary>Gets a value indicating whether the input file is json.</summary>
+        /// <summary>Gets a value indicating whether the input file is JSON.</summary>
         /// <value>
-        ///   <c>true</c> if the input file is json; otherwise, <c>false</c>.</value>
+        ///   <c>true</c> if the input file is JSON; otherwise, <c>false</c>.</value>
         public bool IsInputFileJson
         {
             get

@@ -5,7 +5,7 @@
     <RootNamespace>FountianExponential.InkCompiler</RootNamespace>
     <Authors>Fountain Exponential, Marcel Sorger</Authors>
     <Company>FountainExponentialFoundation</Company>
-    <Description>A library that compiles stories written in Ink to datatructures in a json, that can be used by the InkEngine.</Description>
+    <Description>A library that compiles stories written in Ink to datatructures in a JSON, that can be used by the InkEngine.</Description>
     <Copyright>MIT License</Copyright>
     <RepositoryUrl>https://github.com/FountainExponential/Ink2FountainExp.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

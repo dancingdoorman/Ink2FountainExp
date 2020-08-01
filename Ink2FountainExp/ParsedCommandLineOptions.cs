@@ -8,12 +8,12 @@ namespace Ink.Ink2FountainExp
     public class ParsedCommandLineOptions
     {
         /// <summary>Gets or sets the input file path.
-        /// Reading from the command line we assume it's a path and later determin if it's only a filename.</summary>
+        /// Reading from the command line we assume it's a path and later determine if it's only a filename.</summary>
         /// <value>The input file path.</value>
         public string InputFilePath { get; set; }
 
         /// <summary>Gets or sets the output file path.
-        /// Reading from the command line we assume it's a path and later determin if it's only a filename.</summary>
+        /// Reading from the command line we assume it's a path and later determine if it's only a filename.</summary>
         /// <value>The output file path.</value>
         public string OutputFilePath { get; set; }
 

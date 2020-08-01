@@ -62,7 +62,7 @@ namespace Ink.Ink2FountainExp.OutputManagement
 
         public void ShowChoiceOutOffRange(ConsoleUserInterfaceOptions options)
         {
-            // fail silently in json mode
+            // fail silently in JSON mode
         }
 
 

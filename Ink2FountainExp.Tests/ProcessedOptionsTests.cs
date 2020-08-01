@@ -32,7 +32,7 @@ namespace Ink.Ink2FountainExp.Tests
                 var isInputFileJson = processedOptions.IsInputFileJson;
 
                 // Assert
-                isInputFileJson.Should().BeTrue("because the given file has a json extension");
+                isInputFileJson.Should().BeTrue("because the given file has a JSON extension");
             }
 
             [Fact]
@@ -45,7 +45,7 @@ namespace Ink.Ink2FountainExp.Tests
                 var isInputFileJson = processedOptions.IsInputFileJson;
 
                 // Assert
-                isInputFileJson.Should().BeFalse("because the given file has no json extension");
+                isInputFileJson.Should().BeFalse("because the given file has no JSON extension");
             }
         }
     }
