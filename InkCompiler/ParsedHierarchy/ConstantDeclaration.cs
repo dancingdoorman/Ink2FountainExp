@@ -28,7 +28,7 @@ namespace Ink.Parsed
         {
             base.ResolveReferences (context);
 
-            context.CheckForNamingCollisions (this, constantName, Fiction.SymbolType.Var);
+            context.CheckForNamingCollisions (this, constantName, SymbolType.Var);
         }
 
         public override string typeName {

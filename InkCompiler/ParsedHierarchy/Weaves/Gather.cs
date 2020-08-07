@@ -40,7 +40,7 @@ namespace Ink.Parsed
             base.ResolveReferences (context);
 
             if( name != null && name.Length > 0 )
-                context.CheckForNamingCollisions (this, name, Fiction.SymbolType.SubFlowAndWeave);
+                context.CheckForNamingCollisions (this, name, SymbolType.SubFlowAndWeave);
         }
     }
 }

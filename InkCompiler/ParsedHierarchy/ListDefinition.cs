@@ -78,7 +78,7 @@ namespace Ink.Parsed
         {
             base.ResolveReferences (context);
 
-            context.CheckForNamingCollisions (this, name, Fiction.SymbolType.List);
+            context.CheckForNamingCollisions (this, name, SymbolType.List);
         }
 
         public override string typeName {
@@ -123,7 +123,7 @@ namespace Ink.Parsed
         {
             base.ResolveReferences (context);
 
-            context.CheckForNamingCollisions (this, name, Fiction.SymbolType.ListItem);
+            context.CheckForNamingCollisions (this, name, SymbolType.ListItem);
         }
 
         public override string typeName {

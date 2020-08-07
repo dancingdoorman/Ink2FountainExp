@@ -51,6 +51,9 @@ namespace Ink.Ink2FountainExp
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
+            // Must initialize the start time directly at the start.
+            _startTime = DateTime.Now;
+
             // Show to the user what Ink2FountainExp has started
             Console.Title = "Ink2FountainExp";
             Console.WriteLine("Ink2FountainExp started");

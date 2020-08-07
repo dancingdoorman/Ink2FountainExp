@@ -77,7 +77,7 @@ namespace Ink.Parsed
 
             // List definitions are checked for conflicts separately
             if( this.isDeclaration && listDefinition == null )
-                context.CheckForNamingCollisions (this, variableName, this.isGlobalDeclaration ? Fiction.SymbolType.Var : Fiction.SymbolType.Temp);
+                context.CheckForNamingCollisions (this, variableName, this.isGlobalDeclaration ? SymbolType.Var : SymbolType.Temp);
 
             // Initial VAR x = [intialValue] declaration, not re-assignment
             if (this.isGlobalDeclaration) {

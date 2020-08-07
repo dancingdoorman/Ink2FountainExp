@@ -345,7 +345,7 @@ namespace Ink.Parsed
             if (arguments != null) {
                 
                 foreach (var arg in arguments)
-                    context.CheckForNamingCollisions (this, arg.name, Fiction.SymbolType.Arg, "argument");
+                    context.CheckForNamingCollisions (this, arg.name, SymbolType.Arg, "argument");
 
                 // Separately, check for duplicate arugment names, since they aren't Parsed.Objects,
                 // so have to be checked independently.
@@ -361,7 +361,7 @@ namespace Ink.Parsed
             // Check naming collisions for knots and stitches
             if (flowLevel != FlowLevel.Story) {
                 // Weave points aren't FlowBases, so this will only be knot or stitch
-                var symbolType = flowLevel == FlowLevel.Knot ? Fiction.SymbolType.Knot : Fiction.SymbolType.SubFlowAndWeave;
+                var symbolType = flowLevel == FlowLevel.Knot ? SymbolType.Knot : SymbolType.SubFlowAndWeave;
                 context.CheckForNamingCollisions (this, name, symbolType);
             }                
         }

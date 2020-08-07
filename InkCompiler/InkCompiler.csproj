@@ -17,4 +17,8 @@
     <ProjectReference Include="..\InkEngine\InkEngine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ParsedHierarchy\Weaves\" />
+  </ItemGroup>
+
 </Project>
