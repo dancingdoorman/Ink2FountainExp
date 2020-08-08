@@ -21,13 +21,44 @@ namespace Ink.Ink2FountainExp
     {
         #region Properties
 
+        /// <summary>Gets or sets the file system interactor.</summary>
+        /// <value>The file system interactor.</value>
         public IFileSystemInteractable FileSystemInteractor { get; set; } = new FileSystemInteractor();
+
+        /// <summary>Gets or sets the compiler interactor.</summary>
+        /// <value>The compiler interactor.</value>
         public ICompilerInteractable CompilerInteractor { get; set; } = new CompilerInteractor();
         public IEngineInteractable EngineInteractor { get; set; } = new EngineInteractor();
+
+        /// <summary>Gets or sets the console interactor.</summary>
+        /// <value>The console interactor.</value>
         public IConsoleInteractable ConsoleInteractor { get; set; } = new ConsoleInteractor();
-        public IToolOutputManagable OutputManager { get; set; } = null; // default null because determined by flag
+
+        /// <summary>Gets or sets the user interface.</summary>
+        /// <value>The user interface.</value>
         public IConsoleUserInterface UserInterface { get; set; } = new ConsoleUserInterface();
 
+        /// <summary>Gets or sets the output manager.</summary>
+        /// <value>The output manager.</value>
+        public IToolOutputManagable OutputManager 
+        { 
+            get 
+            {
+                // default the output is normal console output instead of JSON
+                if(_outputManager == null)
+                    _outputManager = new ConsoleToolOutputManager(ConsoleInteractor);
+
+                return _outputManager;
+            } 
+            set 
+            {
+                _outputManager = value;
+            } 
+        }
+        /// <summary>The internal output manager that should not be used directly as there might be no default then.</summary>
+        private IToolOutputManagable _outputManager = null;
+
+        /// <summary>The application start time</summary>
         private static DateTime _startTime;
 
         /// <summary> Gets or sets the configuration. </summary>
@@ -65,7 +96,7 @@ namespace Ink.Ink2FountainExp
 
             // Add default values by processing the configured options.
             var toolOptions = tool.CreateCommandLineToolOptions(args);
-            tool.SetOuputFormat(toolOptions);
+            tool.OutputManager = tool.CreateOuputManager(toolOptions);
             tool.Run(toolOptions);
         }
 
@@ -110,19 +141,20 @@ namespace Ink.Ink2FountainExp
             IConfigurationRoot config = GetConfig(args);
             if (config != null)
             {
-                // We do not get a whole object from a config section, because command line options would have to be prepended with the region
-                //config.GetSection("ConfiguredOptions").Get<ConfiguredOptions>();
+                // We do not get a whole object from a config section, config.GetSection("ConfiguredOptions").Get<ConfiguredOptions>() 
+                // because command line options would then have to be prepended with the region
+                
 
                 options.InputFilePath = config.GetValue<string>("InputFile");
                 options.OutputFilePath = config.GetValue<string>("OutputFile");
                 options.IsCountAllVisitsNeeded = config.GetValue<bool>("CountAllVisits");
                 options.IsPlayMode = config.GetValue<bool>("PlayMode");
                 options.IsVerboseMode = config.GetValue<bool>("Verbose");
+                options.IsOnlyShowJsonStatsActive = config.GetValue<bool>("OnlyShowJsonStats");
                 options.IsKeepOpenAfterStoryFinishNeeded = config.GetValue<bool>("KeepRunningAfterStoryFinished");
 
-                //string theplugins = config.GetValue<string>("PluginNames");
+                // the config.GetValue<List<string>>("PluginNames") does not work, so we use a bind here
                 config.Bind("PluginNames", options.PluginNames);
-                List<string> thePluginNames = config.GetValue<List<string>>("PluginNames");
             }
 
             return config;
@@ -335,15 +367,15 @@ namespace Ink.Ink2FountainExp
 
         /// <summary>Set the output format.</summary>
         /// <param name="options"></param>
-        public void SetOuputFormat(CommandLineToolOptions options)
+        public IToolOutputManagable CreateOuputManager(CommandLineToolOptions options)
         {
             // Set console's output encoding to UTF-8
             ConsoleInteractor.SetEncodingToUtF8();
 
             if (options.IsJsonOutputNeeded)
-                OutputManager = new JsonToolOutputManager(ConsoleInteractor);
-            else
-                OutputManager = new ConsoleToolOutputManager(ConsoleInteractor);
+                return new JsonToolOutputManager(ConsoleInteractor);
+            
+            return new ConsoleToolOutputManager(ConsoleInteractor);
         }
 
         /// <summary>Does a Run with the specified options.</summary>
@@ -358,8 +390,6 @@ namespace Ink.Ink2FountainExp
 
             // Read the file content
             string fileContent = ReadFileText(toolOptions.InputFileDirectory, toolOptions.InputFileName);
-
-            SetOuputFormat(options);
 
             Parsed.Fiction parsedFiction;
             var story = CreateStory(fileContent, options, out parsedFiction);

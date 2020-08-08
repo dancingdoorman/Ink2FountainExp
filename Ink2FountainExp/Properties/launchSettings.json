@@ -2,6 +2,7 @@
   "profiles": {
     "Ink2FountainExp": {
       "commandName": "Project",
+      "commandLineArgs": "InputFile=TheIntercept.ink OutputFile=TheIntercept.ink.json",
       "environmentVariables": {
         "CONSOLEAPPCORE_ENVIRONMENT": "Development"
       }
