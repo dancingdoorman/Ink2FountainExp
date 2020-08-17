@@ -12,7 +12,9 @@ namespace Ink.Ink2FountainExp
         public string InputFileDirectory { get; set; }
 
         public string GeneratedOutputFilePath { get; set; }
+        public string GeneratedOutputFountainFilePath { get; set; }
         public string RootedOutputFilePath { get; set; }
+        public string RootedOutputFountainFilePath { get; set; }
 
         public bool IsPlayMode { get; set; }
         public bool IsVerboseMode { get; set; }
@@ -34,6 +36,14 @@ namespace Ink.Ink2FountainExp
                     return false;
 
                 return InputFileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase);
+            }
+        }
+
+        public bool IsFountainFileOutputNeeded
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(this.RootedOutputFountainFilePath);
             }
         }
     }

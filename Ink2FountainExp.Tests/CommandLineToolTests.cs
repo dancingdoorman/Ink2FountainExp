@@ -273,6 +273,99 @@ namespace Ink.Ink2FountainExp.Tests
             }
         }
 
+
+        public class ProcesOutputFountainFilePathTests
+        {
+            [Fact]
+            public void With_NullArguments()
+            {
+                // Arrange
+                var tool = new CommandLineTool();
+
+                // Act
+                tool.ProcesOutputFountainFilePath(null, null, null);
+
+                // Assert
+                // Without arguments the function should process nothing.
+            }
+
+            [Fact]
+            public void With_RootedOutputFountainFilePath()
+            {
+                // Arrange
+                const string outputFilePath = @"C:\Test\testfile.ink.fountain";
+                const string startingDirectory = @"C:\Test";
+                var parsedOptions = new ParsedCommandLineOptions() { OutputFountainFilePath = outputFilePath };
+                var processedOptions = new CommandLineToolOptions();
+                var tool = new CommandLineTool();
+
+                // Act
+                tool.ProcesOutputFountainFilePath(parsedOptions, processedOptions, startingDirectory);
+
+                // Assert
+                parsedOptions.Should().NotBeNull("because the parsed options object was given");
+                processedOptions.Should().NotBeNull("because the processed options object was given");
+                processedOptions.RootedOutputFountainFilePath.Should().Be(outputFilePath, "because it was given");
+            }
+
+            [Fact]
+            public void With_OutputFountainFile()
+            {
+                // Arrange
+                const string outputFilePath = @"testfile.ink.fountain";
+                const string startingDirectory = @"C:\Test";
+                var parsedOptions = new ParsedCommandLineOptions() { OutputFountainFilePath = outputFilePath };
+                var processedOptions = new CommandLineToolOptions();
+                var tool = new CommandLineTool();
+
+                // Act
+                tool.ProcesOutputFountainFilePath(parsedOptions, processedOptions, startingDirectory);
+
+                // Assert
+                parsedOptions.Should().NotBeNull("because the parsed options object was given");
+                processedOptions.Should().NotBeNull("because the processed options object was given");
+                processedOptions.RootedOutputFountainFilePath.Should().Be(@"C:\Test\testfile.ink.fountain", "because it was given");
+            }
+
+            [Fact]
+            public void With_RootedInputFountainFilePath()
+            {
+                // Arrange
+                const string inputFilePath = @"C:\Test\rooted_generating_testfile.ink";
+                const string startingDirectory = @"C:\Test";
+                var parsedOptions = new ParsedCommandLineOptions() { InputFilePath = inputFilePath };
+                var processedOptions = new CommandLineToolOptions();
+                var tool = new CommandLineTool();
+
+                // Act
+                tool.ProcesOutputFountainFilePath(parsedOptions, processedOptions, startingDirectory);
+
+                // Assert
+                parsedOptions.Should().NotBeNull("because the parsed options object was given");
+                processedOptions.Should().NotBeNull("because the processed options object was given");
+                processedOptions.RootedOutputFountainFilePath.Should().Be(@"C:\Test\rooted_generating_testfile.ink.fountain", "because it was given");
+            }
+
+            [Fact]
+            public void With_InputFountainFile()
+            {
+                // Arrange
+                const string inputFilePath = @"generating_testfile.ink";
+                const string startingDirectory = @"C:\Test";
+                var parsedOptions = new ParsedCommandLineOptions() { InputFilePath = inputFilePath };
+                var processedOptions = new CommandLineToolOptions();
+                var tool = new CommandLineTool();
+
+                // Act
+                tool.ProcesOutputFountainFilePath(parsedOptions, processedOptions, startingDirectory);
+
+                // Assert
+                parsedOptions.Should().NotBeNull("because the parsed options object was given");
+                processedOptions.Should().NotBeNull("because the processed options object was given");
+                processedOptions.RootedOutputFountainFilePath.Should().Be(@"C:\Test\generating_testfile.ink.fountain", "because it was given");
+            }
+        }
+
         public class ProcesInputFilePathTests
         {
             [Fact]

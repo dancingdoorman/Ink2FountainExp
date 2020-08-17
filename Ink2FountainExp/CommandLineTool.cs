@@ -147,6 +147,7 @@ namespace Ink.Ink2FountainExp
 
                 options.InputFilePath = config.GetValue<string>("InputFile");
                 options.OutputFilePath = config.GetValue<string>("OutputFile");
+                options.OutputFountainFilePath = config.GetValue<string>("OutputFountainFile");
                 options.IsCountAllVisitsNeeded = config.GetValue<bool>("CountAllVisits");
                 options.IsPlayMode = config.GetValue<bool>("PlayMode");
                 options.IsVerboseMode = config.GetValue<bool>("Verbose");
@@ -227,6 +228,7 @@ namespace Ink.Ink2FountainExp
                 ExitWithUsageInstructions();
 
             ProcesOutputFilePath(parsedOptions, toolOptions, startingDirectory);
+            ProcesOutputFountainFilePath(parsedOptions, toolOptions, startingDirectory);
             ProcesInputFilePath(parsedOptions, toolOptions, startingDirectory);
             ProcesFlags(parsedOptions, toolOptions);
 
@@ -301,10 +303,10 @@ namespace Ink.Ink2FountainExp
             if (parsedOptions == null || processedOptions == null)
                 return;
 
-            // Generate an outputpath when none is given.
+            // Generate an output-path when none is given.
             if (!string.IsNullOrEmpty(parsedOptions.OutputFilePath))
             {
-                // if the GIVEN outputpath is not rooted we strip of the filename and tag the directory on it.
+                // if the GIVEN output-path is not rooted we strip of the filename and tag the directory on it.
                 processedOptions.RootedOutputFilePath = Path.IsPathRooted(parsedOptions.OutputFilePath)
                     ? parsedOptions.OutputFilePath
                     : Path.Combine(startingDirectory, parsedOptions.OutputFilePath);
@@ -313,10 +315,39 @@ namespace Ink.Ink2FountainExp
             {
                 processedOptions.GeneratedOutputFilePath = Path.ChangeExtension(parsedOptions.InputFilePath, ".ink.json");
 
-                // if the GENERATED outputpath is not rooted we strip of the filename and tag the directory on it.
+                // if the GENERATED output-path is not rooted we strip of the filename and tag the directory on it.
                 processedOptions.RootedOutputFilePath = Path.IsPathRooted(processedOptions.GeneratedOutputFilePath)
                     ? processedOptions.GeneratedOutputFilePath
                     : Path.Combine(startingDirectory, processedOptions.GeneratedOutputFilePath);
+            }
+        }
+
+        /// <summary>Process the output file path.</summary>
+        /// <param name="parsedOptions">The parsed options.</param>
+        /// <param name="processedOptions">The processed options.</param>
+        /// <param name="startingDirectory">The starting directory.</param>
+        public void ProcesOutputFountainFilePath(ParsedCommandLineOptions parsedOptions, CommandLineToolOptions processedOptions, string startingDirectory)
+        {
+            // Without a parsed object and a input file path we can't do anything.
+            if (parsedOptions == null || processedOptions == null)
+                return;
+
+            // Generate an output-path when none is given.
+            if (!string.IsNullOrEmpty(parsedOptions.OutputFountainFilePath))
+            {
+                // if the GIVEN output-path is not rooted we strip of the filename and tag the directory on it.
+                processedOptions.RootedOutputFountainFilePath = Path.IsPathRooted(parsedOptions.OutputFountainFilePath)
+                    ? parsedOptions.OutputFountainFilePath
+                    : Path.Combine(startingDirectory, parsedOptions.OutputFountainFilePath);
+            }
+            else
+            {
+                processedOptions.GeneratedOutputFountainFilePath = Path.ChangeExtension(parsedOptions.InputFilePath, ".ink.fountain");
+
+                // if the GENERATED output-path is not rooted we strip of the filename and tag the directory on it.
+                processedOptions.RootedOutputFountainFilePath = Path.IsPathRooted(processedOptions.GeneratedOutputFountainFilePath)
+                    ? processedOptions.GeneratedOutputFountainFilePath
+                    : Path.Combine(startingDirectory, processedOptions.GeneratedOutputFountainFilePath);
             }
         }
 
@@ -409,6 +440,8 @@ namespace Ink.Ink2FountainExp
             if (!compileSuccess)
                 ConsoleInteractor.EnvironmentExitWithCodeError1();
 
+            if(options.IsFountainFileOutputNeeded)
+                WriteStoryToFountainFile(parsedFiction, options);
 
             if (options.IsPlayMode)
             {
@@ -544,7 +577,7 @@ namespace Ink.Ink2FountainExp
         /// <exception cref="Exception"></exception>
         public void PlayStory(Runtime.IStory story, Parsed.Fiction parsedFiction, CommandLineToolOptions options)
         {
-            // Always allow ink external fallbacks
+            // Always allow ink external fall-backs
             story.allowExternalFunctionFallbacks = true;
 
             //Capture a CTRL+C key combo so we can restore the console's foreground color back to normal when exiting
@@ -597,6 +630,211 @@ namespace Ink.Ink2FountainExp
             try
             {
                 FileSystemInteractor.WriteAllTextToFile(options.RootedOutputFilePath, jsonStr, System.Text.Encoding.UTF8);
+
+                OutputManager.ShowExportComplete(options);
+
+            }
+            catch
+            {
+                ConsoleInteractor.WriteErrorMessage("Could not write to output file '{0}'", options.RootedOutputFilePath);
+                ConsoleInteractor.EnvironmentExitWithCodeError1();
+            }
+        }
+
+        /// <summary>Writes the compiled story to a Fountain file.</summary>
+        /// <param name="story">The story.</param>
+        /// <param name="options">The options.</param>
+        public void WriteStoryToFountainFile(Parsed.Fiction parsedFiction, CommandLineToolOptions options)
+        {
+            // The optional Title Page is always the first thing in a Fountain document. 
+            // Information is encoding in the format key: value. 
+            // Keys can have spaces (e. g. Draft date), but must end with a colon.
+            // Excample:
+            // Title:
+            //    _** BRICK &STEEL * *_
+            //    _** FULL RETIRED** _
+            //Credit: Written by
+            //Author: Stu Maschwitz
+            //Source: Story by KTM
+            //Draft date: 1 / 20 / 2012
+            //Contact:
+            //    Next Level Productions
+            //    1588 Mission Dr.
+            //    Solvang, CA 93463
+
+            var builder = new StringBuilder();
+            builder.Append("Title:\r\n\t");
+            builder.Append("\t");
+            builder.Append(Path.GetFileNameWithoutExtension(options.InputFileName));
+            builder.Append("\r\n");
+
+            // A page break is implicit after the Title Page. Just drop down two lines and start writing your screenplay.
+            builder.Append("\r\n\r\n");
+
+            // We add the Act and Sequence manually because Ink files do not have them.
+            builder.Append("# Act I\r\n\r\n");
+            builder.Append("## Sequence 1\r\n\r\n");
+
+            bool choiceStarted = false;
+            foreach (var parsedObject in parsedFiction.content)
+            {
+                if (parsedObject.typeName == "Function")
+                {
+                    var function = parsedObject as Ink.Parsed.Knot;
+                    if (function != null)
+                    {
+                        builder.Append("```\r\nfunction ");
+                        builder.Append(function.name);
+                        builder.Append("(");
+                        bool firstArgument = true;
+                        foreach(var arg in function.arguments)
+                        {
+                            if (firstArgument == false)
+                                builder.Append(", ");
+
+                            builder.Append(arg.name);
+
+                            firstArgument = false;
+                        }
+                        builder.Append(")");
+                        builder.Append(" {\r\n");
+
+                        foreach (var functionContent in function.content)
+                        {
+                            var functionWeave = functionContent as Ink.Parsed.Weave;
+                            if (functionWeave != null)
+                            {
+                                foreach (var weaveContent in functionWeave.content)
+                                {
+                                    var variableAssignment = weaveContent as Ink.Parsed.VariableAssignment;
+                                    if (variableAssignment != null)
+                                    {
+                                        builder.Append("\t");
+                                        builder.Append(variableAssignment.variableName);
+                                        builder.Append(" = ");
+                                        builder.Append(variableAssignment.expression.ToString());
+
+                                        //foreach (var variableAssignmentContent in variableAssignment.content)
+                                        //{
+                                        //    var binaryExpression = variableAssignmentContent as Ink.Parsed.BinaryExpression;
+                                        //    if (binaryExpression != null)
+                                        //    {
+                                        //        builder.Append(binaryExpression.leftExpression);
+                                        //        builder.Append(" = ");
+                                        //        builder.Append(binaryExpression.rightExpression);
+                                        //    }
+                                        //}
+                                    }
+                                }
+                            }
+                        }
+                        builder.Append("\r\n}\r\n```\r\n\r\n");
+                    }
+                }
+                if (parsedObject.typeName == "Knot")
+                {
+
+                    var flowBase = parsedObject as Ink.Parsed.FlowBase;
+                    if (flowBase != null)
+                    {
+                        builder.AppendFormat("\r\n### {0}\r\n\r\n", flowBase.name);
+
+                        for (int i = 0; i < flowBase.content.Count; i++)
+                        {
+                            Parsed.Object flowBaseContent = flowBase.content[i];
+
+                            var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
+                            if (flowBaseStitch != null)
+                            {
+                                builder.AppendFormat("\r\n#### {0}\r\n\r\n", flowBaseStitch.name);
+                            }
+
+                            var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
+                            if (flowBaseWeave != null)
+                            {
+                                Parsed.Object previousWeaveContent = null;
+                                Parsed.Object weaveContent = null;
+                                Parsed.Object nextWeaveContent = null;
+                                for (int ii = 0; ii < flowBaseWeave.content.Count; ii++)
+                                {
+                                    previousWeaveContent = weaveContent;
+                                    weaveContent = flowBaseWeave.content[ii];
+                                    if (ii == flowBaseWeave.content.Count - 1)
+                                        nextWeaveContent = null;
+                                    else
+                                        nextWeaveContent = flowBaseWeave.content[1 + ii];
+
+                                    var weaveText = weaveContent as Ink.Parsed.Text;
+                                    if (weaveText != null)
+                                    {
+                                        if (weaveText.text == "\r" || weaveText.text == "\n")
+                                            builder.Append("\r\n");
+                                        else
+                                            builder.Append(weaveText.text);
+                                    }
+                                    var weaveGather = weaveContent as Ink.Parsed.Gather;
+                                    if (weaveGather != null)
+                                    {
+                                        // Gather points bring the branches back together and have currently no real benefit for Fountian Exponential.
+                                        //builder.Append("\r\n");
+                                    }
+                                    var weaveChoice = weaveContent as Ink.Parsed.Choice;
+                                    if (weaveChoice != null)
+                                    {
+                                        if (previousWeaveContent == null || ! (previousWeaveContent is Ink.Parsed.Choice))
+                                            builder.Append(":::\r\n");
+
+                                        foreach (var choiceContent in weaveChoice.content)
+                                        {
+                                            builder.Append("* ");
+
+                                            var choiceContentList = choiceContent as Ink.Parsed.ContentList;
+                                            if (choiceContentList != null)
+                                            {
+                                                foreach (var choiceContentListContent in choiceContentList.content)
+                                                {
+                                                    var choiceContentListText = choiceContentListContent as Ink.Parsed.Text;
+                                                    if (choiceContentListText != null)
+                                                    {
+                                                        if (choiceContentListText.text == "\r" || choiceContentListText.text == "\n")
+                                                            builder.Append("\r\n");
+                                                        else
+                                                            builder.Append(choiceContentListText.text);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (nextWeaveContent == null || !(nextWeaveContent is Ink.Parsed.Choice))
+                                            builder.Append(":::\r\n");
+                                    }
+                                    var weaveDivert = weaveContent as Ink.Parsed.Divert;
+                                    if (weaveDivert != null)
+                                    {
+                                        builder.Append(weaveDivert.ToString());
+                                    }
+                                    var weaveContentList = weaveContent as Ink.Parsed.ContentList;
+                                    if (weaveContentList != null)
+                                    {
+                                        //var flowBaseStitch = weaveContentList as Ink.Parsed.Stitch;
+                                        //if (flowBaseStitch != null)
+                                        //{
+                                        //    builder.AppendFormat("## {0}\r\n\r\n", flowBaseStitch.name);
+                                        //}
+                                        builder.Append(weaveContentList.ToString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            var fountainContent = builder.ToString();//story.ToJson();
+
+            try
+            {
+                FileSystemInteractor.WriteAllTextToFile(options.RootedOutputFountainFilePath, fountainContent, System.Text.Encoding.UTF8);
 
                 OutputManager.ShowExportComplete(options);
 

@@ -17,6 +17,8 @@ namespace Ink.Ink2FountainExp
         /// <value>The output file path.</value>
         public string OutputFilePath { get; set; }
 
+        public string OutputFountainFilePath { get; set; }
+
         public bool IsPlayMode { get; set; }
         public bool IsVerboseMode { get; set; }
         public bool IsCountAllVisitsNeeded { get; set; }
