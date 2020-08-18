@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponentialSyntaxStructures.Lexical.Sections
+namespace FountainExponential.LanguageStructures.Lexical.Sections
 {
-    public class NanoSliceToken
+    public class NanoSliceToken : ILexicalElementable
     {
     }
 }

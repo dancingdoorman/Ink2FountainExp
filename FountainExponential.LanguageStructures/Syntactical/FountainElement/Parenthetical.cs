@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.FountainElement
+namespace FountainExponential.LanguageStructures.Syntactical.FountainElement
 {
-    public class ParentheticalStart
+    public class ParentheticalStart : ISyntacticalElementable
     {
     }
 }

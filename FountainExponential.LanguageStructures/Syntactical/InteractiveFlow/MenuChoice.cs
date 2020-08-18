@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.InteractiveFlow
+namespace FountainExponential.LanguageStructures.Syntactical.InteractiveFlow
 {
-    public class MenuChoice
+    public class MenuChoice : ISyntacticalElementable
     {
     }
 }

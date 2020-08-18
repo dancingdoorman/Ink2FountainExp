@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FountainExponentialSyntaxStructures
+namespace FountainExponential.LanguageStructures
 {
     public interface IAreaInquirable
     {

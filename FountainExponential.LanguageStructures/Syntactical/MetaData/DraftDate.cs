@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.MetaData
+namespace FountainExponential.LanguageStructures.Syntactical.MetaData
 {
-    public class DraftDate : KeySingleLineValuePair
+    public class DraftDate : KeySingleLineValuePair, ISyntacticalElementable
     {
     }
 }

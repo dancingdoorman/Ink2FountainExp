@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.Data
+namespace FountainExponential.LanguageStructures.Syntactical.Data
 {
-    public class AttributeSpan
+    public class AttributeSpan : ISyntacticalElementable
     {
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponentialSyntaxStructures.Lexical.MetaData
+namespace FountainExponential.LanguageStructures.Lexical.MetaData
 {
-    public class KeyValuePairToken
+    public class KeyValuePairToken : ILexicalElementable
     {
     }
 }

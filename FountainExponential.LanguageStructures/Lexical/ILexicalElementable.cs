@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FountainExponential.LanguageStructures.Lexical
 {
-    public class BlankLine : ILexicalElementable
+    public interface ILexicalElementable
     {
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.MarkdownElement
+namespace FountainExponential.LanguageStructures.Syntactical.MarkdownElement
 {
-    public class List
+    public class List : ISyntacticalElementable
     {
     }
 }

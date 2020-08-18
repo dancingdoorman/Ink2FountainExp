@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.Emphasis
+namespace FountainExponential.LanguageStructures.Syntactical.Emphasis
 {
-    public class ItalicText
+    public class ItalicText : ISyntacticalElementable
     {
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponentialSyntaxStructures.Lexical.InteractiveFlow
+namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class LabelAssignmentToken
+    public class LabelAssignmentToken : ILexicalElementable
     {
     }
 }

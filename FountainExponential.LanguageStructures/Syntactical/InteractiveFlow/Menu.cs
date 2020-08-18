@@ -1,8 +1,9 @@
 ﻿using System;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.InteractiveFlow
+namespace FountainExponential.LanguageStructures.Syntactical.InteractiveFlow
 {
-    public class Menu
+    public class Menu : ISyntacticalElementable
     {
     }
 }

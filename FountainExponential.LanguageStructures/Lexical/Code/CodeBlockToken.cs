@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponentialSyntaxStructures.Lexical.Code
+namespace FountainExponential.LanguageStructures.Lexical.Code
 {
-    public class CodeBlockToken
+    public class CodeBlockToken : ILexicalElementable
     {
     }
 }

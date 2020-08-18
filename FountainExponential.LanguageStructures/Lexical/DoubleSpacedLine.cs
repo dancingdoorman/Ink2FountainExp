@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FountainExponentialSyntaxStructures.Lexical
+namespace FountainExponential.LanguageStructures.Lexical
 {
-    public class DoubleSpacedLine
+    public class DoubleSpacedLine : ILexicalElementable
     {
     }
 }
+1

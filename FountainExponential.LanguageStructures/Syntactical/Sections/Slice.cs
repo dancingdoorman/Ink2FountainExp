@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.Sections
+namespace FountainExponential.LanguageStructures.Syntactical.Sections
 {
-    public class Slice
+    public class Slice : ISyntacticalElementable
     {
     }
 }

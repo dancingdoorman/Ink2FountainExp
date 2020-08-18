@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponentialSyntaxStructures.Lexical.AutomaticFlow
+namespace FountainExponential.LanguageStructures.Lexical.AutomaticFlow
 {
-    public class IntegratedDeviationToken
+    public class IntegratedDeviationToken : ILexicalElementable
     {
     }
 }

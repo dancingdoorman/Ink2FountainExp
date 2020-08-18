@@ -665,9 +665,7 @@ namespace Ink.Ink2FountainExp
                 ConsoleInteractor.EnvironmentExitWithCodeError1();
             }
         }
-
         
-
         #endregion Run
 
         #region Error handling

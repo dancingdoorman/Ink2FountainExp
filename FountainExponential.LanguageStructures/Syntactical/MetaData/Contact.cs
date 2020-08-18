@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.MetaData
+namespace FountainExponential.LanguageStructures.Syntactical.MetaData
 {
-    public class Contact : KeySingleLineValuePair
+    public class Contact : KeySingleLineValuePair, ISyntacticalElementable
     {
     }
 }

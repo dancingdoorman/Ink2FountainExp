@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponentialSyntaxStructures.Lexical.Comment
+namespace FountainExponential.LanguageStructures.Lexical.Comment
 {
-    public class BoneyardStartToken
+    public class BoneyardStartToken : ILexicalElementable
     {
     }
 }

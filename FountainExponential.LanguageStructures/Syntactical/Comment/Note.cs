@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Syntactical;
 
-namespace FountainExponentialSyntaxStructures.Syntactical.Comment
+namespace FountainExponential.LanguageStructures.Syntactical.Comment
 {
-    public class Note
+    public class Note : ISyntacticalElementable
     {
     }
 }
