@@ -8,4 +8,3 @@ namespace FountainExponential.LanguageStructures.Lexical
     {
     }
 }
-1
