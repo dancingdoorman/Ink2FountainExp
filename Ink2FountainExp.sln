@@ -14,17 +14,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InkCompiler", "InkCompiler\InkCompiler.csproj", "{3E3D24DB-3740-485A-90B1-084FF1BEA1BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkCompiler", "InkCompiler\InkCompiler.csproj", "{3E3D24DB-3740-485A-90B1-084FF1BEA1BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InkEngine", "InkEngine\InkEngine.csproj", "{E4BACFD6-FF10-4E8D-8437-AD1A91703D93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkEngine", "InkEngine\InkEngine.csproj", "{E4BACFD6-FF10-4E8D-8437-AD1A91703D93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InkCompiler.Tests", "InkCompiler.Tests\InkCompiler.Tests.csproj", "{1C0ADCB9-F389-457E-9DE8-1F01FEA4DA75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkCompiler.Tests", "InkCompiler.Tests\InkCompiler.Tests.csproj", "{1C0ADCB9-F389-457E-9DE8-1F01FEA4DA75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InkEngine.Tests", "InkEngine.Tests\InkEngine.Tests.csproj", "{81A03C89-00CA-4231-B098-1F4DA3492063}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkEngine.Tests", "InkEngine.Tests\InkEngine.Tests.csproj", "{81A03C89-00CA-4231-B098-1F4DA3492063}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InkSyntaxStructures", "InkSyntaxStructures\InkSyntaxStructures.csproj", "{1179F908-1391-4FDE-B47C-BD20F2077527}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkSyntaxStructures", "InkSyntaxStructures\InkSyntaxStructures.csproj", "{1179F908-1391-4FDE-B47C-BD20F2077527}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InkSyntaxStructures.Tests", "InkSyntaxStructures.Tests\InkSyntaxStructures.Tests.csproj", "{251EA9F7-AEDC-45AC-A07A-FD96F3431946}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkSyntaxStructures.Tests", "InkSyntaxStructures.Tests\InkSyntaxStructures.Tests.csproj", "{251EA9F7-AEDC-45AC-A07A-FD96F3431946}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FountainExponential.LanguageStructures", "FountainExponential.LanguageStructures\FountainExponential.LanguageStructures.csproj", "{620569E9-A3B1-4FBA-BBA4-AF14D2AC9227}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,6 +66,10 @@ Global
 		{251EA9F7-AEDC-45AC-A07A-FD96F3431946}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{251EA9F7-AEDC-45AC-A07A-FD96F3431946}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{251EA9F7-AEDC-45AC-A07A-FD96F3431946}.Release|Any CPU.Build.0 = Release|Any CPU
+		{620569E9-A3B1-4FBA-BBA4-AF14D2AC9227}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{620569E9-A3B1-4FBA-BBA4-AF14D2AC9227}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{620569E9-A3B1-4FBA-BBA4-AF14D2AC9227}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{620569E9-A3B1-4FBA-BBA4-AF14D2AC9227}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
