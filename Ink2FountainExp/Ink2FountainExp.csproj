@@ -37,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FountainExponential.LanguageStructures\FountainExponential.LanguageStructures.csproj" />
     <ProjectReference Include="..\InkCompiler\InkCompiler.csproj" />
     <ProjectReference Include="..\InkEngine\InkEngine.csproj" />
   </ItemGroup>

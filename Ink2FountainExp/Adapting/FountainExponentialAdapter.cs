@@ -1,13 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Ink;
+using FountainExponential.LanguageStructures;
+using FountainExponential.LanguageStructures.Lexical;
+using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
+using FountainExponential.LanguageStructures.Lexical.MetaData;
+using FountainExponential.LanguageStructures.Syntactical;
+using FountainExponential.LanguageStructures.Syntactical.Code;
+using FountainExponential.LanguageStructures.Syntactical.Data;
+using FountainExponential.LanguageStructures.Syntactical.FountainElement;
+using FountainExponential.LanguageStructures.Syntactical.InteractiveFlow;
+using FountainExponential.LanguageStructures.Syntactical.MetaData;
+using FountainExponential.LanguageStructures.Syntactical.Sections;
 
 namespace Ink.Ink2FountainExp.Adapting
 {
     public class FountainExponentialAdapter : IFountainExponentialAdaptable
     {
+
+        #region Properties
+
+        /// <summary>Gets or sets the file system interactor.</summary>
+        /// <value>The file system interactor.</value>
+        public FountainRenderer FountainRenderer { get; set; } = new FountainRenderer();
+
+        #endregion Properties
+
         public string ConvertToFountainExponential(Ink.Parsed.Fiction parsedFiction, string inputFileName)
         {
             // The optional Title Page is always the first thing in a Fountain document. 
@@ -26,21 +47,324 @@ namespace Ink.Ink2FountainExp.Adapting
             //    1588 Mission Dr.
             //    Solvang, CA 93463
 
+            var fountainPlay = CreateFountainPlay(parsedFiction, inputFileName);
+            var mainFile = fountainPlay.MainFile;
+            var act = mainFile.SyntacticalElements[2] as Act;
+            var sequence = act.SyntacticalElements[1] as Sequence;
 
             var builder = new StringBuilder();
-            builder.Append("Title:\r\n\t");
-            builder.Append("\t");
-            builder.Append(Path.GetFileNameWithoutExtension(inputFileName));
-            builder.Append("\r\n");
+            FountainRenderer.WriteMetaData(mainFile, builder);
+            FountainRenderer.Write(builder, mainFile.SyntacticalElements);
 
-            // A page break is implicit after the Title Page. Just drop down two lines and start writing your screenplay.
-            builder.Append("\r\n\r\n");
 
-            // We add the Act and Sequence manually because Ink files do not have them.
-            builder.Append("# Act I\r\n\r\n");
-            builder.Append("## Sequence 1\r\n\r\n");
+            var fountainContent = builder.ToString();//story.ToJson();
+            return fountainContent;
+        }
+
+        public FountainPlay CreateFountainPlay(Ink.Parsed.Fiction parsedFiction, string inputFileName)
+        {
+            var fountainPlay = new FountainPlay();
+            var mainFile = fountainPlay.MainFile;
+
+            AddMetaData(inputFileName, mainFile);
+
+            AddGlobalFunctions(mainFile, parsedFiction);
+
+
+            var actI = new Act() { SectionName = "ActI", EndLine = new EndLine() };
+            mainFile.SyntacticalElements.Add(actI);
+            actI.SyntacticalElements.Add(new BlankLine());
+
+            var sequence1 = new Sequence() { SectionName = "Sequence1", EndLine = new EndLine() };
+            sequence1.SyntacticalElements.Add(new BlankLine());
+            actI.SyntacticalElements.Add(sequence1);
+
 
             //bool choiceStarted = false;
+            AddScenes(sequence1, parsedFiction);
+
+            return fountainPlay;
+        }
+
+        public void AddMetaData(string inputFileName, FountainFile mainFile)
+        {
+            mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
+            var title = new Title() { Key = new KeyValuePairKeyToken() { Keyword = "Title" }, AssignmentToken = new KeyValuePairAssignmentToken(), EndLine = new EndLine() };
+            title.ValueLineList.Add(new ValueLine() { Value = Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });
+            mainFile.TitlePage.KeyInformationList.Add(title);
+
+
+            mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
+        }
+
+        public void AddScenes(Sequence sequence1, Parsed.Fiction parsedFiction)
+        {
+            foreach (var parsedObject in parsedFiction.content)
+            {
+                if (parsedObject.typeName == "Knot")
+                {
+                    var flowBase = parsedObject as Ink.Parsed.FlowBase;
+                    if (flowBase != null)
+                    {
+                        var scene = new Scene() { SectionName = flowBase.name, EndLine = new EndLine() };
+                        scene.SyntacticalElements.Add(new BlankLine());
+                        sequence1.SyntacticalElements.Add(scene);
+
+                        AddSceneElements(scene, flowBase);
+                    }
+                }
+            }
+        }
+
+        public void AddSceneElements(Scene scene, Parsed.FlowBase flowBase)
+        {
+            for (int i = 0; i < flowBase.content.Count; i++)
+            {
+                Ink.Parsed.Object flowBaseContent = flowBase.content[i];
+
+                var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
+                ProcesWeave(scene.SyntacticalElements, flowBaseWeave, 0);
+                
+                var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
+                AddMoments(scene, flowBaseStitch);
+            }
+        }
+
+        public void AddMoments(Scene scene, Parsed.Stitch flowBaseStitch)
+        {
+            if (flowBaseStitch == null)
+                return;
+
+            var moment = new Moment() { SectionName = flowBaseStitch.name, EndLine = new EndLine() };
+            scene.SyntacticalElements.Add(moment);
+
+            moment.SyntacticalElements.Add(new BlankLine());
+
+            foreach(var stitchContent in flowBaseStitch.content)
+            {
+                var flowBaseWeave = stitchContent as Ink.Parsed.Weave;
+                ProcesWeave(moment.SyntacticalElements, flowBaseWeave, 0);
+            }
+        }
+
+        private static void ProcesWeave(Moment moment, Parsed.Stitch flowBaseStitch)
+        {
+            if (flowBaseStitch == null)
+                return;
+        }
+
+        public void ProcesWeave(List<ISyntacticalElementable> syntacticalElements, Parsed.Weave flowBaseWeave, int indentLevel)
+        {
+            if (syntacticalElements == null || flowBaseWeave == null)
+                return;
+
+            Ink.Parsed.Object previousWeaveContent = null;
+            Ink.Parsed.Object weaveContent = null;
+            Ink.Parsed.Object nextWeaveContent = null;
+            var menuStack = new Stack<Menu>();
+            var menuChoiceStack = new Stack<MenuChoice>();
+            for (int i = 0; i < flowBaseWeave.content.Count; i++)
+            {
+                previousWeaveContent = weaveContent;
+                weaveContent = flowBaseWeave.content[i];
+                if (i == flowBaseWeave.content.Count - 1)
+                    nextWeaveContent = null;
+                else
+                    nextWeaveContent = flowBaseWeave.content[1 + i];
+
+                var weaveText = weaveContent as Ink.Parsed.Text;
+                if (weaveText != null)
+                {
+                    var actionDescription = new ActionDescription() { TextContent = weaveText.text, IndentLevel = new IndentLevel() };
+
+                    MenuChoice menuChoice = null;
+                    if (menuChoiceStack.Count > 0)
+                    {
+                        menuChoice = menuChoiceStack.Peek();
+                    }
+                    if (menuChoice != null)
+                    {
+                        menuChoice.SyntacticalElements.Add(actionDescription);
+                        actionDescription.IndentLevel.Level = 1 + indentLevel;
+                    }
+                    else
+                    {
+                        syntacticalElements.Add(actionDescription);
+                        actionDescription.IndentLevel.Level = indentLevel;
+                    }
+                }
+                var weaveGather = weaveContent as Ink.Parsed.Gather;
+                if (weaveGather != null)
+                {
+                    // A gather will always end a menu
+                    //containerBlockStack.Pop();
+                    menuChoiceStack.Clear();
+                    menuStack.Clear();
+                    syntacticalElements.Add(new BlankLine());
+                }
+                var weaveChoice = weaveContent as Ink.Parsed.Choice;
+                if (weaveChoice != null)
+                {
+                    Menu menu = null;
+                    if (menuStack.Count > 0)
+                    {
+                        menu = menuStack.Peek();
+                    }
+                    if (menu == null)
+                    {
+                        var containerBlock = new ContainerBlock()
+                        {
+                            StartMenuChoiceToken = new ContainerBlockToken(),
+                            StartEndLine = new EndLine(),
+                            CloseMenuChoiceToken = new ContainerBlockToken(),
+                            CloseEndLine = new EndLine(),
+                            IndentLevel = new IndentLevel() { Level = indentLevel }
+                        };
+                        syntacticalElements.Add(containerBlock);
+
+                        menu = new Menu();
+                        containerBlock.SyntacticalElements.Add(menu);
+                        menuStack.Push(menu);
+                    }
+
+                    var menuChoice = new MenuChoice() { MenuChoiceToken = new StickyMenuChoiceToken(), EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = indentLevel } };
+                    menu.Choices.Add(menuChoice);
+                    menuChoiceStack.Push(menuChoice);
+
+                    string baseContent = string.Empty;
+                    // Determine the base content for the choice
+                    var firstChoiceContentList = weaveChoice.content[0] as Ink.Parsed.ContentList;
+                    if (firstChoiceContentList != null)
+                    {
+                        var firstChoiceText = firstChoiceContentList.content[0] as Ink.Parsed.Text;
+                        if (firstChoiceText != null)
+                        {
+                            baseContent = firstChoiceText.text;
+                        }
+                    }
+
+                    int choiceCount = weaveChoice.content.Count;
+                    if (choiceCount == 1)
+                    {
+                        // Shows only choice to the user but no reply
+                        menuChoice.Description = baseContent;
+                    }
+                    else if (choiceCount == 2)
+                    {
+                        menuChoice.Description = baseContent;
+
+                        // This has no added text for the choice
+                        var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                        if (secondChoiceContentList != null)
+                        {
+                            var responseText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                            if (responseText != null)
+                            {
+                                menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + responseText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
+                            }
+                        }
+                    }
+                    else if (choiceCount == 3)
+                    {
+                        // check the last content first because it may change the meaning of the second content.
+                        var thirdChoiceBinaryExpression = weaveChoice.content[2] as Ink.Parsed.BinaryExpression;
+                        if (thirdChoiceBinaryExpression != null)
+                        {
+                            menuChoice.Description = baseContent;
+
+                            var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                            if (secondChoiceContentList != null)
+                            {
+                                var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                                if (secondChoiceContentList != null)
+                                {
+                                    menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + secondChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
+                                }
+                            }
+
+
+                            var thirdChoiceText = thirdChoiceBinaryExpression.content[0] as Ink.Parsed.Text;
+                            if (thirdChoiceText != null)
+                            {
+                                menuChoice.SyntacticalElements.Add(new AttributeSpan() { });
+                            }
+                        }
+                        else
+                        {
+                            // This does have added text for the choice
+                            var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                            if (secondChoiceContentList != null)
+                            {
+                                var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                                if (secondChoiceContentList != null)
+                                {
+                                    menuChoice.Description = baseContent + secondChoiceText.text;
+                                }
+                            }
+
+                            var thirdChoiceContentList = weaveChoice.content[2] as Ink.Parsed.ContentList;
+                            if (thirdChoiceContentList != null)
+                            {
+                                var thirdChoiceText = thirdChoiceContentList.content[0] as Ink.Parsed.Text;
+                                if (thirdChoiceText != null)
+                                {
+                                    menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + thirdChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
+                                }
+                            }
+                        }
+                    }
+                    else if (choiceCount == 4)
+                    {
+                        // same as 3 but with force attribute on text
+                        // This does have added text for the choice
+                        var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                        var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                        menuChoice.Description = baseContent + secondChoiceText;
+
+                        var thirdChoiceContentList = weaveChoice.content[2] as Ink.Parsed.ContentList;
+                        var thirdChoiceText = thirdChoiceContentList.content[0] as Ink.Parsed.Text;
+                        menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + thirdChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
+
+                        menuChoice.SyntacticalElements.Add(new AttributeSpan() { });
+                    }
+                    else
+                    {
+                        // wrong?
+                        var y = 1;
+                    }
+                }
+                var weaveDivert = weaveContent as Ink.Parsed.Divert;
+                if (weaveDivert != null)
+                {
+
+                }
+                var weaveContentList = weaveContent as Ink.Parsed.ContentList;
+                if (weaveContentList != null)
+                {
+                }
+                var subWeaveContentList = weaveContent as Ink.Parsed.Weave;
+                if (subWeaveContentList != null)
+                {
+                    MenuChoice menuChoice = null;
+                    if (menuChoiceStack.Count > 0)
+                    {
+                        menuChoice = menuChoiceStack.Peek();
+                    }
+                    if (menuChoice != null)
+                    {
+                        ProcesWeave(menuChoice.SyntacticalElements, subWeaveContentList, 1 + indentLevel);
+                    }
+                    else
+                    {
+                        ProcesWeave(syntacticalElements, subWeaveContentList, 1 + indentLevel);
+                    }
+                }
+            }
+            
+        }
+
+        public void AddGlobalFunctions(FountainFile file, Parsed.Fiction parsedFiction)
+        {
             foreach (var parsedObject in parsedFiction.content)
             {
                 if (parsedObject.typeName == "Function")
@@ -48,157 +372,64 @@ namespace Ink.Ink2FountainExp.Adapting
                     var function = parsedObject as Ink.Parsed.Knot;
                     if (function != null)
                     {
-                        builder.Append("```\r\nfunction ");
-                        builder.Append(function.name);
-                        builder.Append("(");
-                        bool firstArgument = true;
-                        foreach (var arg in function.arguments)
-                        {
-                            if (firstArgument == false)
-                                builder.Append(", ");
-
-                            builder.Append(arg.name);
-
-                            firstArgument = false;
-                        }
-                        builder.Append(")");
-                        builder.Append(" {\r\n");
-
-                        foreach (var functionContent in function.content)
-                        {
-                            var functionWeave = functionContent as Ink.Parsed.Weave;
-                            if (functionWeave != null)
-                            {
-                                foreach (var weaveContent in functionWeave.content)
-                                {
-                                    var variableAssignment = weaveContent as Ink.Parsed.VariableAssignment;
-                                    if (variableAssignment != null)
-                                    {
-                                        builder.Append("\t");
-                                        builder.Append(variableAssignment.variableName);
-                                        builder.Append(" = ");
-                                        builder.Append(variableAssignment.expression.ToString());
-
-                                        //foreach (var variableAssignmentContent in variableAssignment.content)
-                                        //{
-                                        //    var binaryExpression = variableAssignmentContent as Ink.Parsed.BinaryExpression;
-                                        //    if (binaryExpression != null)
-                                        //    {
-                                        //        builder.Append(binaryExpression.leftExpression);
-                                        //        builder.Append(" = ");
-                                        //        builder.Append(binaryExpression.rightExpression);
-                                        //    }
-                                        //}
-                                    }
-                                }
-                            }
-                        }
-                        builder.Append("\r\n}\r\n```\r\n\r\n");
+                        var definingCodeBlock = new DefiningCodeBlock();
+                        definingCodeBlock.TextContent = CreateCodeContainerContent(function);
+                        file.SyntacticalElements.Add(definingCodeBlock);
                     }
                 }
-                if (parsedObject.typeName == "Knot")
+            }
+        }
+
+        public string CreateCodeContainerContent(Parsed.Knot function)
+        {
+            var builder = new StringBuilder();
+            builder.Append("function ");
+            builder.Append(function.name);
+            builder.Append("(");
+            bool firstArgument = true;
+            foreach (var arg in function.arguments)
+            {
+                if (firstArgument == false)
+                    builder.Append(", ");
+
+                builder.Append(arg.name);
+
+                firstArgument = false;
+            }
+            builder.Append(")");
+            builder.Append(" {\r\n");
+
+            foreach (var functionContent in function.content)
+            {
+                var functionWeave = functionContent as Ink.Parsed.Weave;
+                if (functionWeave != null)
                 {
-
-                    var flowBase = parsedObject as Ink.Parsed.FlowBase;
-                    if (flowBase != null)
+                    foreach (var weaveContent in functionWeave.content)
                     {
-                        builder.AppendFormat("\r\n### {0}\r\n\r\n", flowBase.name);
-
-                        for (int i = 0; i < flowBase.content.Count; i++)
+                        var variableAssignment = weaveContent as Ink.Parsed.VariableAssignment;
+                        if (variableAssignment != null)
                         {
-                            Ink.Parsed.Object flowBaseContent = flowBase.content[i];
+                            builder.Append("\t");
+                            builder.Append(variableAssignment.variableName);
+                            builder.Append(" = ");
+                            builder.Append(variableAssignment.expression.ToString());
 
-                            var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
-                            if (flowBaseStitch != null)
-                            {
-                                builder.AppendFormat("\r\n#### {0}\r\n\r\n", flowBaseStitch.name);
-                            }
-
-                            var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
-                            if (flowBaseWeave != null)
-                            {
-                                Ink.Parsed.Object previousWeaveContent = null;
-                                Ink.Parsed.Object weaveContent = null;
-                                Ink.Parsed.Object nextWeaveContent = null;
-                                for (int ii = 0; ii < flowBaseWeave.content.Count; ii++)
-                                {
-                                    previousWeaveContent = weaveContent;
-                                    weaveContent = flowBaseWeave.content[ii];
-                                    if (ii == flowBaseWeave.content.Count - 1)
-                                        nextWeaveContent = null;
-                                    else
-                                        nextWeaveContent = flowBaseWeave.content[1 + ii];
-
-                                    var weaveText = weaveContent as Ink.Parsed.Text;
-                                    if (weaveText != null)
-                                    {
-                                        if (weaveText.text == "\r" || weaveText.text == "\n")
-                                            builder.Append("\r\n");
-                                        else
-                                            builder.Append(weaveText.text);
-                                    }
-                                    var weaveGather = weaveContent as Ink.Parsed.Gather;
-                                    if (weaveGather != null)
-                                    {
-                                        // Gather points bring the branches back together and have currently no real benefit for Fountian Exponential.
-                                        //builder.Append("\r\n");
-                                    }
-                                    var weaveChoice = weaveContent as Ink.Parsed.Choice;
-                                    if (weaveChoice != null)
-                                    {
-                                        if (previousWeaveContent == null || !(previousWeaveContent is Ink.Parsed.Choice))
-                                            builder.Append(":::\r\n");
-
-                                        foreach (var choiceContent in weaveChoice.content)
-                                        {
-                                            builder.Append("* ");
-
-                                            var choiceContentList = choiceContent as Ink.Parsed.ContentList;
-                                            if (choiceContentList != null)
-                                            {
-                                                foreach (var choiceContentListContent in choiceContentList.content)
-                                                {
-                                                    var choiceContentListText = choiceContentListContent as Ink.Parsed.Text;
-                                                    if (choiceContentListText != null)
-                                                    {
-                                                        if (choiceContentListText.text == "\r" || choiceContentListText.text == "\n")
-                                                            builder.Append("\r\n");
-                                                        else
-                                                            builder.Append(choiceContentListText.text);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        if (nextWeaveContent == null || !(nextWeaveContent is Ink.Parsed.Choice))
-                                            builder.Append(":::\r\n");
-                                    }
-                                    var weaveDivert = weaveContent as Ink.Parsed.Divert;
-                                    if (weaveDivert != null)
-                                    {
-                                        builder.Append(weaveDivert.ToString());
-                                    }
-                                    var weaveContentList = weaveContent as Ink.Parsed.ContentList;
-                                    if (weaveContentList != null)
-                                    {
-                                        //var flowBaseStitch = weaveContentList as Ink.Parsed.Stitch;
-                                        //if (flowBaseStitch != null)
-                                        //{
-                                        //    builder.AppendFormat("## {0}\r\n\r\n", flowBaseStitch.name);
-                                        //}
-                                        builder.Append(weaveContentList.ToString());
-                                    }
-                                }
-                            }
+                            //foreach (var variableAssignmentContent in variableAssignment.content)
+                            //{
+                            //    var binaryExpression = variableAssignmentContent as Ink.Parsed.BinaryExpression;
+                            //    if (binaryExpression != null)
+                            //    {
+                            //        builder.Append(binaryExpression.leftExpression);
+                            //        builder.Append(" = ");
+                            //        builder.Append(binaryExpression.rightExpression);
+                            //    }
+                            //}
                         }
                     }
                 }
             }
-
-
-            var fountainContent = builder.ToString();//story.ToJson();
-            return fountainContent;
+            builder.Append("\r\n}");
+            return builder.ToString();
         }
-
-
     }
 }

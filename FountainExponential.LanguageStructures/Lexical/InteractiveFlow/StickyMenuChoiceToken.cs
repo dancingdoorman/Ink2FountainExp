@@ -5,14 +5,17 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class ContainerBlockToken : ILexicalElementable
+    public class StickyMenuChoiceToken : MenuChoiceToken, ILexicalElementable
     {
-        public const string Keyword = ":::";
+        public const char Sign = '+';
 
+        //* Consuming Choice
+        //+ Sticky Choice
+        //- Gather /end choice /continuing
 
         public override string ToString()
         {
-            return Keyword;
+            return Sign.ToString();
         }
     }
 }

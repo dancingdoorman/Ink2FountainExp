@@ -5,7 +5,12 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.FountainElement
 {
-    public class EllementIndent : ISyntacticalElementable
+    public class IndentLevel : ISyntacticalElementable
     {
+        public int Level { get; set; }
+        public override string ToString()
+        {
+            return "Level" + Level;
+        }
     }
 }

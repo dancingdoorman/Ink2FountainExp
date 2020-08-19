@@ -5,14 +5,12 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class ContainerBlockToken : ILexicalElementable
+    public class ContainerBlockIndentToken : ILexicalElementable
     {
-        public const string Keyword = ":::";
-
-
+        public const string Sign = "\t";
         public override string ToString()
         {
-            return Keyword;
+            return Sign.ToString();
         }
     }
 }

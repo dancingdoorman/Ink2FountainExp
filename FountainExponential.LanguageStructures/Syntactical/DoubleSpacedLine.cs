@@ -4,10 +4,9 @@ using System.Text;
 
 namespace FountainExponential.LanguageStructures.Syntactical
 {
-    /// <summary>The EndLine class encapsulates the end-line that can be \r on Apple, \n on Unix/Linux or \r\n on Windows</summary>
-    public class EndLine : ISyntacticalElementable
+    public class DoubleSpacedLine : ISyntacticalElementable
     {
-        public static string Pattern = "\r\n";
+        public static string Pattern = "  \r\n";
 
         public override string ToString()
         {

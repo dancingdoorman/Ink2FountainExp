@@ -7,5 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical.Sections
 {
     public class MicroSliceToken : ILexicalElementable
     {
+        public const string Keyword = "######";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }
