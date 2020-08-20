@@ -79,8 +79,8 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(keySingleLineValuePair.Key.Keyword);
-            builder.Append(KeyValuePairAssignmentToken.Sign);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, keySingleLineValuePair.AssignmentToken);
+            Write(builder, keySingleLineValuePair.SpaceToken);
             builder.Append(keySingleLineValuePair.Value);
 
             Write(builder, keySingleLineValuePair.EndLine);
@@ -92,7 +92,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(keyMultiLineValuePair.Key.Keyword);
-            builder.Append(KeyValuePairAssignmentToken.Sign);
+            Write(builder, keyMultiLineValuePair.AssignmentToken);
             Write(builder, keyMultiLineValuePair.EndLine);
 
             foreach (var line in keyMultiLineValuePair.ValueLineList)
@@ -156,7 +156,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, seperatedDeviation.IndentLevel);
             builder.Append(SeperatedDeviationToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, seperatedDeviation.SpaceToken);
             if (seperatedDeviation.FlowTargetToken != null)
                 builder.Append(seperatedDeviation.FlowTargetToken.Label);
 
@@ -273,7 +273,7 @@ namespace Ink.Ink2FountainExp.Adapting
             else
                 builder.Append(StickyMenuChoiceToken.Sign);
 
-            builder.Append(SpaceToken.Sign);
+            Write(builder, menuChoice.SpaceToken);
             builder.Append(menuChoice.Description);
             Write(builder, menuChoice.EndLine);
 
@@ -340,7 +340,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(ActToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, act.SpaceToken);
             builder.Append(act.SectionName);
             Write(builder, act.EndLine);
 
@@ -361,7 +361,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(SequenceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, sequence.SpaceToken);
             builder.Append(sequence.SectionName);
             Write(builder, sequence.EndLine);
 
@@ -381,7 +381,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(SceneToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, scene.SpaceToken);
             builder.Append(scene.SectionName);
             Write(builder, scene.EndLine);
 
@@ -400,7 +400,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(MomentToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, moment.SpaceToken);
             builder.Append(moment.SectionName);
             Write(builder, moment.EndLine);
 
@@ -418,7 +418,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(SliceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, slice.SpaceToken);
             builder.Append(slice.SectionName);
             Write(builder, slice.EndLine);
 
@@ -435,7 +435,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(MicroSliceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, microSlice.SpaceToken);
             builder.Append(microSlice.SectionName);
             Write(builder, microSlice.EndLine);
 
@@ -451,7 +451,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             builder.Append(NanoSliceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
+            Write(builder, nanoSlice.SpaceToken);
             builder.Append(nanoSlice.SectionName);
             Write(builder, nanoSlice.EndLine);
 
@@ -479,6 +479,23 @@ namespace Ink.Ink2FountainExp.Adapting
             builder.Append("\r\n");
         }
 
+        public void Write(StringBuilder builder, SpaceToken spaceToken)
+        {
+            if (builder == null || spaceToken == null)
+                return;
+
+            // can be multiple spaces or a tab depending on the situation.
+            builder.Append(" ");
+        }
+
+        public void Write(StringBuilder builder, KeyValuePairAssignmentToken assignmentToken)
+        {
+            if (builder == null || assignmentToken == null)
+                return;
+
+            builder.Append(KeyValuePairAssignmentToken.Sign);            
+        }
+        
         public void Write(StringBuilder builder, IndentLevel indentLevel)
         {
             if (builder == null || indentLevel == null)

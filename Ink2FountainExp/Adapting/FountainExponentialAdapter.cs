@@ -67,11 +67,11 @@ namespace Ink.Ink2FountainExp.Adapting
             AddGlobalFunctions(mainFile, parsedFiction);
 
 
-            var actI = new Act() { SectionName = "ActI", EndLine = new EndLine() };
+            var actI = new Act() { SectionName = "ActI", SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             mainFile.Acts.Add(actI);
             actI.SyntacticalElements.Add(new BlankLine());
 
-            var sequence1 = new Sequence() { SectionName = "Sequence1", EndLine = new EndLine() };
+            var sequence1 = new Sequence() { SectionName = "Sequence1", SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             sequence1.SyntacticalElements.Add(new BlankLine());
             actI.Sequences.Add(sequence1);
 
@@ -102,7 +102,7 @@ namespace Ink.Ink2FountainExp.Adapting
                     var flowBase = parsedObject as Ink.Parsed.FlowBase;
                     if (flowBase != null)
                     {
-                        var scene = new Scene() { SectionName = flowBase.name, EndLine = new EndLine() };
+                        var scene = new Scene() { SectionName = flowBase.name, SpaceToken = new SpaceToken(), EndLine = new EndLine() };
                         scene.SyntacticalElements.Add(new BlankLine());
                         sequence1.Scenes.Add(scene);
 
@@ -131,7 +131,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (flowBaseStitch == null)
                 return;
 
-            var moment = new Moment() { SectionName = flowBaseStitch.name, EndLine = new EndLine() };
+            var moment = new Moment() { SectionName = flowBaseStitch.name, SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             scene.Moments.Add(moment);
 
             moment.SyntacticalElements.Add(new BlankLine());
@@ -249,7 +249,7 @@ namespace Ink.Ink2FountainExp.Adapting
                         menuStack.Push(menu);
                     }
 
-                    var menuChoice = new MenuChoice() { MenuChoiceToken = new StickyMenuChoiceToken(), EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = indentLevel } };
+                    var menuChoice = new MenuChoice() { MenuChoiceToken = new StickyMenuChoiceToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = indentLevel } };
                     menu.Choices.Add(menuChoice);
                     menuChoiceStack.Push(menuChoice);
 

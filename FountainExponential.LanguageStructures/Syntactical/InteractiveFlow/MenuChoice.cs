@@ -10,13 +10,15 @@ namespace FountainExponential.LanguageStructures.Syntactical.InteractiveFlow
 {
     public class MenuChoice : SyntacticalElementContainer, ISyntacticalElementable
     {
+        public IndentLevel IndentLevel { get; set; }
+
+        public MenuChoiceToken MenuChoiceToken { get; set; }
+        public SpaceToken SpaceToken { get; set; }
+
         /// <summary>Gets or sets the description.</summary>
         /// <value>The description.</value>
         public string Description { get; set; }
-
-        public MenuChoiceToken MenuChoiceToken { get; set; }
         public EndLine EndLine { get; set; }
-        public IndentLevel IndentLevel { get; set; }
 
         public override string ToString()
         {

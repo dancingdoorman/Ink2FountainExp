@@ -8,6 +8,8 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
 {
     public class SectionBase : SyntacticalElementContainer
     {
+        public SpaceToken SpaceToken { get; set; }
+
         public string SectionName { get; set; }
 
         public EndLine EndLine { get; set; }
