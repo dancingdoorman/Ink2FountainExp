@@ -200,28 +200,16 @@ namespace Ink.Ink2FountainExp.Adapting
                 // The container block is the only area that can have MenuChoices
 
                 var menu = element as Menu;
-                if (menu != null)
-                {
-                    Write(builder, menu);
-                }
+                Write(builder, menu);
 
                 var blankLine = element as BlankLine;
-                if (blankLine != null)
-                {
-                    Write(builder, blankLine);
-                }
+                Write(builder, blankLine);
 
                 var actionDescription = element as ActionDescription;
-                if (actionDescription != null)
-                {
-                    Write(builder, actionDescription);
-                }
+                Write(builder, actionDescription);
 
                 var containerBlock = element as ContainerBlock;
-                if (containerBlock != null)
-                {
-                    Write(builder, containerBlock);
-                }
+                Write(builder, containerBlock);
 
 
                 var container = element as SyntacticalElementContainer;
@@ -234,6 +222,9 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, Menu menu)
         {
+            if (builder == null || menu == null)
+                return;
+
             foreach (var choice in menu.Choices)
             {
                 Write(builder, choice);
@@ -242,7 +233,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, MenuChoice menuChoice)
         {
-            if (menuChoice == null)
+            if (builder == null || menuChoice == null)
                 return;
 
             Write(builder, menuChoice.IndentLevel);
