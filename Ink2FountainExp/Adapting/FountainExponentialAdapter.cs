@@ -6,9 +6,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using FountainExponential.LanguageStructures;
 using FountainExponential.LanguageStructures.Lexical;
+using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using FountainExponential.LanguageStructures.Syntactical;
+using FountainExponential.LanguageStructures.Syntactical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Syntactical.Code;
 using FountainExponential.LanguageStructures.Syntactical.Data;
 using FountainExponential.LanguageStructures.Syntactical.FountainElement;
@@ -187,6 +189,32 @@ namespace Ink.Ink2FountainExp.Adapting
                         actionDescription.IndentLevel.Level = indentLevel;
                     }
                 }
+                var weaveDivert = weaveContent as Ink.Parsed.Divert;
+                if (weaveDivert != null)
+                {
+                    //var target = weaveDivert.target;
+                    //var targetContent = weaveDivert.targetContent;
+                    var deviation = new SeperatedDeviation() { FlowTargetToken = new FlowTargetToken() {Label = weaveDivert.target.dotSeparatedComponents }, IndentLevel = new IndentLevel(), EndLine = new EndLine() };
+                    MenuChoice menuChoice = null;
+                    if (menuChoiceStack.Count > 0)
+                    {
+                        menuChoice = menuChoiceStack.Peek();
+                    }
+                    if (menuChoice != null)
+                    {
+                        menuChoice.SyntacticalElements.Add(deviation);
+                        deviation.IndentLevel.Level = 1 + indentLevel;
+                    }
+                    else
+                    {
+                        syntacticalElements.Add(deviation);
+                        deviation.IndentLevel.Level = indentLevel;
+                    }
+                }
+                var weaveContentList = weaveContent as Ink.Parsed.ContentList;
+                if (weaveContentList != null)
+                {
+                }
                 var weaveGather = weaveContent as Ink.Parsed.Gather;
                 if (weaveGather != null)
                 {
@@ -326,15 +354,6 @@ namespace Ink.Ink2FountainExp.Adapting
                         // wrong?
                         var y = 1;
                     }
-                }
-                var weaveDivert = weaveContent as Ink.Parsed.Divert;
-                if (weaveDivert != null)
-                {
-
-                }
-                var weaveContentList = weaveContent as Ink.Parsed.ContentList;
-                if (weaveContentList != null)
-                {
                 }
                 var subWeaveContentList = weaveContent as Ink.Parsed.Weave;
                 if (subWeaveContentList != null)

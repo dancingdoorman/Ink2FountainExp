@@ -4,10 +4,12 @@ using System.IO;
 using System.Text;
 using FountainExponential.LanguageStructures;
 using FountainExponential.LanguageStructures.Lexical;
+using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using FountainExponential.LanguageStructures.Lexical.Sections;
 using FountainExponential.LanguageStructures.Syntactical;
+using FountainExponential.LanguageStructures.Syntactical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Syntactical.Code;
 using FountainExponential.LanguageStructures.Syntactical.FountainElement;
 using FountainExponential.LanguageStructures.Syntactical.InteractiveFlow;
@@ -134,6 +136,9 @@ namespace Ink.Ink2FountainExp.Adapting
                 var definingCodeBlock = element as DefiningCodeBlock;
                 Write(builder, definingCodeBlock);
 
+                var seperatedDeviation = element as SeperatedDeviation;
+                Write(builder, seperatedDeviation);
+
                 var container = element as SyntacticalElementContainer;
                 if (container != null)
                 {
@@ -141,6 +146,24 @@ namespace Ink.Ink2FountainExp.Adapting
                 }
             }
         }
+
+        #region Write Automatic Flow Elements
+
+        public void Write(StringBuilder builder, SeperatedDeviation seperatedDeviation)
+        {
+            if (builder == null || seperatedDeviation == null)
+                return;
+
+            Write(builder, seperatedDeviation.IndentLevel);
+            builder.Append(SeperatedDeviationToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            if (seperatedDeviation.FlowTargetToken != null)
+                builder.Append(seperatedDeviation.FlowTargetToken.Label);
+
+            builder.Append(EndLine.Pattern);
+        }
+
+        #endregion Write Code Elements
 
         #region Write Code Elements
 
@@ -210,6 +233,9 @@ namespace Ink.Ink2FountainExp.Adapting
 
                 var containerBlock = element as ContainerBlock;
                 Write(builder, containerBlock);
+
+                var seperatedDeviation = element as SeperatedDeviation;
+                Write(builder, seperatedDeviation);
 
 
                 var container = element as SyntacticalElementContainer;

@@ -7,5 +7,6 @@ namespace FountainExponential.LanguageStructures.Lexical.AutomaticFlow
 {
     public class IntegratedDeviationToken : ILexicalElementable
     {
+        public const string Keyword = "-|";
     }
 }
