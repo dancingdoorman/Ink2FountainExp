@@ -48,16 +48,10 @@ namespace Ink.Ink2FountainExp.Adapting
             //    Solvang, CA 93463
 
             var fountainPlay = CreateFountainPlay(parsedFiction, inputFileName);
-            var mainFile = fountainPlay.MainFile;
-            var act = mainFile.SyntacticalElements[2] as Act;
-            var sequence = act.SyntacticalElements[1] as Sequence;
 
             var builder = new StringBuilder();
-            FountainRenderer.WriteMetaData(mainFile, builder);
-            FountainRenderer.Write(builder, mainFile.SyntacticalElements);
-
-
-            var fountainContent = builder.ToString();//story.ToJson();
+            FountainRenderer.Write(builder, fountainPlay);
+            var fountainContent = builder.ToString();
             return fountainContent;
         }
 
@@ -72,12 +66,12 @@ namespace Ink.Ink2FountainExp.Adapting
 
 
             var actI = new Act() { SectionName = "ActI", EndLine = new EndLine() };
-            mainFile.SyntacticalElements.Add(actI);
+            mainFile.Acts.Add(actI);
             actI.SyntacticalElements.Add(new BlankLine());
 
             var sequence1 = new Sequence() { SectionName = "Sequence1", EndLine = new EndLine() };
             sequence1.SyntacticalElements.Add(new BlankLine());
-            actI.SyntacticalElements.Add(sequence1);
+            actI.Sequences.Add(sequence1);
 
 
             //bool choiceStarted = false;
@@ -108,7 +102,7 @@ namespace Ink.Ink2FountainExp.Adapting
                     {
                         var scene = new Scene() { SectionName = flowBase.name, EndLine = new EndLine() };
                         scene.SyntacticalElements.Add(new BlankLine());
-                        sequence1.SyntacticalElements.Add(scene);
+                        sequence1.Scenes.Add(scene);
 
                         AddSceneElements(scene, flowBase);
                     }
@@ -136,7 +130,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             var moment = new Moment() { SectionName = flowBaseStitch.name, EndLine = new EndLine() };
-            scene.SyntacticalElements.Add(moment);
+            scene.Moments.Add(moment);
 
             moment.SyntacticalElements.Add(new BlankLine());
 

@@ -17,49 +17,43 @@ using FountainExponential.LanguageStructures.Syntactical.Sections;
 namespace Ink.Ink2FountainExp.Adapting
 {
     public class FountainRenderer
-    {
-        public void Write(StringBuilder builder, List<ISyntacticalElementable> syntacticalElements)
+    {        
+        public void Write(StringBuilder builder, FountainPlay fountainPlay)
         {
-            foreach (var element in syntacticalElements)
-            {
-                var section = element as SectionBase;
-                if (section != null)
-                {
-                    Write(builder, section);
-                }
+            var mainFile = fountainPlay.MainFile;
+            //var act = mainFile.SyntacticalElements[2] as Act;
+            //var sequence = act.SyntacticalElements[1] as Sequence;
 
-                var blankLine = element as BlankLine;
-                if (blankLine != null)
-                {
-                    Write(builder, blankLine);
-                }
+            Write(builder, mainFile);
+        }
 
-                var containerBlock = element as ContainerBlock;
-                if (containerBlock != null)
-                {
-                    Write(builder, containerBlock);
-                }
+        public void Write(StringBuilder builder, FountainFile mainFile)
+        {
+            Write(builder, mainFile.TitlePage);
 
-                var actionDescription = element as ActionDescription;
-                if (actionDescription != null)
-                {
-                    Write(builder, actionDescription);
-                }
-                
+            // Syntactic elements not belonging to any of the other sections. 
+            Write(builder, mainFile.SyntacticalElements);
 
-                var container = element as SyntacticalElementContainer;
-                if (container != null)
-                {
-                    Write(builder, container.SyntacticalElements);
-                }
-            }
+            Write(builder, new BlankLine());
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, mainFile.NanoSlice);
+            Write(builder, mainFile.MicroSlices);
+            Write(builder, mainFile.Slices);
+            Write(builder, mainFile.Moments);
+            Write(builder, mainFile.Scenes);
+            Write(builder, mainFile.Sequences);
+            Write(builder, mainFile.Acts);
         }
 
         #region Write MetaData
 
-        public void WriteMetaData(FountainFile mainFile, StringBuilder builder)
+        public void Write(StringBuilder builder, TitlePage titlePage)
         {
-            foreach (var keyInformation in mainFile.TitlePage.KeyInformationList)
+            if (builder == null || titlePage == null)
+                return;
+
+            foreach (var keyInformation in titlePage.KeyInformationList)
             {
                 var keyMultiLineValuePair = keyInformation as KeyMultiLineValuePair;
                 if (keyMultiLineValuePair != null)
@@ -74,11 +68,14 @@ namespace Ink.Ink2FountainExp.Adapting
             }
 
             // A page break is implicit after the Title Page. Just drop down two lines and start writing your screenplay.
-            Write(builder, mainFile.TitlePage.TitlePageBreakToken);
+            Write(builder, titlePage.TitlePageBreakToken);
         }
 
         public void Write(StringBuilder builder, KeySingleLineValuePair keySingleLineValuePair)
         {
+            if (builder == null || keySingleLineValuePair == null)
+                return;
+
             builder.Append(keySingleLineValuePair.Key.Keyword);
             builder.Append(KeyValuePairAssignmentToken.Sign);
             builder.Append(SpaceToken.Sign);
@@ -89,6 +86,9 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, KeyMultiLineValuePair keyMultiLineValuePair)
         {
+            if (builder == null || keyMultiLineValuePair == null)
+                return;
+
             builder.Append(keyMultiLineValuePair.Key.Keyword);
             builder.Append(KeyValuePairAssignmentToken.Sign);
             Write(builder, keyMultiLineValuePair.EndLine);
@@ -104,6 +104,9 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, TitlePageBreakToken titlePageBreakToken)
         {
+            if (builder == null)
+                return;
+
             foreach (var blankLine in TitlePageBreakToken.Pattern)
             {
                 Write(builder, blankLine);
@@ -112,110 +115,58 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #endregion Write MetaData
 
-        #region Write Sections
-
-        public void Write(StringBuilder builder, SectionBase section)
+        public void Write(StringBuilder builder, List<ISyntacticalElementable> syntacticalElements)
         {
-            var act = section as Act;
-            if (act != null)
+            if (builder == null || syntacticalElements == null)
+                return;
+
+            foreach (var element in syntacticalElements)
             {
-                Write(builder, act);
-            }
-            var sequence = section as Sequence;
-            if (sequence != null)
-            {
-                Write(builder, sequence);
-            }
-            var scene = section as Scene;
-            if (scene != null)
-            {
-                Write(builder, scene);
-            }
-            var moment = section as Moment;
-            if (moment != null)
-            {
-                Write(builder, moment);
-            }
-            var slice = section as Slice;
-            if (slice != null)
-            {
-                Write(builder, slice);
-            }
-            var microSlice = section as MicroSlice;
-            if (microSlice != null)
-            {
-                Write(builder, microSlice);
-            }
-            var nanoSlice = section as NanoSlice;
-            if (nanoSlice != null)
-            {
-                Write(builder, nanoSlice);
+                var blankLine = element as BlankLine;
+                Write(builder, blankLine);
+
+                var containerBlock = element as ContainerBlock;
+                Write(builder, containerBlock);
+
+                var actionDescription = element as ActionDescription;
+                Write(builder, actionDescription);
+
+                var definingCodeBlock = element as DefiningCodeBlock;
+                Write(builder, definingCodeBlock);
+
+                var container = element as SyntacticalElementContainer;
+                if (container != null)
+                {
+                    Write(builder, container.SyntacticalElements);
+                }
             }
         }
 
-        public void Write(StringBuilder builder, Act act)
+        #region Write Code Elements
+
+        public void Write(StringBuilder builder, DefiningCodeBlock definingCodeBlock)
         {
-            builder.Append(ActToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(act.SectionName);
-            Write(builder, act.EndLine);
+            if (builder == null || definingCodeBlock == null)
+                return;
+
+            builder.Append(CodeBlock.Keyword);
+            builder.Append("+");
+            builder.Append(EndLine.Pattern);
+            builder.Append(definingCodeBlock.TextContent);
+            builder.Append(EndLine.Pattern);
+            builder.Append(CodeBlock.Keyword);
+            builder.Append(EndLine.Pattern);
         }
 
-        public void Write(StringBuilder builder, Sequence sequence)
-        {
-            builder.Append(SequenceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(sequence.SectionName);
-            Write(builder, sequence.EndLine);
-        }
-
-        public void Write(StringBuilder builder, Scene scene)
-        {
-            builder.Append(SceneToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(scene.SectionName);
-            Write(builder, scene.EndLine);
-        }
-
-        public void Write(StringBuilder builder, Moment moment)
-        {
-            builder.Append(MomentToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(moment.SectionName);
-            Write(builder, moment.EndLine);
-        }
-
-        public void Write(StringBuilder builder, Slice slice)
-        {
-            builder.Append(SliceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(slice.SectionName);
-            Write(builder, slice.EndLine);
-        }
-
-        public void Write(StringBuilder builder, MicroSlice microSlice)
-        {
-            builder.Append(MicroSliceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(microSlice.SectionName);
-            Write(builder, microSlice.EndLine);
-        }
-
-        public void Write(StringBuilder builder, NanoSlice nanoSlice)
-        {
-            builder.Append(NanoSliceToken.Keyword);
-            builder.Append(SpaceToken.Sign);
-            builder.Append(nanoSlice.SectionName);
-            Write(builder, nanoSlice.EndLine);
-        }
-
-        #endregion Write Sections
-
+        #endregion Write Code Elements
 
         #region Write Fountain Elements
 
         public void Write(StringBuilder builder, ActionDescription actionDescription)
         {
+            if (builder == null || actionDescription == null)
+                return;
+
             Write(builder, actionDescription.IndentLevel);
             builder.Append(actionDescription.TextContent);
             Write(builder, actionDescription.EndLine);
@@ -227,6 +178,9 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, ContainerBlock block)
         {
+            if (builder == null || block == null)
+                return;
+
             Write(builder, block.IndentLevel);
             builder.Append(ContainerBlockToken.Keyword);
             builder.Append(block.StartEndLine);
@@ -311,10 +265,191 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #endregion InteractiveFlow
 
+        #region Write Sections
+
+        public void Write(StringBuilder builder, List<Act> acts)
+        {
+            foreach (var act in acts)
+            {
+                Write(builder, act);
+            }
+        }
+        public void Write(StringBuilder builder, List<Sequence> sequences)
+        {
+            foreach (var sequence in sequences)
+            {
+                Write(builder, sequence);
+            }
+        }
+        public void Write(StringBuilder builder, List<Scene> scenes)
+        {
+            foreach (var scene in scenes)
+            {
+                Write(builder, scene);
+            }
+        }
+        public void Write(StringBuilder builder, List<Moment> moments)
+        {
+            foreach (var moment in moments)
+            {
+                Write(builder, moment);
+            }
+        }
+        public void Write(StringBuilder builder, List<Slice> slices)
+        {
+            foreach (var slice in slices)
+            {
+                Write(builder, slice);
+            }
+        }
+        public void Write(StringBuilder builder, List<MicroSlice> microSlices)
+        {
+            foreach (var microSlice in microSlices)
+            {
+                Write(builder, microSlice);
+            }
+        }
+        public void Write(StringBuilder builder, List<NanoSlice> nanoSlices)
+        {
+            foreach (var nanoSlice in nanoSlices)
+            {
+                Write(builder, nanoSlice);
+            }
+        }
+
+        public void Write(StringBuilder builder, Act act)
+        {
+            if (builder == null || act == null)
+                return;
+
+            builder.Append(ActToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(act.SectionName);
+            Write(builder, act.EndLine);
+
+            Write(builder, act.SyntacticalElements);
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, act.NanoSlice);
+            Write(builder, act.MicroSlices);
+            Write(builder, act.Slices);
+            Write(builder, act.Moments);
+            Write(builder, act.Scenes);
+            Write(builder, act.Sequences);
+        }
+
+        public void Write(StringBuilder builder, Sequence sequence)
+        {
+            if (builder == null || sequence == null)
+                return;
+
+            builder.Append(SequenceToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(sequence.SectionName);
+            Write(builder, sequence.EndLine);
+
+            Write(builder, sequence.SyntacticalElements);
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, sequence.NanoSlice);
+            Write(builder, sequence.MicroSlices);
+            Write(builder, sequence.Slices);
+            Write(builder, sequence.Moments);
+            Write(builder, sequence.Scenes);
+        }
+
+        public void Write(StringBuilder builder, Scene scene)
+        {
+            if (builder == null || scene == null)
+                return;
+
+            builder.Append(SceneToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(scene.SectionName);
+            Write(builder, scene.EndLine);
+
+            Write(builder, scene.SyntacticalElements);
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, scene.NanoSlice);
+            Write(builder, scene.MicroSlices);
+            Write(builder, scene.Slices);
+            Write(builder, scene.Moments);
+        }
+
+        public void Write(StringBuilder builder, Moment moment)
+        {
+            if (builder == null || moment == null)
+                return;
+
+            builder.Append(MomentToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(moment.SectionName);
+            Write(builder, moment.EndLine);
+
+            Write(builder, moment.SyntacticalElements);
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, moment.NanoSlice);
+            Write(builder, moment.MicroSlices);
+            Write(builder, moment.Slices);
+        }
+
+        public void Write(StringBuilder builder, Slice slice)
+        {
+            if (builder == null || slice == null)
+                return;
+
+            builder.Append(SliceToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(slice.SectionName);
+            Write(builder, slice.EndLine);
+
+            Write(builder, slice.SyntacticalElements);
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, slice.NanoSlice);
+            Write(builder, slice.MicroSlices);
+        }
+
+        public void Write(StringBuilder builder, MicroSlice microSlice)
+        {
+            if (builder == null || microSlice == null)
+                return;
+
+            builder.Append(MicroSliceToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(microSlice.SectionName);
+            Write(builder, microSlice.EndLine);
+
+            Write(builder, microSlice.SyntacticalElements);
+
+            // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
+            Write(builder, microSlice.NanoSlice);
+        }
+
+        public void Write(StringBuilder builder, NanoSlice nanoSlice)
+        {
+            if (builder == null || nanoSlice == null)
+                return;
+
+            builder.Append(NanoSliceToken.Keyword);
+            builder.Append(SpaceToken.Sign);
+            builder.Append(nanoSlice.SectionName);
+            Write(builder, nanoSlice.EndLine);
+
+            Write(builder, nanoSlice.SyntacticalElements);
+        }
+
+        #endregion Write Sections
+
         #region Write Basic elements
 
         public void Write(StringBuilder builder, BlankLine blankLine)
         {
+            if (builder == null || blankLine == null)
+                return;
+
             Write(builder, BlankLine.Pattern);
         }
 
@@ -329,7 +464,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, IndentLevel indentLevel)
         {
-            if (indentLevel == null)
+            if (builder == null || indentLevel == null)
                 return;
 
             for (int x = 0; x < indentLevel.Level; x++)

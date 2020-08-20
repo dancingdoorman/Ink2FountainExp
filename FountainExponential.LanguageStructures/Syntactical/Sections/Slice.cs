@@ -9,6 +9,15 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
     public class Slice : SectionBase, ISyntacticalElementable
     {
         public SliceToken SliceStartToken { get; set; }
+
+        //
+        // Because a section can only be closed by a equal or bigger section we must order them from small to bigger.
+        // A section can only contain sections that are smaller then itself.
+        //
+
+        public List<NanoSlice> NanoSlice { get; set; } = new List<NanoSlice>();
+        public List<MicroSlice> MicroSlices { get; set; } = new List<MicroSlice>();
+
         public override string ToString()
         {
             return SliceStartToken + SectionName;

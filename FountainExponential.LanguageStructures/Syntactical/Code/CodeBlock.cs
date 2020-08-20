@@ -7,6 +7,7 @@ namespace FountainExponential.LanguageStructures.Syntactical.Code
 {
     public class CodeBlock : CodeContainerBase, ISyntacticalElementable
     {
+        public const string Keyword = "```";
 
         public override string ToString()
         {
