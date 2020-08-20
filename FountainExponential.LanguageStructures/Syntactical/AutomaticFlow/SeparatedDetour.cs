@@ -8,5 +8,6 @@ namespace FountainExponential.LanguageStructures.Syntactical.AutomaticFlow
 {
     public class SeparatedDetour : Detour, ISyntacticalElementable
     {
+        public SeparatedDetourToken SeparatedDetourToken { get; set; }
     }
 }

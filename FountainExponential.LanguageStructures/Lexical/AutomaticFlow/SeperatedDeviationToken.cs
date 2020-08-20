@@ -5,7 +5,7 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.AutomaticFlow
 {
-    public class SeperatedDeviationToken : ILexicalElementable
+    public class SeparatedDeviationToken : ILexicalElementable
     {
         public const string Keyword = "->";
     }

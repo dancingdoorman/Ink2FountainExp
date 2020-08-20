@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using FountainExponential.LanguageStructures;
@@ -29,6 +30,9 @@ namespace Ink.Ink2FountainExp.Adapting
         /// <summary>Gets or sets the file system interactor.</summary>
         /// <value>The file system interactor.</value>
         public FountainRenderer FountainRenderer { get; set; } = new FountainRenderer();
+
+        public bool MoveLabeledGatherToSection { get; set; } = false;
+        public bool MoveLabeledChoiceToSection { get; set; } = false;
 
         #endregion Properties
 
@@ -120,8 +124,8 @@ namespace Ink.Ink2FountainExp.Adapting
                 Ink.Parsed.Object flowBaseContent = flowBase.content[i];
 
                 var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
-                ProcesWeave(scene.SyntacticalElements, flowBaseWeave, 0);
-                
+                ProcesWeave(new ContentArea() { Scene = scene, IndentLevel = 0 }, flowBaseWeave);
+
                 var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
                 AddMoments(scene, flowBaseStitch);
             }
@@ -137,10 +141,10 @@ namespace Ink.Ink2FountainExp.Adapting
 
             moment.SyntacticalElements.Add(new BlankLine());
 
-            foreach(var stitchContent in flowBaseStitch.content)
+            foreach (var stitchContent in flowBaseStitch.content)
             {
                 var flowBaseWeave = stitchContent as Ink.Parsed.Weave;
-                ProcesWeave(moment.SyntacticalElements, flowBaseWeave, 0);
+                ProcesWeave(new ContentArea() { Moment = moment, IndentLevel = 0 }, flowBaseWeave);
             }
         }
 
@@ -149,53 +153,152 @@ namespace Ink.Ink2FountainExp.Adapting
             if (flowBaseStitch == null)
                 return;
         }
-
-        public void ProcesWeave(List<ISyntacticalElementable> syntacticalElements, Parsed.Weave flowBaseWeave, int indentLevel)
+        private ContentArea GetCurrentContentArea(ContentArea contentArea, Stack<ContentArea> contentAreaStack)
         {
-            if (syntacticalElements == null || flowBaseWeave == null)
+            if (contentAreaStack != null && contentAreaStack.Count > 0)
+            {
+                return contentAreaStack.Peek();
+            }
+            return contentArea;
+        }
+        private ContentArea GetBelowCurrentContentArea(ContentArea contentArea, Stack<ContentArea> contentAreaStack)
+        {
+            if (contentAreaStack == null)
+                return contentArea;
+
+            if (contentAreaStack.Count == 1)
+                return contentAreaStack.Peek();
+
+            if (contentAreaStack.Count > 1)
+            {
+                var top = contentAreaStack.Pop();
+                var second = contentAreaStack.Peek();
+                contentAreaStack.Push(top);
+
+                return second;
+            }
+
+            return contentArea;
+        }
+        private ContentArea PopCurrentContentArea(ContentArea contentArea, Stack<ContentArea> contentAreaStack)
+        {
+            if (contentAreaStack != null && contentAreaStack.Count > 0)
+            {
+                return contentAreaStack.Pop();
+            }
+            return contentArea;
+        }
+
+        private ContentArea PushGatherContentArea(ContentArea contentArea, Stack<ContentArea> contentAreaStack, string labelName)
+        {
+            // We only push a new content area when the name is set of the Gather.
+            if (!MoveLabeledGatherToSection ||  string.IsNullOrEmpty(labelName))
+                return null;
+
+            // if the weave has a name, it is labeled and we want to make it a seperate section.
+            var currentContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+            var newContentArea = currentContentArea.CreateSubContentArea(labelName);
+            newContentArea.IndentLevel = 0;
+            contentAreaStack.Push(newContentArea);
+
+
+            var detour = new SeparatedDetour()
+            {
+                FlowTargetToken = new FlowTargetToken()
+                {
+                    Label = newContentArea.GetSectionName()
+                },
+                IndentLevel = new IndentLevel(),
+                SpaceToken = new SpaceToken(),
+                SeparatedDetourToken = new SeparatedDetourToken(),
+                EndLine = new EndLine()
+            };
+
+            currentContentArea.AddSyntacticalElement(detour);
+
+            return newContentArea;
+        }
+
+        private ContentArea ResetGatherContentArea(ContentArea contentArea, Stack<ContentArea> contentAreaStack)
+        {
+            contentAreaStack.Clear();
+            var newContentArea = new ContentArea(contentArea);
+            contentAreaStack.Push(newContentArea);
+            return newContentArea;
+        }
+
+        private ContentArea PushChoiceContentArea(ContentArea contentArea, Stack<ContentArea> contentAreaStack, string labelName, MenuChoice menuChoice)
+        {
+            if (contentAreaStack == null)
+                return null;
+
+            var currentContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+
+            // We only push a new content area when the name is set of the Gather.
+            if (!MoveLabeledChoiceToSection || string.IsNullOrEmpty(labelName))
+            {
+                var newContentArea = new ContentArea();
+                newContentArea.MenuChoice = menuChoice;
+                newContentArea.IndentLevel = 1 + currentContentArea.IndentLevel;
+                contentAreaStack.Push(newContentArea);
+                return newContentArea;
+            }
+            else
+            {
+                // if the weave has a name, it is labeled and we want to make it a seperate section.
+                var newContentArea = currentContentArea.CreateSubContentArea(labelName);
+                newContentArea.IndentLevel = 0;
+                contentAreaStack.Push(newContentArea);
+
+
+                var detour = new SeparatedDetour()
+                {
+                    FlowTargetToken = new FlowTargetToken()
+                    {
+                        Label = newContentArea.GetSectionName()
+                    },
+                    IndentLevel = new IndentLevel(),
+                    SpaceToken = new SpaceToken(),
+                    SeparatedDetourToken = new SeparatedDetourToken(),
+                    EndLine = new EndLine()
+                };
+
+                currentContentArea.AddSyntacticalElement(detour);
+
+                return newContentArea;
+            }
+        }
+
+        public void ProcesWeave(ContentArea contentArea, Parsed.Weave flowBaseWeave)
+        {
+            if (contentArea == null || flowBaseWeave == null)
                 return;
 
-            Ink.Parsed.Object previousWeaveContent = null;
             Ink.Parsed.Object weaveContent = null;
-            Ink.Parsed.Object nextWeaveContent = null;
+
+            var contentAreaStack = new Stack<ContentArea>();
+            ResetGatherContentArea(contentArea, contentAreaStack);
+            
             var menuStack = new Stack<Menu>();
             var menuChoiceStack = new Stack<MenuChoice>();
             for (int i = 0; i < flowBaseWeave.content.Count; i++)
             {
-                previousWeaveContent = weaveContent;
                 weaveContent = flowBaseWeave.content[i];
-                if (i == flowBaseWeave.content.Count - 1)
-                    nextWeaveContent = null;
-                else
-                    nextWeaveContent = flowBaseWeave.content[1 + i];
 
                 var weaveText = weaveContent as Ink.Parsed.Text;
                 if (weaveText != null)
                 {
                     var actionDescription = new ActionDescription() { TextContent = weaveText.text, IndentLevel = new IndentLevel() };
 
-                    MenuChoice menuChoice = null;
-                    if (menuChoiceStack.Count > 0)
-                    {
-                        menuChoice = menuChoiceStack.Peek();
-                    }
-                    if (menuChoice != null)
-                    {
-                        menuChoice.SyntacticalElements.Add(actionDescription);
-                        actionDescription.IndentLevel.Level = 1 + indentLevel;
-                    }
-                    else
-                    {
-                        syntacticalElements.Add(actionDescription);
-                        actionDescription.IndentLevel.Level = indentLevel;
-                    }
+                    var actionContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+                    actionContentArea.AddSyntacticalElement(actionDescription);
                 }
                 var weaveDivert = weaveContent as Ink.Parsed.Divert;
                 if (weaveDivert != null)
                 {
                     //var target = weaveDivert.target;
                     //var targetContent = weaveDivert.targetContent;
-                    var deviation = new SeperatedDeviation() 
+                    var deviation = new SeparatedDeviation() 
                     { 
                         FlowTargetToken = new FlowTargetToken() 
                         {
@@ -203,41 +306,42 @@ namespace Ink.Ink2FountainExp.Adapting
                         }, 
                         IndentLevel = new IndentLevel(), 
                         SpaceToken = new SpaceToken(), 
-                        SeperatedDeviationToken = new SeperatedDeviationToken(), 
+                        SeparatedDeviationToken = new SeparatedDeviationToken(), 
                         EndLine = new EndLine() 
                     };
-                    MenuChoice menuChoice = null;
-                    if (menuChoiceStack.Count > 0)
-                    {
-                        menuChoice = menuChoiceStack.Peek();
-                    }
-                    if (menuChoice != null)
-                    {
-                        menuChoice.SyntacticalElements.Add(deviation);
-                        deviation.IndentLevel.Level = 1 + indentLevel;
-                    }
-                    else
-                    {
-                        syntacticalElements.Add(deviation);
-                        deviation.IndentLevel.Level = indentLevel;
-                    }
+
+                    var divertContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+                    divertContentArea.AddSyntacticalElement(deviation);
                 }
                 var weaveContentList = weaveContent as Ink.Parsed.ContentList;
                 if (weaveContentList != null)
                 {
+
                 }
                 var weaveGather = weaveContent as Ink.Parsed.Gather;
                 if (weaveGather != null)
                 {
-                    // A gather will always end a menu
-                    //containerBlockStack.Pop();
+                    // A gather will always end a menu and drop the indent to 0
                     menuChoiceStack.Clear();
                     menuStack.Clear();
-                    syntacticalElements.Add(new BlankLine());
+                    ResetGatherContentArea(contentArea, contentAreaStack);
+
+                    PushGatherContentArea(contentArea, contentAreaStack, weaveGather.name);
                 }
                 var weaveChoice = weaveContent as Ink.Parsed.Choice;
                 if (weaveChoice != null)
                 {
+
+                    var baseChoiceContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+                    var menuChoice = new MenuChoice()
+                    {
+                        MenuChoiceToken = new StickyMenuChoiceToken(),
+                        SpaceToken = new SpaceToken(),
+                        EndLine = new EndLine(),
+                        IndentLevel = new IndentLevel()
+                    };
+
+                    ContentArea newContentArea = baseChoiceContentArea;
                     Menu menu = null;
                     if (menuStack.Count > 0)
                     {
@@ -251,140 +355,144 @@ namespace Ink.Ink2FountainExp.Adapting
                             StartEndLine = new EndLine(),
                             CloseMenuChoiceToken = new ContainerBlockToken(),
                             CloseEndLine = new EndLine(),
-                            IndentLevel = new IndentLevel() { Level = indentLevel }
+                            IndentLevel = new IndentLevel() { Level = contentArea.IndentLevel }
                         };
-                        syntacticalElements.Add(containerBlock);
+                        baseChoiceContentArea.AddSyntacticalElement(containerBlock);
+                        menuChoice.IndentLevel.Level = baseChoiceContentArea.IndentLevel;
 
                         menu = new Menu();
                         containerBlock.SyntacticalElements.Add(menu);
                         menuStack.Push(menu);
-                    }
 
-                    var menuChoice = new MenuChoice() { MenuChoiceToken = new StickyMenuChoiceToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = indentLevel } };
-                    menu.Choices.Add(menuChoice);
-                    menuChoiceStack.Push(menuChoice);
-
-                    string baseContent = string.Empty;
-                    // Determine the base content for the choice
-                    var firstChoiceContentList = weaveChoice.content[0] as Ink.Parsed.ContentList;
-                    if (firstChoiceContentList != null)
-                    {
-                        var firstChoiceText = firstChoiceContentList.content[0] as Ink.Parsed.Text;
-                        if (firstChoiceText != null)
-                        {
-                            baseContent = firstChoiceText.text;
-                        }
-                    }
-
-                    int choiceCount = weaveChoice.content.Count;
-                    if (choiceCount == 1)
-                    {
-                        // Shows only choice to the user but no reply
-                        menuChoice.Description = baseContent;
-                    }
-                    else if (choiceCount == 2)
-                    {
-                        menuChoice.Description = baseContent;
-
-                        // This has no added text for the choice
-                        var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
-                        if (secondChoiceContentList != null)
-                        {
-                            var responseText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
-                            if (responseText != null)
-                            {
-                                menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + responseText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
-                            }
-                        }
-                    }
-                    else if (choiceCount == 3)
-                    {
-                        // check the last content first because it may change the meaning of the second content.
-                        var thirdChoiceBinaryExpression = weaveChoice.content[2] as Ink.Parsed.BinaryExpression;
-                        if (thirdChoiceBinaryExpression != null)
-                        {
-                            menuChoice.Description = baseContent;
-
-                            var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
-                            if (secondChoiceContentList != null)
-                            {
-                                var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
-                                if (secondChoiceContentList != null)
-                                {
-                                    menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + secondChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
-                                }
-                            }
-
-
-                            var thirdChoiceText = thirdChoiceBinaryExpression.content[0] as Ink.Parsed.Text;
-                            if (thirdChoiceText != null)
-                            {
-                                menuChoice.SyntacticalElements.Add(new AttributeSpan() { });
-                            }
-                        }
-                        else
-                        {
-                            // This does have added text for the choice
-                            var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
-                            if (secondChoiceContentList != null)
-                            {
-                                var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
-                                if (secondChoiceContentList != null)
-                                {
-                                    menuChoice.Description = baseContent + secondChoiceText.text;
-                                }
-                            }
-
-                            var thirdChoiceContentList = weaveChoice.content[2] as Ink.Parsed.ContentList;
-                            if (thirdChoiceContentList != null)
-                            {
-                                var thirdChoiceText = thirdChoiceContentList.content[0] as Ink.Parsed.Text;
-                                if (thirdChoiceText != null)
-                                {
-                                    menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + thirdChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
-                                }
-                            }
-                        }
-                    }
-                    else if (choiceCount == 4)
-                    {
-                        // same as 3 but with force attribute on text
-                        // This does have added text for the choice
-                        var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
-                        var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
-                        menuChoice.Description = baseContent + secondChoiceText;
-
-                        var thirdChoiceContentList = weaveChoice.content[2] as Ink.Parsed.ContentList;
-                        var thirdChoiceText = thirdChoiceContentList.content[0] as Ink.Parsed.Text;
-                        menuChoice.SyntacticalElements.Add(new ActionDescription() { TextContent = baseContent + thirdChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + indentLevel } });
-
-                        menuChoice.SyntacticalElements.Add(new AttributeSpan() { });
+                        // increase the indent level of this content area.
+                        newContentArea = PushChoiceContentArea(contentArea, contentAreaStack, weaveChoice.name, menuChoice);
                     }
                     else
                     {
-                        // wrong?
-                        var y = 1;
+                        PopCurrentContentArea(contentArea, contentAreaStack);
+                        baseChoiceContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+                        menuChoice.IndentLevel.Level = baseChoiceContentArea.IndentLevel;
+                        newContentArea = PushChoiceContentArea(contentArea, contentAreaStack, weaveChoice.name, menuChoice);
                     }
+
+
+                    menu.Choices.Add(menuChoice);
+                    menuChoiceStack.Push(menuChoice);
+
+                    HandleChoiceContent(weaveChoice, newContentArea, menuChoice);
                 }
                 var subWeaveContentList = weaveContent as Ink.Parsed.Weave;
                 if (subWeaveContentList != null)
                 {
-                    MenuChoice menuChoice = null;
-                    if (menuChoiceStack.Count > 0)
+                    var subWeaveContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+                    ProcesWeave(subWeaveContentArea, subWeaveContentList);
+                }
+            }            
+        }
+
+        private static void HandleChoiceContent(Parsed.Choice weaveChoice, ContentArea contentArea, MenuChoice menuChoice)
+        {
+            string baseContent = string.Empty;
+            // Determine the base content for the choice
+            var firstChoiceContentList = weaveChoice.content[0] as Ink.Parsed.ContentList;
+            if (firstChoiceContentList != null)
+            {
+                var firstChoiceText = firstChoiceContentList.content[0] as Ink.Parsed.Text;
+                if (firstChoiceText != null)
+                {
+                    baseContent = firstChoiceText.text;
+                }
+            }
+
+            int choiceCount = weaveChoice.content.Count;
+            if (choiceCount == 1)
+            {
+                // Shows only choice to the user but no reply
+                menuChoice.Description = baseContent;
+            }
+            else if (choiceCount == 2)
+            {
+                menuChoice.Description = baseContent;
+
+                // This has no added text for the choice
+                var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                if (secondChoiceContentList != null)
+                {
+                    var responseText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                    if (responseText != null)
                     {
-                        menuChoice = menuChoiceStack.Peek();
-                    }
-                    if (menuChoice != null)
-                    {
-                        ProcesWeave(menuChoice.SyntacticalElements, subWeaveContentList, 1 + indentLevel);
-                    }
-                    else
-                    {
-                        ProcesWeave(syntacticalElements, subWeaveContentList, 1 + indentLevel);
+                        contentArea.AddSyntacticalElement(new ActionDescription() { TextContent = baseContent + responseText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + contentArea.IndentLevel } });
                     }
                 }
             }
-            
+            else if (choiceCount == 3)
+            {
+                // check the last content first because it may change the meaning of the second content.
+                var thirdChoiceBinaryExpression = weaveChoice.content[2] as Ink.Parsed.BinaryExpression;
+                if (thirdChoiceBinaryExpression != null)
+                {
+                    menuChoice.Description = baseContent;
+
+                    var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                    if (secondChoiceContentList != null)
+                    {
+                        var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                        if (secondChoiceContentList != null)
+                        {
+                            contentArea.AddSyntacticalElement(new ActionDescription() { TextContent = baseContent + secondChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + contentArea.IndentLevel } });
+                        }
+                    }
+
+
+                    var thirdChoiceText = thirdChoiceBinaryExpression.content[0] as Ink.Parsed.Text;
+                    if (thirdChoiceText != null)
+                    {
+                        contentArea.AddSyntacticalElement(new AttributeSpan() { });
+                    }
+                }
+                else
+                {
+                    // This does have added text for the choice
+                    var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                    if (secondChoiceContentList != null)
+                    {
+                        var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                        if (secondChoiceContentList != null)
+                        {
+                            menuChoice.Description = baseContent + secondChoiceText.text;
+                        }
+                    }
+
+                    var thirdChoiceContentList = weaveChoice.content[2] as Ink.Parsed.ContentList;
+                    if (thirdChoiceContentList != null)
+                    {
+                        var thirdChoiceText = thirdChoiceContentList.content[0] as Ink.Parsed.Text;
+                        if (thirdChoiceText != null)
+                        {
+                            contentArea.AddSyntacticalElement(new ActionDescription() { TextContent = baseContent + thirdChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + contentArea.IndentLevel } });
+                        }
+                    }
+                }
+            }
+            else if (choiceCount == 4)
+            {
+                // same as 3 but with force attribute on text
+                // This does have added text for the choice
+                var secondChoiceContentList = weaveChoice.content[1] as Ink.Parsed.ContentList;
+                var secondChoiceText = secondChoiceContentList.content[0] as Ink.Parsed.Text;
+                menuChoice.Description = baseContent + secondChoiceText;
+
+                var thirdChoiceContentList = weaveChoice.content[2] as Ink.Parsed.ContentList;
+                var thirdChoiceText = thirdChoiceContentList.content[0] as Ink.Parsed.Text;
+                contentArea.AddSyntacticalElement(new ActionDescription() { TextContent = baseContent + thirdChoiceText.text, EndLine = new EndLine(), IndentLevel = new IndentLevel() { Level = 1 + contentArea.IndentLevel } });
+
+                contentArea.AddSyntacticalElement(new AttributeSpan() { });
+            }
+            else
+            {
+                // wrong?
+                var y = 1;
+            }
         }
 
         public void AddGlobalFunctions(FountainFile file, Parsed.Fiction parsedFiction)

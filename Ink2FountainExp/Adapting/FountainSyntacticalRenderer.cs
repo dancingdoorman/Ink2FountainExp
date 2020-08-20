@@ -113,7 +113,10 @@ namespace Ink.Ink2FountainExp.Adapting
                 var definingCodeBlock = element as DefiningCodeBlock;
                 Write(builder, definingCodeBlock);
 
-                var seperatedDeviation = element as SeperatedDeviation;
+                var separatedDetour = element as SeparatedDetour;
+                Write(builder, separatedDetour);
+
+                var seperatedDeviation = element as SeparatedDeviation;
                 Write(builder, seperatedDeviation);
 
                 var container = element as SyntacticalElementContainer;
@@ -126,13 +129,26 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #region Write Automatic Flow Elements
 
-        public void Write(StringBuilder builder, SeperatedDeviation seperatedDeviation)
+        public void Write(StringBuilder builder, SeparatedDetour separatedDetour)
+        {
+            if (builder == null || separatedDetour == null)
+                return;
+
+            Write(builder, separatedDetour.IndentLevel);
+            LexicalRenderer.Write(builder, separatedDetour.SeparatedDetourToken);
+            LexicalRenderer.Write(builder, separatedDetour.SpaceToken);
+            LexicalRenderer.Write(builder, separatedDetour.FlowTargetToken);
+
+            builder.Append(EndLine.Pattern);
+        }
+
+        public void Write(StringBuilder builder, SeparatedDeviation seperatedDeviation)
         {
             if (builder == null || seperatedDeviation == null)
                 return;
 
             Write(builder, seperatedDeviation.IndentLevel);
-            LexicalRenderer.Write(builder, seperatedDeviation.SeperatedDeviationToken);
+            LexicalRenderer.Write(builder, seperatedDeviation.SeparatedDeviationToken);
             LexicalRenderer.Write(builder, seperatedDeviation.SpaceToken);
             LexicalRenderer.Write(builder, seperatedDeviation.FlowTargetToken);
 
@@ -210,7 +226,10 @@ namespace Ink.Ink2FountainExp.Adapting
                 var containerBlock = element as ContainerBlock;
                 Write(builder, containerBlock);
 
-                var seperatedDeviation = element as SeperatedDeviation;
+                var separatedDetour = element as SeparatedDetour;
+                Write(builder, separatedDetour);
+
+                var seperatedDeviation = element as SeparatedDeviation;
                 Write(builder, seperatedDeviation);
 
 

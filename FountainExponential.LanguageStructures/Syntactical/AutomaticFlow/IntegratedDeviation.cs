@@ -8,5 +8,6 @@ namespace FountainExponential.LanguageStructures.Syntactical.AutomaticFlow
 {
     public class IntegratedDeviation : Deviation, ISyntacticalElementable
     {
+        public IntegratedDeviationToken IntegratedDeviationToken { get; set; }
     }
 }

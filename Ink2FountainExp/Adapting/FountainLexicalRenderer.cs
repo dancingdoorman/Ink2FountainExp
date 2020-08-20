@@ -127,13 +127,20 @@ namespace Ink.Ink2FountainExp.Adapting
         }
 
         #endregion Write Sections 
+        public void Write(StringBuilder builder, SeparatedDetourToken detour)
+        {
+            if (builder == null || detour == null)
+                return;
 
-        public void Write(StringBuilder builder, SeperatedDeviationToken deviation)
+            builder.Append(SeparatedDetourToken.Keyword);
+        }
+
+        public void Write(StringBuilder builder, SeparatedDeviationToken deviation)
         {
             if (builder == null || deviation == null)
                 return;
 
-            builder.Append(SeperatedDeviationToken.Keyword);
+            builder.Append(SeparatedDeviationToken.Keyword);
         }
         
         public void Write(StringBuilder builder, SpaceToken spaceToken)
