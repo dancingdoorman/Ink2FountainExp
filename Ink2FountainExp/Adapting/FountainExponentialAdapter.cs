@@ -9,6 +9,7 @@ using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
+using FountainExponential.LanguageStructures.Lexical.Sections;
 using FountainExponential.LanguageStructures.Syntactical;
 using FountainExponential.LanguageStructures.Syntactical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Syntactical.Code;
@@ -67,11 +68,11 @@ namespace Ink.Ink2FountainExp.Adapting
             AddGlobalFunctions(mainFile, parsedFiction);
 
 
-            var actI = new Act() { SectionName = "ActI", SpaceToken = new SpaceToken(), EndLine = new EndLine() };
+            var actI = new Act() { SectionName = "ActI", ActStartToken = new ActToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             mainFile.Acts.Add(actI);
             actI.SyntacticalElements.Add(new BlankLine());
 
-            var sequence1 = new Sequence() { SectionName = "Sequence1", SpaceToken = new SpaceToken(), EndLine = new EndLine() };
+            var sequence1 = new Sequence() { SectionName = "Sequence1", SequenceStartToken = new SequenceToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             sequence1.SyntacticalElements.Add(new BlankLine());
             actI.Sequences.Add(sequence1);
 
@@ -102,7 +103,7 @@ namespace Ink.Ink2FountainExp.Adapting
                     var flowBase = parsedObject as Ink.Parsed.FlowBase;
                     if (flowBase != null)
                     {
-                        var scene = new Scene() { SectionName = flowBase.name, SpaceToken = new SpaceToken(), EndLine = new EndLine() };
+                        var scene = new Scene() { SectionName = flowBase.name, SceneStartToken = new SceneToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
                         scene.SyntacticalElements.Add(new BlankLine());
                         sequence1.Scenes.Add(scene);
 
@@ -131,7 +132,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (flowBaseStitch == null)
                 return;
 
-            var moment = new Moment() { SectionName = flowBaseStitch.name, SpaceToken = new SpaceToken(), EndLine = new EndLine() };
+            var moment = new Moment() { SectionName = flowBaseStitch.name, MomentStartToken = new MomentToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             scene.Moments.Add(moment);
 
             moment.SyntacticalElements.Add(new BlankLine());

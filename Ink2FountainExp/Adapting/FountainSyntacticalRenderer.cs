@@ -264,6 +264,8 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #region Write Sections
 
+        #region Write Section Lists
+
         public void Write(StringBuilder builder, List<Act> acts)
         {
             foreach (var act in acts)
@@ -314,12 +316,14 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
+        #endregion Write Section Lists
+
         public void Write(StringBuilder builder, Act act)
         {
             if (builder == null || act == null)
                 return;
 
-            builder.Append(ActToken.Keyword);
+            LexicalRenderer.Write(builder, act.ActStartToken);
             LexicalRenderer.Write(builder, act.SpaceToken);
             builder.Append(act.SectionName);
             Write(builder, act.EndLine);
@@ -340,7 +344,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || sequence == null)
                 return;
 
-            builder.Append(SequenceToken.Keyword);
+            LexicalRenderer.Write(builder, sequence.SequenceStartToken);
             LexicalRenderer.Write(builder, sequence.SpaceToken);
             builder.Append(sequence.SectionName);
             Write(builder, sequence.EndLine);
@@ -360,7 +364,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || scene == null)
                 return;
 
-            builder.Append(SceneToken.Keyword);
+            LexicalRenderer.Write(builder, scene.SceneStartToken);
             LexicalRenderer.Write(builder, scene.SpaceToken);
             builder.Append(scene.SectionName);
             Write(builder, scene.EndLine);
@@ -379,7 +383,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || moment == null)
                 return;
 
-            builder.Append(MomentToken.Keyword);
+            LexicalRenderer.Write(builder, moment.MomentStartToken);
             LexicalRenderer.Write(builder, moment.SpaceToken);
             builder.Append(moment.SectionName);
             Write(builder, moment.EndLine);
@@ -397,7 +401,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || slice == null)
                 return;
 
-            builder.Append(SliceToken.Keyword);
+            LexicalRenderer.Write(builder, slice.SliceStartToken);
             LexicalRenderer.Write(builder, slice.SpaceToken);
             builder.Append(slice.SectionName);
             Write(builder, slice.EndLine);
@@ -414,7 +418,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || microSlice == null)
                 return;
 
-            builder.Append(MicroSliceToken.Keyword);
+            LexicalRenderer.Write(builder, microSlice.MicroSliceStartToken);
             LexicalRenderer.Write(builder, microSlice.SpaceToken);
             builder.Append(microSlice.SectionName);
             Write(builder, microSlice.EndLine);
@@ -430,7 +434,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || nanoSlice == null)
                 return;
 
-            builder.Append(NanoSliceToken.Keyword);
+            LexicalRenderer.Write(builder, nanoSlice.NanoSliceStartToken);
             LexicalRenderer.Write(builder, nanoSlice.SpaceToken);
             builder.Append(nanoSlice.SectionName);
             Write(builder, nanoSlice.EndLine);
