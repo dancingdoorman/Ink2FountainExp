@@ -240,14 +240,18 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, menuChoice.IndentLevel);
 
-            if (menuChoice.MenuChoiceToken is StickyMenuChoiceToken)
-                builder.Append(StickyMenuChoiceToken.Sign);
-            else if (menuChoice.MenuChoiceToken is ConsumableMenuChoiceToken)
-                builder.Append(ConsumableMenuChoiceToken.Sign);
-            else if (menuChoice.MenuChoiceToken is ContinuingMenuChoiceToken)
-                builder.Append(ContinuingMenuChoiceToken.Sign);
-            else
-                builder.Append(StickyMenuChoiceToken.Sign);
+            var stickyMenuChoiceToken = menuChoice.MenuChoiceToken as StickyMenuChoiceToken;
+            LexicalRenderer.Write(builder, stickyMenuChoiceToken);
+
+            var consumableMenuChoiceToken = menuChoice.MenuChoiceToken as ConsumableMenuChoiceToken;
+            LexicalRenderer.Write(builder, consumableMenuChoiceToken);
+
+            var continuingMenuChoiceToken = menuChoice.MenuChoiceToken as ContinuingMenuChoiceToken;
+            LexicalRenderer.Write(builder, continuingMenuChoiceToken);
+
+            // if no choice token is present we create a default choice token.
+            if(stickyMenuChoiceToken == null && consumableMenuChoiceToken == null && continuingMenuChoiceToken == null)
+                LexicalRenderer.Write(builder, new StickyMenuChoiceToken());
 
             LexicalRenderer.Write(builder, menuChoice.SpaceToken);
             builder.Append(menuChoice.Description);

@@ -1,5 +1,6 @@
 ﻿using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
+using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,31 @@ namespace Ink.Ink2FountainExp.Adapting
 
             builder.Append(key.Keyword);
         }
+                    
+        public void Write(StringBuilder builder, StickyMenuChoiceToken choice)
+        {
+            if (builder == null || choice == null)
+                return;
+
+            builder.Append(StickyMenuChoiceToken.Sign);
+        }
+
+        public void Write(StringBuilder builder, ConsumableMenuChoiceToken choice)
+        {
+            if (builder == null || choice == null)
+                return;
+
+            builder.Append(ConsumableMenuChoiceToken.Sign);
+        }
+
+        public void Write(StringBuilder builder, ContinuingMenuChoiceToken choice)
+        {
+            if (builder == null || choice == null)
+                return;
+
+            builder.Append(ContinuingMenuChoiceToken.Sign);
+        }
+
         public void Write(StringBuilder builder, FlowTargetToken target)
         {
             if (builder == null || target == null)
