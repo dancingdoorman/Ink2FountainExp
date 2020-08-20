@@ -194,7 +194,17 @@ namespace Ink.Ink2FountainExp.Adapting
                 {
                     //var target = weaveDivert.target;
                     //var targetContent = weaveDivert.targetContent;
-                    var deviation = new SeperatedDeviation() { FlowTargetToken = new FlowTargetToken() {Label = weaveDivert.target.dotSeparatedComponents }, IndentLevel = new IndentLevel(), EndLine = new EndLine() };
+                    var deviation = new SeperatedDeviation() 
+                    { 
+                        FlowTargetToken = new FlowTargetToken() 
+                        {
+                            Label = weaveDivert.target.dotSeparatedComponents 
+                        }, 
+                        IndentLevel = new IndentLevel(), 
+                        SpaceToken = new SpaceToken(), 
+                        SeperatedDeviationToken = new SeperatedDeviationToken(), 
+                        EndLine = new EndLine() 
+                    };
                     MenuChoice menuChoice = null;
                     if (menuChoiceStack.Count > 0)
                     {
