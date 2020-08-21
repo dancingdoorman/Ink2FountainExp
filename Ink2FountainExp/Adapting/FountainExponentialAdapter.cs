@@ -38,22 +38,6 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public string ConvertToFountainExponential(Ink.Parsed.Fiction parsedFiction, string inputFileName)
         {
-            // The optional Title Page is always the first thing in a Fountain document. 
-            // Information is encoding in the format key: value. 
-            // Keys can have spaces (e. g. Draft date), but must end with a colon.
-            // Excample:
-            // Title:
-            //    _** BRICK &STEEL * *_
-            //    _** FULL RETIRED** _
-            //Credit: Written by
-            //Author: Stu Maschwitz
-            //Source: Story by KTM
-            //Draft date: 1 / 20 / 2012
-            //Contact:
-            //    Next Level Productions
-            //    1588 Mission Dr.
-            //    Solvang, CA 93463
-
             var fountainPlay = CreateFountainPlay(parsedFiction, inputFileName);
 
             var builder = new StringBuilder();
@@ -89,6 +73,22 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void AddMetaData(string inputFileName, FountainFile mainFile)
         {
+            // The optional Title Page is always the first thing in a Fountain document. 
+            // Information is encoding in the format key: value. 
+            // Keys can have spaces (e. g. Draft date), but must end with a colon.
+            // Example:
+            // Title:
+            //    _** BRICK &STEEL * *_
+            //    _** FULL RETIRED** _
+            //Credit: Written by
+            //Author: Stu Mark
+            //Source: Story by KTM
+            //Draft date: 1 / 20 / 2012
+            //Contact:
+            //    Next Level Productions
+            //    1588 Mission Dr.
+            //    Los Angeles, CA 93463
+
             mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
             var title = new Title() { Key = new KeyValuePairKeyToken() { Keyword = "Title" }, AssignmentToken = new KeyValuePairAssignmentToken(), EndLine = new EndLine() };
             title.ValueLineList.Add(new ValueLine() { Value = Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });

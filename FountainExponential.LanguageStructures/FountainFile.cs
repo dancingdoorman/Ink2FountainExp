@@ -8,7 +8,7 @@ using System.Text;
 
 namespace FountainExponential.LanguageStructures
 {
-    public class FountainFile : SyntacticalElementContainer
+    public class FountainFile : SyntacticalElementContainer, ISubsectionAddable
     {
         /// <summary>Gets or sets the filename.</summary>
         /// <value>The filename.</value>
@@ -33,6 +33,12 @@ namespace FountainExponential.LanguageStructures
         public List<Sequence> Sequences { get; set; } = new List<Sequence>();
         public List<Act> Acts { get; set; } = new List<Act>();
 
+        public SectionBase AddSubsection()
+        {
+            var subsection = new Act();
+            Acts.Add(subsection);
+            return subsection;
+        }
 
         public override string ToString()
         {
