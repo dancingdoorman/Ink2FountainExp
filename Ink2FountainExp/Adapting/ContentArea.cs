@@ -127,7 +127,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (string.IsNullOrEmpty(labelName))
                 return null;
 
-            // if the weave has a name, it is labeled and we want to make it a seperate section.
+            // if the weave has a name, it is labeled and we want to make it a separate section.
 
             string subSectionName = string.Empty;
             ContentArea subContentArea = new ContentArea();
@@ -181,7 +181,7 @@ namespace Ink.Ink2FountainExp.Adapting
             {
                 subSectionName = MicroSlice.SectionName + "__" + labelName;
                 var subNanoSlice = new NanoSlice() { SectionName = subSectionName, NanoSliceStartToken = new NanoSliceToken() };
-                MicroSlice.NanoSlice.Add(subNanoSlice);
+                MicroSlice.NanoSlices.Add(subNanoSlice);
                 subSectionBase = subNanoSlice;
 
                 subContentArea.NanoSlice = subNanoSlice;

@@ -4,4 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Syntactical\Sections\Slice.cs~RF26b72173.TMP" />
+  </ItemGroup>
+
 </Project>

@@ -445,7 +445,7 @@ namespace Ink.Ink2FountainExp.Adapting
             Write(builder, microSlice.SyntacticalElements);
 
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            Write(builder, microSlice.NanoSlice);
+            Write(builder, microSlice.NanoSlices);
         }
 
         public void Write(StringBuilder builder, NanoSlice nanoSlice)

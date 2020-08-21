@@ -6,7 +6,7 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Sections
 {
-    public class Act : SectionBase, ISyntacticalElementable
+    public class Act : SectionBase, ISyntacticalElementable, ISubsectionAddable
     {
         public ActToken ActStartToken { get; set; }
 
@@ -21,6 +21,13 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
         public List<Moment> Moments { get; set; } = new List<Moment>();
         public List<Scene> Scenes { get; set; } = new List<Scene>();
         public List<Sequence> Sequences { get; set; } = new List<Sequence>();
+
+        public SectionBase AddSubsection()
+        {
+            var subsection = new Sequence();
+            Sequences.Add(subsection);
+            return subsection;
+        }
 
         public override string ToString()
         {

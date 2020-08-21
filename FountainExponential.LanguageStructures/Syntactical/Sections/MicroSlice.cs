@@ -6,7 +6,7 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Sections
 {
-    public class MicroSlice : SectionBase, ISyntacticalElementable
+    public class MicroSlice : SectionBase, ISyntacticalElementable, ISubsectionAddable
     {
         public MicroSliceToken MicroSliceStartToken { get; set; }
 
@@ -15,7 +15,13 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
         // A section can only contain sections that are smaller then itself.
         //
 
-        public List<NanoSlice> NanoSlice { get; set; } = new List<NanoSlice>();
+        public List<NanoSlice> NanoSlices { get; set; } = new List<NanoSlice>();
+        public SectionBase AddSubsection()
+        {
+            var subsection = new NanoSlice();
+            NanoSlices.Add(subsection);
+            return subsection;
+        }
 
         public override string ToString()
         {
