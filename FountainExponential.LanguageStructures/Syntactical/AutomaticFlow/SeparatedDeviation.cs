@@ -6,7 +6,7 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.AutomaticFlow
 {
-    public class SeparatedDeviation : Deviation, ISyntacticalElementable, IIdentable
+    public class SeparatedDeviation : Deviation, ISyntacticalElementable, IIndentable
     {
         public SeparatedDeviationToken SeparatedDeviationToken { get; set; }
     }

@@ -5,7 +5,7 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.FountainElement
 {
-    public class ActionDescription : ISyntacticalElementable, IIdentable
+    public class ActionDescription : ISyntacticalElementable, IIndentable
     {
         /// <summary>Gets or sets the text content of the action.</summary>
         /// <value>The text content of the action.</value>

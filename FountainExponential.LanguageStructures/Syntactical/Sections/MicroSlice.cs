@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.Sections;
 using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Sections
 {
-    public class MicroSlice : SectionBase, ISyntacticalElementable, ISubsectionAddable
+    public class MicroSlice : SectionBase, ISyntacticalElementable, ISubsectionAddable, IStartTokenEnsurable
     {
         public MicroSliceToken MicroSliceStartToken { get; set; }
 
@@ -16,6 +17,15 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
         //
 
         public List<NanoSlice> NanoSlices { get; set; } = new List<NanoSlice>();
+
+        public ILexicalElementable EnsureStartToken()
+        {
+            if (MicroSliceStartToken == null)
+                MicroSliceStartToken = new MicroSliceToken();
+
+            return MicroSliceStartToken;
+        }
+
         public SectionBase AddSubsection()
         {
             var subsection = new NanoSlice();

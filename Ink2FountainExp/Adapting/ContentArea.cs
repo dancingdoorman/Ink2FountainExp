@@ -81,23 +81,30 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
-        public string GetSectionName()
+        public SectionBase GetCurrentSection()
         {
-
-            if (Act != null)
-                return Act.SectionName;
             if (Sequence != null)
-                return Sequence.SectionName;
+                return Sequence;
             if (Scene != null)
-                return Scene.SectionName;
+                return Scene;
             if (Moment != null)
-                return Moment.SectionName;
+                return Moment;
             if (Slice != null)
-                return Slice.SectionName;
+                return Slice;
             if (MicroSlice != null)
-                return MicroSlice.SectionName;
+                return MicroSlice;
             if (NanoSlice != null)
-                return NanoSlice.SectionName;
+                return NanoSlice;
+
+            return null;
+        }
+
+        public string GetCurrentSectionName()
+        {
+            var subsection = GetCurrentSection();
+
+            if (subsection != null)
+                return subsection.SectionName;
 
             return null;
         }
@@ -112,7 +119,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 return;
 
             syntacticalElements.Add(element);
-            var indentable = element as IIdentable;
+            var indentable = element as IIndentable;
             if (indentable != null)
             {
                 if (indentable.IndentLevel != null)
@@ -122,93 +129,80 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
-        public ContentArea CreateSubContentArea(string labelName)
+        private void AddCurrentSection(SectionBase section)
+        {
+            var act = section as Act;
+            if (act != null)
+            {
+                Act = act;
+                return;
+            }
+            var sequence = section as Sequence;
+            if (sequence != null)
+            {
+                Sequence = sequence;
+                return;
+            }
+            var scene = section as Scene;
+            if (scene != null)
+            {
+                Scene = scene;
+                return;
+            }
+            var moment = section as Moment;
+            if (moment != null)
+            {
+                Moment = moment;
+                return;
+            }
+            var slice = section as Slice;
+            if (slice != null)
+            {
+                Slice = slice;
+                return;
+            }
+            var microSlice = section as MicroSlice;
+            if (microSlice != null)
+            {
+                MicroSlice = microSlice;
+                return;
+            }
+            var nanoSlice = section as NanoSlice;
+            if (nanoSlice != null)
+            {
+                NanoSlice = nanoSlice;
+                return;
+            }
+        }
+
+        public ContentArea CreateSubsectionContentArea(string labelName)
         {
             if (string.IsNullOrEmpty(labelName))
                 return null;
 
             // if the weave has a name, it is labeled and we want to make it a separate section.
 
-            string subSectionName = string.Empty;
-            ContentArea subContentArea = new ContentArea();
-            SectionBase subSectionBase = null;
-            if (Act != null)
-            {
-                subSectionName = Act.SectionName + "__" + labelName;
-                var subSequence = new Sequence() { SectionName = subSectionName, SequenceStartToken = new SequenceToken() };
-                Act.Sequences.Add(subSequence);
-                subSectionBase = subSequence;
+            var subsectionContentArea = new ContentArea();
 
-                subContentArea.Sequence = subSequence;
-            }
-            if (Sequence != null)
+            var currentSection = GetCurrentSection();
+            var currentSectionSubsectionAddable = currentSection as ISubsectionAddable;
+            if (currentSectionSubsectionAddable != null)
             {
-                subSectionName = Sequence.SectionName + "__" + labelName;
-                var subScene = new Scene() { SectionName = subSectionName, SceneStartToken = new SceneToken() };
-                Sequence.Scenes.Add(subScene);
-                subSectionBase = subScene;
+                var theSubsection = currentSectionSubsectionAddable.AddSubsection();
+                theSubsection.SectionName = currentSection.SectionName + "__" + labelName;
+                theSubsection.SpaceToken = new SpaceToken();
+                theSubsection.EndLine = new EndLine();
+                theSubsection.SyntacticalElements.Add(new BlankLine());
+                subsectionContentArea.AddCurrentSection(theSubsection);
 
-                subContentArea.Scene = subScene;
-            }
-            if (Scene != null)
-            {
-                subSectionName = Scene.SectionName + "__" + labelName;
-                var subMoment = new Moment() { SectionName = subSectionName, MomentStartToken = new MomentToken() };
-                Scene.Moments.Add(subMoment);
-                subSectionBase = subMoment;
-
-                subContentArea.Moment = subMoment;
-            }
-            if (Moment != null)
-            {
-                subSectionName = Moment.SectionName + "__" + labelName;
-                var subSlice = new Slice() { SectionName = subSectionName, SliceStartToken = new SliceToken() };
-                Moment.Slices.Add(subSlice);
-                subSectionBase = subSlice;
-
-                subContentArea.Slice = subSlice;
-            }
-            if (Slice != null)
-            {
-                subSectionName = Slice.SectionName + "__" + labelName;
-                var subMicroSlice = new MicroSlice() { SectionName = subSectionName, MicroSliceStartToken = new MicroSliceToken() };
-                Slice.MicroSlices.Add(subMicroSlice);
-                subSectionBase = subMicroSlice;
-
-                subContentArea.MicroSlice = subMicroSlice;
-            }
-            if (MicroSlice != null)
-            {
-                subSectionName = MicroSlice.SectionName + "__" + labelName;
-                var subNanoSlice = new NanoSlice() { SectionName = subSectionName, NanoSliceStartToken = new NanoSliceToken() };
-                MicroSlice.NanoSlices.Add(subNanoSlice);
-                subSectionBase = subNanoSlice;
-
-                subContentArea.NanoSlice = subNanoSlice;
-            }
-            if (subSectionBase != null)
-            {
-                subSectionBase.SpaceToken = new SpaceToken();
-                subSectionBase.EndLine = new EndLine();
-                subSectionBase.SyntacticalElements.Add(new BlankLine());
+                var startTokenEnsurable = theSubsection as IStartTokenEnsurable;
+                if (startTokenEnsurable != null)
+                {
+                    startTokenEnsurable.EnsureStartToken();
+                }
             }
 
-            //if (MenuChoice != null)
-            //{
-            //    MenuChoice.SyntacticalElements.Add(new SeparatedDetour()
-            //    {
-            //        FlowTargetToken = new FlowTargetToken()
-            //        {
-            //            Label = subSectionName
-            //        },
-            //        IndentLevel = new IndentLevel(),
-            //        SpaceToken = new SpaceToken(),
-            //        SeparatedDetourToken = new SeparatedDetourToken(),
-            //        EndLine = new EndLine()
-            //    });
-            //}
-
-            return subContentArea;
+            return subsectionContentArea;
         }
 
         public override string ToString()

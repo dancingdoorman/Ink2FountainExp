@@ -197,7 +197,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             // if the weave has a name, it is labeled and we want to make it a seperate section.
             var currentContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
-            var newContentArea = currentContentArea.CreateSubContentArea(labelName);
+            var newContentArea = currentContentArea.CreateSubsectionContentArea(labelName);
             newContentArea.IndentLevel = 0;
             contentAreaStack.Push(newContentArea);
 
@@ -206,7 +206,7 @@ namespace Ink.Ink2FountainExp.Adapting
             {
                 FlowTargetToken = new FlowTargetToken()
                 {
-                    Label = newContentArea.GetSectionName()
+                    Label = newContentArea.GetCurrentSectionName()
                 },
                 IndentLevel = new IndentLevel(),
                 SpaceToken = new SpaceToken(),
@@ -246,7 +246,7 @@ namespace Ink.Ink2FountainExp.Adapting
             else
             {
                 // if the weave has a name, it is labeled and we want to make it a seperate section.
-                var newContentArea = currentContentArea.CreateSubContentArea(labelName);
+                var newContentArea = currentContentArea.CreateSubsectionContentArea(labelName);
                 newContentArea.IndentLevel = 0;
                 contentAreaStack.Push(newContentArea);
 
@@ -255,7 +255,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 {
                     FlowTargetToken = new FlowTargetToken()
                     {
-                        Label = newContentArea.GetSectionName()
+                        Label = newContentArea.GetCurrentSectionName()
                     },
                     IndentLevel = new IndentLevel(),
                     SpaceToken = new SpaceToken(),

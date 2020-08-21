@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FountainExponential.LanguageStructures
+namespace FountainExponential.LanguageStructures.Syntactical
 {
-    public interface IIdentable
+    /// <summary>The IIndentable interface ensures a syntactical element can be indented.</summary>
+    public interface IIndentable
     {
         IndentLevel IndentLevel { get; set; }
     }
