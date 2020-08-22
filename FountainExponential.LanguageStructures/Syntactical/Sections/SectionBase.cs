@@ -13,6 +13,8 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
         public string SectionName { get; set; }
 
         public EndLine EndLine { get; set; }
+
+        public SubsectionsSeparatorToken SubsectionsSeparatorToken { get; set; }
         
         public override string ToString()
         {

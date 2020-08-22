@@ -200,6 +200,9 @@ namespace Ink.Ink2FountainExp.Adapting
                 {
                     startTokenEnsurable.EnsureStartToken();
                 }
+
+                if (currentSection.SubsectionsSeparatorToken == null)
+                    currentSection.SubsectionsSeparatorToken = new SubsectionsSeparatorToken();
             }
 
             return subsectionContentArea;

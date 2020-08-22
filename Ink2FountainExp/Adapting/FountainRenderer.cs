@@ -47,7 +47,7 @@ namespace Ink.Ink2FountainExp.Adapting
             SyntacticalRenderer.Write(builder, new BlankLine());
 
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            SyntacticalRenderer.Write(builder, mainFile.NanoSlice);
+            SyntacticalRenderer.Write(builder, mainFile.NanoSlices);
             SyntacticalRenderer.Write(builder, mainFile.MicroSlices);
             SyntacticalRenderer.Write(builder, mainFile.Slices);
             SyntacticalRenderer.Write(builder, mainFile.Moments);

@@ -8,5 +8,7 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
     public interface ISubsectionAddable
     {
         SectionBase AddSubsection();
+
+        bool HasSubsection { get; }
     }
 }

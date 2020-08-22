@@ -287,55 +287,105 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public void Write(StringBuilder builder, List<Act> acts)
         {
+            bool first = true;
             foreach (var act in acts)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, act);
+
+                first = false;
             }
         }
         public void Write(StringBuilder builder, List<Sequence> sequences)
         {
+            bool first = true;
             foreach (var sequence in sequences)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, sequence);
+
+                first = false;
             }
         }
         public void Write(StringBuilder builder, List<Scene> scenes)
         {
+            bool first = true;
             foreach (var scene in scenes)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, scene);
+
+                first = false;
             }
         }
         public void Write(StringBuilder builder, List<Moment> moments)
         {
+            bool first = true;
             foreach (var moment in moments)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, moment);
+
+                first = false;
             }
         }
         public void Write(StringBuilder builder, List<Slice> slices)
         {
+            bool first = true;
             foreach (var slice in slices)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, slice);
+
+                first = false;
             }
         }
         public void Write(StringBuilder builder, List<MicroSlice> microSlices)
         {
+            bool first = true;
             foreach (var microSlice in microSlices)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, microSlice);
+
+                first = false;
             }
         }
         public void Write(StringBuilder builder, List<NanoSlice> nanoSlices)
         {
+            bool first = true;
             foreach (var nanoSlice in nanoSlices)
             {
+                if (first == false)
+                    Write(builder, new SubsectionsSeparatorToken());
+
                 Write(builder, nanoSlice);
+
+                first = false;
             }
         }
 
         #endregion Write Section Lists
+
+        public void Write(StringBuilder builder, SubsectionsSeparatorToken elementSubsectionSeparatorToken)
+        {
+            if (elementSubsectionSeparatorToken == null)
+                return;
+            
+            builder.Append(SubsectionsSeparatorToken.Pattern);   
+        }
 
         public void Write(StringBuilder builder, Act act)
         {
@@ -349,8 +399,11 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, act.SyntacticalElements);
 
+            if(act.HasSubsection)
+                Write(builder, act.SubsectionsSeparatorToken);
+
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            Write(builder, act.NanoSlice);
+            Write(builder, act.NanoSlices);
             Write(builder, act.MicroSlices);
             Write(builder, act.Slices);
             Write(builder, act.Moments);
@@ -370,8 +423,12 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, sequence.SyntacticalElements);
 
+
+            if (sequence.HasSubsection)
+                Write(builder, sequence.SubsectionsSeparatorToken);
+
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            Write(builder, sequence.NanoSlice);
+            Write(builder, sequence.NanoSlices);
             Write(builder, sequence.MicroSlices);
             Write(builder, sequence.Slices);
             Write(builder, sequence.Moments);
@@ -390,8 +447,11 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, scene.SyntacticalElements);
 
+            if (scene.HasSubsection)
+                Write(builder, scene.SubsectionsSeparatorToken);
+
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            Write(builder, scene.NanoSlice);
+            Write(builder, scene.NanoSlices);
             Write(builder, scene.MicroSlices);
             Write(builder, scene.Slices);
             Write(builder, scene.Moments);
@@ -409,8 +469,11 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, moment.SyntacticalElements);
 
+            if (moment.HasSubsection)
+                Write(builder, moment.SubsectionsSeparatorToken);
+
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            Write(builder, moment.NanoSlice);
+            Write(builder, moment.NanoSlices);
             Write(builder, moment.MicroSlices);
             Write(builder, moment.Slices);
         }
@@ -427,8 +490,11 @@ namespace Ink.Ink2FountainExp.Adapting
 
             Write(builder, slice.SyntacticalElements);
 
+            if (slice.HasSubsection)
+                Write(builder, slice.SubsectionsSeparatorToken);
+
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
-            Write(builder, slice.NanoSlice);
+            Write(builder, slice.NanoSlices);
             Write(builder, slice.MicroSlices);
         }
 
@@ -443,6 +509,9 @@ namespace Ink.Ink2FountainExp.Adapting
             Write(builder, microSlice.EndLine);
 
             Write(builder, microSlice.SyntacticalElements);
+
+            if (microSlice.HasSubsection)
+                Write(builder, microSlice.SubsectionsSeparatorToken);
 
             // Write from small to large because equal or bigger sections can not be contained by equal or smaller ones.
             Write(builder, microSlice.NanoSlices);

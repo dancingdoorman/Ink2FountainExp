@@ -140,6 +140,10 @@ namespace Ink.Ink2FountainExp.Adapting
             var moment = new Moment() { SectionName = flowBaseStitch.name, MomentStartToken = new MomentToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             scene.Moments.Add(moment);
 
+            // Might be better to create a AddMoment function on the scene to be able to add and check for this in one go.
+            if(scene.SubsectionsSeparatorToken == null)
+                scene.SubsectionsSeparatorToken = new SubsectionsSeparatorToken();
+
             moment.SyntacticalElements.Add(new BlankLine());
 
             foreach (var stitchContent in flowBaseStitch.content)

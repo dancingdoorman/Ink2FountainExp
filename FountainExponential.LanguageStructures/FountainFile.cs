@@ -25,13 +25,21 @@ namespace FountainExponential.LanguageStructures
         // A section can only contain sections that are smaller then itself.
         //
 
-        public List<NanoSlice> NanoSlice { get; set; } = new List<NanoSlice>();
+        public List<NanoSlice> NanoSlices { get; set; } = new List<NanoSlice>();
         public List<MicroSlice> MicroSlices { get; set; } = new List<MicroSlice>();
         public List<Slice> Slices { get; set; } = new List<Slice>();
         public List<Moment> Moments { get; set; } = new List<Moment>();
         public List<Scene> Scenes { get; set; } = new List<Scene>();
         public List<Sequence> Sequences { get; set; } = new List<Sequence>();
         public List<Act> Acts { get; set; } = new List<Act>();
+
+        public bool HasSubsection
+        {
+            get
+            {
+                return NanoSlices.Count > 0 || MicroSlices.Count > 0 || Slices.Count > 0 || Moments.Count > 0 || Scenes.Count > 0 || Sequences.Count > 0 || Acts.Count > 0;
+            }
+        }
 
         public SectionBase AddSubsection()
         {

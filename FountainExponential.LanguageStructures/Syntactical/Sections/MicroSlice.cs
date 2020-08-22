@@ -18,6 +18,14 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
 
         public List<NanoSlice> NanoSlices { get; set; } = new List<NanoSlice>();
 
+        public bool HasSubsection
+        {
+            get
+            {
+                return NanoSlices.Count > 0;
+            }
+        }
+
         public ILexicalElementable EnsureStartToken()
         {
             if (MicroSliceStartToken == null)

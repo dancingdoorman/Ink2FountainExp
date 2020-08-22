@@ -16,10 +16,18 @@ namespace FountainExponential.LanguageStructures.Syntactical.Sections
         // A section can only contain sections that are smaller then itself.
         //
 
-        public List<NanoSlice> NanoSlice { get; set; } = new List<NanoSlice>();
+        public List<NanoSlice> NanoSlices { get; set; } = new List<NanoSlice>();
         public List<MicroSlice> MicroSlices { get; set; } = new List<MicroSlice>();
         public List<Slice> Slices { get; set; } = new List<Slice>();
         public List<Moment> Moments { get; set; } = new List<Moment>();
+
+        public bool HasSubsection
+        {
+            get
+            {
+                return NanoSlices.Count > 0 || MicroSlices.Count > 0 || Slices.Count > 0 || Moments.Count > 0;
+            }
+        }
 
         public ILexicalElementable EnsureStartToken()
         {
