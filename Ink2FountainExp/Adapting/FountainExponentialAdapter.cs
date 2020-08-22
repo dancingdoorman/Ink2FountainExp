@@ -108,7 +108,6 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
-
         public bool Handle(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
         {
             bool handled = false;
@@ -417,9 +416,13 @@ namespace Ink.Ink2FountainExp.Adapting
             if (contentAreaManager == null || weaveChoice == null)
                 return false;
 
+            MenuChoiceToken token = new ConsumableMenuChoiceToken();
+            if(!weaveChoice.onceOnly)
+                token= new StickyMenuChoiceToken();
+
             var menuChoice = new MenuChoice()
             {
-                MenuChoiceToken = new StickyMenuChoiceToken(),
+                MenuChoiceToken = token,
                 SpaceToken = new SpaceToken(),
                 EndLine = new EndLine(),
                 IndentLevel = new IndentLevel()
