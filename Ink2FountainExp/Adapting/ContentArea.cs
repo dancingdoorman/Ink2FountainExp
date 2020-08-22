@@ -182,7 +182,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             // if the weave has a name, it is labeled and we want to make it a separate section.
 
-            var subsectionContentArea = new ContentArea();
+            var subsectionContentArea = new ContentArea() { IndentLevel = 0 };
 
             var currentSection = GetCurrentSection();
             var currentSectionSubsectionAddable = currentSection as ISubsectionAddable;

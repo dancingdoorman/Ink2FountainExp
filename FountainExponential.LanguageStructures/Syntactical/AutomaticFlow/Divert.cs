@@ -8,8 +8,8 @@ using FountainExponential.LanguageStructures.Syntactical.FountainElement;
 
 namespace FountainExponential.LanguageStructures.Syntactical.AutomaticFlow
 {
-    public class Divert : ISyntacticalElementable
-    {        
+    public class Divert : ISyntacticalElementable, IIndentable
+    {
         public FlowTargetToken FlowTargetToken { get; set; }
         public SpaceToken SpaceToken { get; set; }
         
