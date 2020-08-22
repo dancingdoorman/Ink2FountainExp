@@ -31,8 +31,8 @@ namespace Ink.Ink2FountainExp.Adapting
         /// <value>The file system interactor.</value>
         public FountainRenderer FountainRenderer { get; set; } = new FountainRenderer();
 
-        public bool MoveLabeledGatherToSection { get; set; } = false;
-        public bool MoveLabeledChoiceToSection { get; set; } = false;
+        public bool MoveLabeledGatherToSection { get; set; } = false; // true
+        public bool MoveLabeledChoiceToSection { get; set; } = false; // false
 
         #endregion Properties
 
@@ -60,12 +60,8 @@ namespace Ink.Ink2FountainExp.Adapting
             mainFile.Acts.Add(actI);
             actI.SyntacticalElements.Add(new BlankLine());
 
-            var sequence1 = new Sequence() { SectionName = "Sequence1", SequenceStartToken = new SequenceToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
-            sequence1.SyntacticalElements.Add(new BlankLine());
-            actI.Sequences.Add(sequence1);
 
-
-            AddScenes(sequence1, parsedFiction);
+            AddSequences(actI, parsedFiction);
 
             return fountainPlay;
         }
@@ -97,7 +93,7 @@ namespace Ink.Ink2FountainExp.Adapting
             mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
         }
 
-        public void AddScenes(Sequence sequence1, Parsed.Fiction parsedFiction)
+        public void AddSequences(Act act, Parsed.Fiction parsedFiction)
         {
             foreach (var parsedObject in parsedFiction.content)
             {
@@ -106,53 +102,78 @@ namespace Ink.Ink2FountainExp.Adapting
                     var flowBase = parsedObject as Ink.Parsed.FlowBase;
                     if (flowBase != null)
                     {
-                        var scene = new Scene() { SectionName = flowBase.name, SceneStartToken = new SceneToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
-                        scene.SyntacticalElements.Add(new BlankLine());
-                        sequence1.Scenes.Add(scene);
+                        var sequence = new Sequence() { SectionName = flowBase.name, SequenceStartToken = new SequenceToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
+                        sequence.SyntacticalElements.Add(new BlankLine());
+                        act.Sequences.Add(sequence);
 
-                        AddSceneElements(scene, flowBase);
+                        AddSequenceElements(sequence, flowBase);
                     }
                 }
             }
         }
 
-        public void AddSceneElements(Scene scene, Parsed.FlowBase flowBase)
+        public void AddSequenceElements(Sequence sequence, Parsed.FlowBase flowBase)
         {
             for (int i = 0; i < flowBase.content.Count; i++)
             {
                 Ink.Parsed.Object flowBaseContent = flowBase.content[i];
 
                 var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
-                var contentArea = new ContentArea() { Scene = scene, IndentLevel = 0 };
+                var contentArea = new ContentArea() { Sequence = sequence, IndentLevel = 0 };
                 var contentAreaManager = new ContentAreaManager(contentArea);
                 ProcesWeave(contentAreaManager, flowBaseWeave);
 
                 var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
-                AddMoments(scene, flowBaseStitch);
+                AddScene(sequence, flowBaseStitch);
             }
         }
 
-        public void AddMoments(Scene scene, Parsed.Stitch flowBaseStitch)
+        public void AddScene(Sequence sequence, Parsed.Stitch flowBaseStitch)
         {
             if (flowBaseStitch == null)
                 return;
 
-            var moment = new Moment() { SectionName = flowBaseStitch.name, MomentStartToken = new MomentToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
-            scene.Moments.Add(moment);
+            var scene = new Scene() { SectionName = flowBaseStitch.name, SceneStartToken = new SceneToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
+            sequence.Scenes.Add(scene);
 
             // Might be better to create a AddMoment function on the scene to be able to add and check for this in one go.
-            if(scene.SubsectionsSeparatorToken == null)
-                scene.SubsectionsSeparatorToken = new SubsectionsSeparatorToken();
+            if(sequence.SubsectionsSeparatorToken == null)
+                sequence.SubsectionsSeparatorToken = new SubsectionsSeparatorToken();
 
-            moment.SyntacticalElements.Add(new BlankLine());
+            scene.SyntacticalElements.Add(new BlankLine());
 
             foreach (var stitchContent in flowBaseStitch.content)
             {
                 var flowBaseWeave = stitchContent as Ink.Parsed.Weave;
-                var contentArea = new ContentArea() { Moment = moment, IndentLevel = 0 };
+                var contentArea = new ContentArea() { Scene = scene, IndentLevel = 0 };
                 var contentAreaManager = new ContentAreaManager(contentArea);
                 ProcesWeave(contentAreaManager, flowBaseWeave);
             }
+        }
+
+
+        public void Process(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
+        {
+            var authorWarning = parsedObject as Parsed.AuthorWarning;
+            var conditional = parsedObject as Parsed.Conditional;
+            var conditionalSingleBranch = parsedObject as Parsed.ConditionalSingleBranch;
+            var constantDeclaration = parsedObject as Parsed.ConstantDeclaration;
+            var contentList = parsedObject as Parsed.ContentList;
+            var divert = parsedObject as Parsed.Divert;
+            var expression = parsedObject as Parsed.Expression;
+            var externalDeclaration = parsedObject as Parsed.ExternalDeclaration;
+            var flowBase = parsedObject as Parsed.FlowBase;
+            var includedFile = parsedObject as Parsed.IncludedFile;
+            var listDefinition = parsedObject as Parsed.ListDefinition;
+            var theReturn = parsedObject as Parsed.Return;
+            var sequence = parsedObject as Parsed.Sequence;
+            var text = parsedObject as Parsed.Text;
+            var tunnelOnwards = parsedObject as Parsed.TunnelOnwards;
+            var variableAssignment = parsedObject as Parsed.VariableAssignment;
+            var Weave = parsedObject as Parsed.Weave;
+            var Choice = parsedObject as Parsed.Choice;
+            var Gather = parsedObject as Parsed.Gather;
+            //var Wrap = parsedObject as Parsed.Wrap;
         }
 
         private ContentArea PushGatherContentArea(ContentAreaManager contentAreaManager, string labelName)
@@ -258,69 +279,77 @@ namespace Ink.Ink2FountainExp.Adapting
                 ProcesGather(contentAreaManager, menuStack, menuChoiceStack, weaveGather);
 
                 var weaveChoice = weaveContent as Ink.Parsed.Choice;
-                if (weaveChoice != null)
-                {
-                    var menuChoice = new MenuChoice()
-                    {
-                        MenuChoiceToken = new StickyMenuChoiceToken(),
-                        SpaceToken = new SpaceToken(),
-                        EndLine = new EndLine(),
-                        IndentLevel = new IndentLevel()
-                    };
+                choiceContentArea = ProcesChoice(contentAreaManager, menuStack, menuChoiceStack, choiceContentArea, weaveChoice);
 
-                    var baseContentArea = contentAreaManager.CurrentContentArea;
-                    Menu menu = null;
-                    if (menuStack.Count > 0)
-                    {
-                        menu = menuStack.Peek();
-                    }
-                    if (menu == null)
-                    {
-                        var containerBlock = new ContainerBlock()
-                        {
-                            StartMenuChoiceToken = new ContainerBlockToken(),
-                            StartEndLine = new EndLine(),
-                            CloseMenuChoiceToken = new ContainerBlockToken(),
-                            CloseEndLine = new EndLine(),
-                            IndentLevel = new IndentLevel() { Level = baseContentArea.IndentLevel }
-                        };
-                        baseContentArea.AddSyntacticalElement(containerBlock);
-                        // The menu choice is always on the same level as the container block.
-                        menuChoice.IndentLevel.Level = baseContentArea.IndentLevel;
-
-                        menu = new Menu();
-                        containerBlock.SyntacticalElements.Add(menu);
-                        menuStack.Push(menu);
-                    }
-                    else
-                    {
-                        // The previous menu is done so we pop it.
-                        contentAreaManager.PopCurrentContentArea();
-
-                        var belowContentArea = contentAreaManager.CurrentContentArea;
-                        menuChoice.IndentLevel.Level = belowContentArea.IndentLevel;
-                    }
-                    choiceContentArea = PushChoiceContentArea(contentAreaManager, weaveChoice.name, menuChoice);
-
-
-                    menu.Choices.Add(menuChoice);
-                    menuChoiceStack.Push(menuChoice);
-
-                    HandleChoiceContent(weaveChoice, contentAreaManager.CurrentContentArea, menuChoice);
-                }
                 var subWeaveContentList = weaveContent as Ink.Parsed.Weave;
                 if (subWeaveContentList != null)
                 {
                     ProcesWeave(contentAreaManager, subWeaveContentList);
                 }
             }
-            if(choiceContentArea != null)
+            if (choiceContentArea != null)
             {
                 if(choiceContentArea == contentAreaManager.CurrentContentArea)
                 {
                     contentAreaManager.PopCurrentContentArea();
                 }
             }
+        }
+
+        private ContentArea ProcesChoice(ContentAreaManager contentAreaManager, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack, ContentArea choiceContentArea, Parsed.Choice weaveChoice)
+        {
+            if (weaveChoice != null)
+            {
+                var menuChoice = new MenuChoice()
+                {
+                    MenuChoiceToken = new StickyMenuChoiceToken(),
+                    SpaceToken = new SpaceToken(),
+                    EndLine = new EndLine(),
+                    IndentLevel = new IndentLevel()
+                };
+
+                var baseContentArea = contentAreaManager.CurrentContentArea;
+                Menu menu = null;
+                if (menuStack.Count > 0)
+                {
+                    menu = menuStack.Peek();
+                }
+                if (menu == null)
+                {
+                    var containerBlock = new ContainerBlock()
+                    {
+                        StartMenuChoiceToken = new ContainerBlockToken(),
+                        StartEndLine = new EndLine(),
+                        CloseMenuChoiceToken = new ContainerBlockToken(),
+                        CloseEndLine = new EndLine(),
+                        IndentLevel = new IndentLevel() { Level = baseContentArea.IndentLevel }
+                    };
+                    baseContentArea.AddSyntacticalElement(containerBlock);
+                    // The menu choice is always on the same level as the container block.
+                    menuChoice.IndentLevel.Level = baseContentArea.IndentLevel;
+
+                    menu = new Menu();
+                    containerBlock.SyntacticalElements.Add(menu);
+                    menuStack.Push(menu);
+                }
+                else
+                {
+                    // The previous menu is done so we pop it.
+                    contentAreaManager.PopCurrentContentArea();
+
+                    var belowContentArea = contentAreaManager.CurrentContentArea;
+                    menuChoice.IndentLevel.Level = belowContentArea.IndentLevel;
+                }
+                choiceContentArea = PushChoiceContentArea(contentAreaManager, weaveChoice.name, menuChoice);
+
+
+                menu.Choices.Add(menuChoice);
+                menuChoiceStack.Push(menuChoice);
+
+                HandleChoiceContent(weaveChoice, contentAreaManager.CurrentContentArea, menuChoice);
+            }
+
+            return choiceContentArea;
         }
 
         private void ProcesText(ContentAreaManager contentAreaManager, Parsed.Text weaveText)
@@ -357,11 +386,20 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
-        private static void ProcesContentList(ContentAreaManager contentAreaManager, Parsed.ContentList weaveContentList)
+        private void ProcesContentList(ContentAreaManager contentAreaManager, Parsed.ContentList weaveContentList)
         {
             if (weaveContentList != null)
             {
 
+                foreach(var content in weaveContentList.content)
+                {
+                    //var actionDescription = new ActionDescription() { TextContent = weaveContentList.text, IndentLevel = new IndentLevel() };
+
+                    //var actionContentArea = contentAreaManager.CurrentContentArea;
+                    //actionContentArea.AddSyntacticalElement(actionDescription);
+
+                    //Process(contentAreaManager, content);
+                }
             }
         }
 
