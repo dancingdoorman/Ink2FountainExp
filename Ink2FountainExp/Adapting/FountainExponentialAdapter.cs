@@ -53,13 +53,13 @@ namespace Ink.Ink2FountainExp.Adapting
 
             AddMetaData(inputFileName, mainFile);
 
-            AddGlobalFunctions(mainFile, parsedFiction);
 
 
             var actI = new Act() { SectionName = "ActI", ActStartToken = new ActToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
             mainFile.Acts.Add(actI);
             actI.SyntacticalElements.Add(new BlankLine());
 
+            //AddGlobalFunctions(mainFile, parsedFiction);
 
             AddSequences(actI, parsedFiction);
 
@@ -86,7 +86,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
             var title = new Title() { Key = new KeyValuePairKeyToken() { Keyword = "Title" }, AssignmentToken = new KeyValuePairAssignmentToken(), EndLine = new EndLine() };
-            title.ValueLineList.Add(new ValueLine() { Value = Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });
+            title.ValueLineList.Add(new ValueLine() { Value = System.IO.Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });
             mainFile.TitlePage.KeyInformationList.Add(title);
 
 
@@ -97,57 +97,14 @@ namespace Ink.Ink2FountainExp.Adapting
         {
             foreach (var parsedObject in parsedFiction.content)
             {
-                if (parsedObject.typeName == "Knot")
-                {
-                    var flowBase = parsedObject as Ink.Parsed.FlowBase;
-                    if (flowBase != null)
-                    {
-                        var sequence = new Sequence() { SectionName = flowBase.name, SequenceStartToken = new SequenceToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
-                        sequence.SyntacticalElements.Add(new BlankLine());
-                        act.Sequences.Add(sequence);
+                //var flowBase = parsedObject as Parsed.FlowBase;
+                //if (flowBase != null && flowBase.isFunction)
+                //    continue;
 
-                        AddSequenceElements(sequence, flowBase);
-                    }
-                }
-            }
-        }
-
-        public void AddSequenceElements(Sequence sequence, Parsed.FlowBase flowBase)
-        {
-            for (int i = 0; i < flowBase.content.Count; i++)
-            {
-                Ink.Parsed.Object flowBaseContent = flowBase.content[i];
-
-                var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
-                var contentArea = new ContentArea() { Sequence = sequence, IndentLevel = 0 };
+                var contentArea = new ContentArea() { Act = act, IndentLevel = 0 };
                 var contentAreaManager = new ContentAreaManager(contentArea);
-                Handle(contentAreaManager, flowBaseWeave);
-
-                var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
-                AddScene(sequence, flowBaseStitch);
-            }
-        }
-
-        public void AddScene(Sequence sequence, Parsed.Stitch flowBaseStitch)
-        {
-            if (flowBaseStitch == null)
-                return;
-
-            var scene = new Scene() { SectionName = flowBaseStitch.name, SceneStartToken = new SceneToken(), SpaceToken = new SpaceToken(), EndLine = new EndLine() };
-            sequence.Scenes.Add(scene);
-
-            // Might be better to create a AddMoment function on the scene to be able to add and check for this in one go.
-            if(sequence.SubsectionsSeparatorToken == null)
-                sequence.SubsectionsSeparatorToken = new SubsectionsSeparatorToken();
-
-            scene.SyntacticalElements.Add(new BlankLine());
-
-            foreach (var stitchContent in flowBaseStitch.content)
-            {
-                var flowBaseWeave = stitchContent as Ink.Parsed.Weave;
-                var contentArea = new ContentArea() { Scene = scene, IndentLevel = 0 };
-                var contentAreaManager = new ContentAreaManager(contentArea);
-                Handle(contentAreaManager, flowBaseWeave);
+                // some non function, knot or stitch object can be handled.
+                Handle(contentAreaManager, parsedObject);
             }
         }
 
@@ -155,42 +112,161 @@ namespace Ink.Ink2FountainExp.Adapting
         public bool Handle(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
         {
             bool handled = false;
+
+            var flowBase = parsedObject as Parsed.FlowBase;
+            if (Handle(contentAreaManager, flowBase))
+                return true;
+
+            var gather = parsedObject as Parsed.Gather;
+            if (Handle(contentAreaManager, gather))
+                return true;
+
+            var choice = parsedObject as Parsed.Choice;
+            if (Handle(contentAreaManager, choice))
+                return true;
+
+            var weave = parsedObject as Parsed.Weave;
+            if (Handle(contentAreaManager, weave))
+                return true;
+
             var text = parsedObject as Parsed.Text;
-            Handle(contentAreaManager, text);
-
-            var contentList = parsedObject as Parsed.ContentList;
-            Handle(contentAreaManager, contentList);
-
-            var authorWarning = parsedObject as Parsed.AuthorWarning;
-            var conditional = parsedObject as Parsed.Conditional;
-            var conditionalSingleBranch = parsedObject as Parsed.ConditionalSingleBranch;
-            var constantDeclaration = parsedObject as Parsed.ConstantDeclaration;
+            if (Handle(contentAreaManager, text))
+                return true;
 
             var divert = parsedObject as Parsed.Divert;
-            var expression = parsedObject as Parsed.Expression;
-            var externalDeclaration = parsedObject as Parsed.ExternalDeclaration;
-            var flowBase = parsedObject as Parsed.FlowBase;
-            var includedFile = parsedObject as Parsed.IncludedFile;
+            if (Handle(contentAreaManager, divert))
+                return true;
+
+            var contentList = parsedObject as Parsed.ContentList;
+            if (Handle(contentAreaManager, contentList))
+                return true;
+
+            var authorWarning = parsedObject as Parsed.AuthorWarning;
+            if (Handle(contentAreaManager, authorWarning))
+                return true;
+
+            var conditional = parsedObject as Parsed.Conditional;
+            if (Handle(contentAreaManager, conditional))
+                return true;
+
             var listDefinition = parsedObject as Parsed.ListDefinition;
-            var theReturn = parsedObject as Parsed.Return;
+            if (Handle(contentAreaManager, listDefinition))
+                return true;
+
             var sequence = parsedObject as Parsed.Sequence;
+            if (Handle(contentAreaManager, sequence))
+                return true;
 
             var tunnelOnwards = parsedObject as Parsed.TunnelOnwards;
-            var variableAssignment = parsedObject as Parsed.VariableAssignment;
-            var Weave = parsedObject as Parsed.Weave;
-            var Choice = parsedObject as Parsed.Choice;
-            var Gather = parsedObject as Parsed.Gather;
+            if (Handle(contentAreaManager, tunnelOnwards))
+                return true;
+
             //var Wrap = parsedObject as Parsed.Wrap;
+
+
+            var conditionalSingleBranch = parsedObject as Parsed.ConditionalSingleBranch;
+            if (Handle(contentAreaManager, conditionalSingleBranch))
+                return true;
+
+            var expression = parsedObject as Parsed.Expression;
+            if (Handle(contentAreaManager, expression))
+                return true;
+
+            var variableAssignment = parsedObject as Parsed.VariableAssignment;
+            if (Handle(contentAreaManager, variableAssignment))
+                return true;
+
+            var constantDeclaration = parsedObject as Parsed.ConstantDeclaration;
+            if (Handle(contentAreaManager, constantDeclaration))
+                return true;
+
+            var externalDeclaration = parsedObject as Parsed.ExternalDeclaration;
+            if (Handle(contentAreaManager, externalDeclaration))
+                return true;
+
+            var includedFile = parsedObject as Parsed.IncludedFile;
+            if (Handle(contentAreaManager, includedFile))
+                return true;
+
+            var theReturn = parsedObject as Parsed.Return;
+            if (Handle(contentAreaManager, theReturn))
+                return true;
 
             return handled;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Text weaveText)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.FlowBase flowBase)
         {
-            if (weaveText == null)
+            if (flowBase == null)
                 return false;
 
-            var actionDescription = new ActionDescription() { TextContent = weaveText.text, IndentLevel = new IndentLevel() };
+            var fiction = flowBase as Parsed.Fiction;
+            Handle(contentAreaManager, fiction);
+
+            var knot = flowBase as Parsed.Knot;
+            Handle(contentAreaManager, knot);
+
+            var stitch = flowBase as Parsed.Stitch;
+            Handle(contentAreaManager, stitch);
+
+            return true;
+        }
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Fiction fiction)
+        {
+            if (fiction == null)
+                return false;
+
+            // The Fiction is generally handled at a higher level, so getting here is probably an error.
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Knot knot)
+        {
+            if (knot == null)
+                return false;
+
+            if (knot.isFunction)
+            {
+                var definingCodeBlock = new DefiningCodeBlock();
+                definingCodeBlock.TextContent = CreateCodeContainerContent(knot);
+                var currentContentArea = contentAreaManager.CurrentContentArea;
+                if (currentContentArea != null)
+                    currentContentArea.AddSyntacticalElement(definingCodeBlock);
+            }
+            else
+            {
+                var currentContentArea = contentAreaManager.CreateSubsectionContentArea(knot.name);
+                var knotContentAreaManager = new ContentAreaManager(currentContentArea);
+
+                foreach (var content in knot.content)
+                {
+                    Handle(knotContentAreaManager, content);
+                }
+            }
+            return true;
+        }
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Stitch stitch)
+        {
+            if (stitch == null)
+                return false;
+
+            var currentContentArea = contentAreaManager.CreateSubsectionContentArea(stitch.name);
+            var stitchContentAreaManager = new ContentAreaManager(currentContentArea);
+            foreach (var content in stitch.content)
+            {
+                Handle(stitchContentAreaManager, content);
+            }
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Text parsedText)
+        {
+            if (parsedText == null)
+                return false;
+
+            var actionDescription = new ActionDescription() { TextContent = parsedText.text, IndentLevel = new IndentLevel() };
 
             var actionContentArea = contentAreaManager.CurrentContentArea;
             actionContentArea.AddSyntacticalElement(actionDescription);
@@ -198,12 +274,25 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ContentList weaveContentList)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.AuthorWarning parsedAuthorWarning)
         {
-            if (weaveContentList == null)
+            if (parsedAuthorWarning == null)
                 return false;
 
-            foreach (var content in weaveContentList.content)
+            var actionDescription = new ActionDescription() { TextContent = parsedAuthorWarning.warningMessage, IndentLevel = new IndentLevel() };
+
+            var actionContentArea = contentAreaManager.CurrentContentArea;
+            actionContentArea.AddSyntacticalElement(actionDescription);
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ContentList parsedContentList)
+        {
+            if (parsedContentList == null)
+                return false;
+
+            foreach (var content in parsedContentList.content)
             {
                 Handle(contentAreaManager, content);
             }
@@ -211,18 +300,16 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Divert weaveDivert)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Divert divert)
         {
-            if (weaveDivert == null)
+            if (divert == null)
                 return false;
 
-            //var target = weaveDivert.target;
-            //var targetContent = weaveDivert.targetContent;
             var deviation = new SeparatedDeviation()
             {
                 FlowTargetToken = new FlowTargetToken()
                 {
-                    Label = weaveDivert.target.dotSeparatedComponents
+                    Label = divert.target.dotSeparatedComponents
                 },
                 IndentLevel = new IndentLevel(),
                 SpaceToken = new SpaceToken(),
@@ -236,41 +323,73 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        public bool Handle(ContentAreaManager contentAreaManager, Parsed.Weave flowBaseWeave)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Conditional parsedConditional)
         {
-            if (contentAreaManager == null || flowBaseWeave == null)
+            if (parsedConditional == null)
                 return false;
 
-            Ink.Parsed.Object weaveContent = null;
-                        
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ListDefinition parsedListDefinition)
+        {
+            if (parsedListDefinition == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Sequence parsedSequence)
+        {
+            if (parsedSequence == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.TunnelOnwards parsedTunnelOnwards)
+        {
+            if (parsedTunnelOnwards == null)
+                return false;
+
+
+            return true;
+        }
+
+        public bool Handle(ContentAreaManager contentAreaManager, Parsed.Weave weave)
+        {
+            if (contentAreaManager == null || weave == null)
+                return false;
+                                    
             var menuStack = new Stack<Menu>();
             var menuChoiceStack = new Stack<MenuChoice>();
             ContentArea choiceContentArea = null;
-            for (int i = 0; i < flowBaseWeave.content.Count; i++)
+            foreach(var weaveContent in weave.content)
             {
-                weaveContent = flowBaseWeave.content[i];
-
-                var weaveText = weaveContent as Ink.Parsed.Text;
-                Handle(contentAreaManager, weaveText);
-
-                var weaveDivert = weaveContent as Ink.Parsed.Divert;
-                Handle(contentAreaManager, weaveDivert);
-
-                var weaveContentList = weaveContent as Ink.Parsed.ContentList;
-                Handle(contentAreaManager, weaveContentList);
-
                 var weaveGather = weaveContent as Ink.Parsed.Gather;
-                ProcesGather(contentAreaManager, menuStack, menuChoiceStack, weaveGather);
+                if (ProcessGather(contentAreaManager, weaveGather, menuStack, menuChoiceStack))
+                    continue;
 
                 var weaveChoice = weaveContent as Ink.Parsed.Choice;
-                choiceContentArea = ProcesWeaveChoice(contentAreaManager, menuStack, menuChoiceStack, choiceContentArea, weaveChoice);
-
-                var subWeaveContentList = weaveContent as Ink.Parsed.Weave;
-                if (subWeaveContentList != null)
+                ContentArea newChoiceContentArea = null;
+                if (ProcessWeaveChoice(contentAreaManager, weaveChoice, menuStack, menuChoiceStack, out newChoiceContentArea))
                 {
-                    Handle(contentAreaManager, subWeaveContentList);
+                    choiceContentArea = newChoiceContentArea;
+                    continue;
                 }
+
+                var subWeave = weaveContent as Ink.Parsed.Weave;
+                if (Handle(contentAreaManager, subWeave))
+                    continue;
+
+                // Do the non indent and flow handling.
+                Handle(contentAreaManager, weaveContent);
             }
+
+            // if a choice content area was created we have to remove it from the stack if we go out of the weave.
             if (choiceContentArea != null)
             {
                 if(choiceContentArea == contentAreaManager.CurrentContentArea)
@@ -282,60 +401,71 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        private ContentArea ProcesWeaveChoice(ContentAreaManager contentAreaManager, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack, ContentArea choiceContentArea, Parsed.Choice weaveChoice)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Choice parsedChoice)
         {
-            if (weaveChoice != null)
+            if (parsedChoice == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool ProcessWeaveChoice(ContentAreaManager contentAreaManager, Parsed.Choice weaveChoice, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack, out ContentArea newChoiceContentArea)
+        {
+            newChoiceContentArea = null;
+
+            if (contentAreaManager == null || weaveChoice == null)
+                return false;
+
+            var menuChoice = new MenuChoice()
             {
-                var menuChoice = new MenuChoice()
-                {
-                    MenuChoiceToken = new StickyMenuChoiceToken(),
-                    SpaceToken = new SpaceToken(),
-                    EndLine = new EndLine(),
-                    IndentLevel = new IndentLevel()
-                };
+                MenuChoiceToken = new StickyMenuChoiceToken(),
+                SpaceToken = new SpaceToken(),
+                EndLine = new EndLine(),
+                IndentLevel = new IndentLevel()
+            };
 
-                var baseContentArea = contentAreaManager.CurrentContentArea;
-                Menu menu = null;
-                if (menuStack.Count > 0)
-                {
-                    menu = menuStack.Peek();
-                }
-                if (menu == null)
-                {
-                    var containerBlock = new ContainerBlock()
-                    {
-                        StartMenuChoiceToken = new ContainerBlockToken(),
-                        StartEndLine = new EndLine(),
-                        CloseMenuChoiceToken = new ContainerBlockToken(),
-                        CloseEndLine = new EndLine(),
-                        IndentLevel = new IndentLevel() { Level = baseContentArea.IndentLevel }
-                    };
-                    baseContentArea.AddSyntacticalElement(containerBlock);
-                    // The menu choice is always on the same level as the container block.
-                    menuChoice.IndentLevel.Level = baseContentArea.IndentLevel;
-
-                    menu = new Menu();
-                    containerBlock.SyntacticalElements.Add(menu);
-                    menuStack.Push(menu);
-                }
-                else
-                {
-                    // The previous menu is done so we pop it.
-                    contentAreaManager.PopCurrentContentArea();
-
-                    var belowContentArea = contentAreaManager.CurrentContentArea;
-                    menuChoice.IndentLevel.Level = belowContentArea.IndentLevel;
-                }
-                choiceContentArea = PushChoiceContentArea(contentAreaManager, weaveChoice.name, menuChoice);
-
-
-                menu.Choices.Add(menuChoice);
-                menuChoiceStack.Push(menuChoice);
-
-                HandleChoiceContent(weaveChoice, contentAreaManager.CurrentContentArea, menuChoice);
+            var baseContentArea = contentAreaManager.CurrentContentArea;
+            Menu menu = null;
+            if (menuStack.Count > 0)
+            {
+                menu = menuStack.Peek();
             }
+            if (menu == null)
+            {
+                var containerBlock = new ContainerBlock()
+                {
+                    StartMenuChoiceToken = new ContainerBlockToken(),
+                    StartEndLine = new EndLine(),
+                    CloseMenuChoiceToken = new ContainerBlockToken(),
+                    CloseEndLine = new EndLine(),
+                    IndentLevel = new IndentLevel() { Level = baseContentArea.IndentLevel }
+                };
+                baseContentArea.AddSyntacticalElement(containerBlock);
+                // The menu choice is always on the same level as the container block.
+                menuChoice.IndentLevel.Level = baseContentArea.IndentLevel;
 
-            return choiceContentArea;
+                menu = new Menu();
+                containerBlock.SyntacticalElements.Add(menu);
+                menuStack.Push(menu);
+            }
+            else
+            {
+                // The previous menu is done so we pop it.
+                contentAreaManager.PopCurrentContentArea();
+
+                var belowContentArea = contentAreaManager.CurrentContentArea;
+                menuChoice.IndentLevel.Level = belowContentArea.IndentLevel;
+            }
+            newChoiceContentArea = PushChoiceContentArea(contentAreaManager, weaveChoice.name, menuChoice);
+
+
+            menu.Choices.Add(menuChoice);
+            menuChoiceStack.Push(menuChoice);
+
+            HandleChoiceContent(weaveChoice, contentAreaManager.CurrentContentArea, menuChoice);
+
+            return true;
         }
 
         private ContentArea PushChoiceContentArea(ContentAreaManager contentAreaManager, string labelName, MenuChoice menuChoice)
@@ -344,7 +474,6 @@ namespace Ink.Ink2FountainExp.Adapting
                 return null;
 
             var originalContentArea = contentAreaManager.CurrentContentArea;
-            //var currentContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
 
             // We only push a new content area when the name is set of the Gather.
             if (!MoveLabeledChoiceToSection || string.IsNullOrEmpty(labelName))
@@ -361,12 +490,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
                 var detour = new SeparatedDetour()
                 {
-                    FlowTargetToken = new FlowTargetToken()
-                    //{
-                    //    Label = newContentArea.GetCurrentSectionName()1
-                    //}
-                    ,
-                    //IndentLevel = new IndentLevel(),
+                    FlowTargetToken = new FlowTargetToken(),
                     SpaceToken = new SpaceToken(),
                     SeparatedDetourToken = new SeparatedDetourToken(),
                     EndLine = new EndLine()
@@ -385,17 +509,28 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
-        private void ProcesGather(ContentAreaManager contentAreaManager, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack, Parsed.Gather weaveGather)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Gather gather)
         {
-            if (weaveGather != null)
-            {
-                // A gather will always end a menu and drop the indent to 0
-                menuChoiceStack.Clear();
-                menuStack.Clear();
-                contentAreaManager.ResetContentAreaStack();
+            if (gather == null)
+                return false;
 
-                PushGatherContentArea(contentAreaManager, weaveGather.name);
-            }
+
+            return true;
+        }
+
+        private bool ProcessGather(ContentAreaManager contentAreaManager, Parsed.Gather weaveGather, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack)
+        {
+            if (weaveGather == null)
+                return false;
+
+            // A gather will always end a menu and drop the indent to 0
+            menuChoiceStack.Clear();
+            menuStack.Clear();
+            contentAreaManager.ResetContentAreaStack();
+
+            PushGatherContentArea(contentAreaManager, weaveGather.name);
+
+            return true;
         }
 
         private ContentArea PushGatherContentArea(ContentAreaManager contentAreaManager, string labelName)
@@ -536,26 +671,82 @@ namespace Ink.Ink2FountainExp.Adapting
         {
             foreach (var parsedObject in parsedFiction.content)
             {
-                if (parsedObject.typeName == "Function")
+                var knot = parsedObject as Parsed.Knot;
+                if(knot != null && knot.isFunction)
                 {
-                    var function = parsedObject as Ink.Parsed.Knot;
                     var contentArea = new ContentArea() { File = file, IndentLevel = 0 };
                     var contentAreaManager = new ContentAreaManager(contentArea);
-                    Handle(contentAreaManager, function);
+                    Handle(contentAreaManager, knot);
                 }
             }
         }
 
-        private void Handle(ContentAreaManager contentAreaManager, Parsed.Knot function)
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConditionalSingleBranch parsedConditionalSingleBranch)
         {
-            if (function != null)
-            {
-                var definingCodeBlock = new DefiningCodeBlock();
-                definingCodeBlock.TextContent = CreateCodeContainerContent(function);
-                var currentContentArea = contentAreaManager.CurrentContentArea;
-                if (currentContentArea != null)
-                    currentContentArea.AddSyntacticalElement(definingCodeBlock);
-            }
+            if (parsedConditionalSingleBranch == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Expression parsedExpression)
+        {
+            if (parsedExpression == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.VariableAssignment parsedVariableAssignment)
+        {
+            if (parsedVariableAssignment == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConstantDeclaration parsedConstantDeclaration)
+        {
+            if (parsedConstantDeclaration == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ExternalDeclaration parsedExternalDeclaration)
+        {
+            if (parsedExternalDeclaration == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.IncludedFile parsedIncludedFile)
+        {
+            if (parsedIncludedFile == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Return parsedReturn)
+        {
+            if (parsedReturn == null)
+                return false;
+
+            var actionDescription = new ActionDescription() { TextContent = parsedReturn.returnedExpression.ToString(), IndentLevel = new IndentLevel() };
+
+            var actionContentArea = contentAreaManager.CurrentContentArea;
+            actionContentArea.AddSyntacticalElement(actionDescription);
+
+            return true;
         }
 
         public string CreateCodeContainerContent(Parsed.Knot function)

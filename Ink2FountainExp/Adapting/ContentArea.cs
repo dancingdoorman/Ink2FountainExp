@@ -95,6 +95,8 @@ namespace Ink.Ink2FountainExp.Adapting
 
         public SectionBase GetCurrentSection()
         {
+            if (Act != null)
+                return Act;
             if (Sequence != null)
                 return Sequence;
             if (Scene != null)
@@ -201,7 +203,12 @@ namespace Ink.Ink2FountainExp.Adapting
             if (currentSectionSubsectionAddable != null)
             {
                 var theSubsection = currentSectionSubsectionAddable.AddSubsection();
-                theSubsection.SectionName = currentSection.SectionName + "__" + labelName;
+                // A top level section like Sequence should not be perpended with the act
+                if(theSubsection is Sequence || theSubsection is Scene)
+                    theSubsection.SectionName = labelName;
+                else
+                    theSubsection.SectionName = currentSection.SectionName + "__" + labelName;
+
                 theSubsection.SpaceToken = new SpaceToken();
                 theSubsection.EndLine = new EndLine();
                 theSubsection.SyntacticalElements.Add(new BlankLine());
