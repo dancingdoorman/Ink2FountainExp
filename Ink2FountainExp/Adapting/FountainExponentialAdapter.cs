@@ -121,7 +121,7 @@ namespace Ink.Ink2FountainExp.Adapting
                 var flowBaseWeave = flowBaseContent as Ink.Parsed.Weave;
                 var contentArea = new ContentArea() { Sequence = sequence, IndentLevel = 0 };
                 var contentAreaManager = new ContentAreaManager(contentArea);
-                ProcesWeave(contentAreaManager, flowBaseWeave);
+                Handle(contentAreaManager, flowBaseWeave);
 
                 var flowBaseStitch = flowBaseContent as Ink.Parsed.Stitch;
                 AddScene(sequence, flowBaseStitch);
@@ -147,18 +147,25 @@ namespace Ink.Ink2FountainExp.Adapting
                 var flowBaseWeave = stitchContent as Ink.Parsed.Weave;
                 var contentArea = new ContentArea() { Scene = scene, IndentLevel = 0 };
                 var contentAreaManager = new ContentAreaManager(contentArea);
-                ProcesWeave(contentAreaManager, flowBaseWeave);
+                Handle(contentAreaManager, flowBaseWeave);
             }
         }
 
 
-        public void Process(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
+        public bool Handle(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
         {
+            bool handled = false;
+            var text = parsedObject as Parsed.Text;
+            Handle(contentAreaManager, text);
+
+            var contentList = parsedObject as Parsed.ContentList;
+            Handle(contentAreaManager, contentList);
+
             var authorWarning = parsedObject as Parsed.AuthorWarning;
             var conditional = parsedObject as Parsed.Conditional;
             var conditionalSingleBranch = parsedObject as Parsed.ConditionalSingleBranch;
             var constantDeclaration = parsedObject as Parsed.ConstantDeclaration;
-            var contentList = parsedObject as Parsed.ContentList;
+
             var divert = parsedObject as Parsed.Divert;
             var expression = parsedObject as Parsed.Expression;
             var externalDeclaration = parsedObject as Parsed.ExternalDeclaration;
@@ -167,95 +174,72 @@ namespace Ink.Ink2FountainExp.Adapting
             var listDefinition = parsedObject as Parsed.ListDefinition;
             var theReturn = parsedObject as Parsed.Return;
             var sequence = parsedObject as Parsed.Sequence;
-            var text = parsedObject as Parsed.Text;
+
             var tunnelOnwards = parsedObject as Parsed.TunnelOnwards;
             var variableAssignment = parsedObject as Parsed.VariableAssignment;
             var Weave = parsedObject as Parsed.Weave;
             var Choice = parsedObject as Parsed.Choice;
             var Gather = parsedObject as Parsed.Gather;
             //var Wrap = parsedObject as Parsed.Wrap;
+
+            return handled;
         }
 
-        private ContentArea PushGatherContentArea(ContentAreaManager contentAreaManager, string labelName)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Text weaveText)
         {
-            // We only push a new content area when the name is set of the Gather.
-            if (!MoveLabeledGatherToSection ||  string.IsNullOrEmpty(labelName))
-                return null;
+            if (weaveText == null)
+                return false;
 
-            var originalContentArea = contentAreaManager.CurrentContentArea;
+            var actionDescription = new ActionDescription() { TextContent = weaveText.text, IndentLevel = new IndentLevel() };
 
-            // if the weave has a name, it is labeled and we want to make it a separate section.
-            var subsectionContentArea = contentAreaManager.CreateSubsectionContentArea(labelName);
+            var actionContentArea = contentAreaManager.CurrentContentArea;
+            actionContentArea.AddSyntacticalElement(actionDescription);
 
+            return true;
+        }
 
-            var detour = new SeparatedDetour()
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ContentList weaveContentList)
+        {
+            if (weaveContentList == null)
+                return false;
+
+            foreach (var content in weaveContentList.content)
+            {
+                Handle(contentAreaManager, content);
+            }
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Divert weaveDivert)
+        {
+            if (weaveDivert == null)
+                return false;
+
+            //var target = weaveDivert.target;
+            //var targetContent = weaveDivert.targetContent;
+            var deviation = new SeparatedDeviation()
             {
                 FlowTargetToken = new FlowTargetToken()
                 {
-                    Label = subsectionContentArea.GetCurrentSectionName()
+                    Label = weaveDivert.target.dotSeparatedComponents
                 },
                 IndentLevel = new IndentLevel(),
                 SpaceToken = new SpaceToken(),
-                SeparatedDetourToken = new SeparatedDetourToken(),
+                SeparatedDeviationToken = new SeparatedDeviationToken(),
                 EndLine = new EndLine()
             };
 
-            originalContentArea.AddSyntacticalElement(detour);
+            var divertContentArea = contentAreaManager.CurrentContentArea;
+            divertContentArea.AddSyntacticalElement(deviation);
 
-            return subsectionContentArea;
+            return true;
         }
 
-        private ContentArea PushChoiceContentArea(ContentAreaManager contentAreaManager, string labelName, MenuChoice menuChoice)
-        {
-            if (contentAreaManager == null)
-                return null;
-
-            var originalContentArea = contentAreaManager.CurrentContentArea;
-            //var currentContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
-
-            // We only push a new content area when the name is set of the Gather.
-            if (!MoveLabeledChoiceToSection || string.IsNullOrEmpty(labelName))
-            {
-                var indentedContentArea = contentAreaManager.CreateIndentedContentArea();
-                indentedContentArea.MenuChoice = menuChoice;
-                return indentedContentArea;
-            }
-            else
-            {
-                var indentedContentArea = contentAreaManager.CreateIndentedContentArea();
-                indentedContentArea.MenuChoice = menuChoice;
-
-
-                var detour = new SeparatedDetour()
-                {
-                    FlowTargetToken = new FlowTargetToken()
-                    //{
-                    //    Label = newContentArea.GetCurrentSectionName()1
-                    //}
-                    ,
-                    //IndentLevel = new IndentLevel(),
-                    SpaceToken = new SpaceToken(),
-                    SeparatedDetourToken = new SeparatedDetourToken(),
-                    EndLine = new EndLine()
-                };
-
-                indentedContentArea.AddSyntacticalElement(detour);
-
-                contentAreaManager.PopCurrentContentArea();
-
-
-                // if the weave has a name, it is labeled and we want to make it a separate section.
-                var newContentArea = contentAreaManager.CreateSubsectionContentArea(labelName);
-                detour.FlowTargetToken.Label = newContentArea.GetCurrentSectionName();
-
-                return newContentArea;
-            }
-        }
-
-        public void ProcesWeave(ContentAreaManager contentAreaManager, Parsed.Weave flowBaseWeave)
+        public bool Handle(ContentAreaManager contentAreaManager, Parsed.Weave flowBaseWeave)
         {
             if (contentAreaManager == null || flowBaseWeave == null)
-                return;
+                return false;
 
             Ink.Parsed.Object weaveContent = null;
                         
@@ -267,24 +251,24 @@ namespace Ink.Ink2FountainExp.Adapting
                 weaveContent = flowBaseWeave.content[i];
 
                 var weaveText = weaveContent as Ink.Parsed.Text;
-                ProcesText(contentAreaManager, weaveText);
+                Handle(contentAreaManager, weaveText);
 
                 var weaveDivert = weaveContent as Ink.Parsed.Divert;
-                ProcesDivert(contentAreaManager, weaveDivert);
+                Handle(contentAreaManager, weaveDivert);
 
                 var weaveContentList = weaveContent as Ink.Parsed.ContentList;
-                ProcesContentList(contentAreaManager, weaveContentList);
+                Handle(contentAreaManager, weaveContentList);
 
                 var weaveGather = weaveContent as Ink.Parsed.Gather;
                 ProcesGather(contentAreaManager, menuStack, menuChoiceStack, weaveGather);
 
                 var weaveChoice = weaveContent as Ink.Parsed.Choice;
-                choiceContentArea = ProcesChoice(contentAreaManager, menuStack, menuChoiceStack, choiceContentArea, weaveChoice);
+                choiceContentArea = ProcesWeaveChoice(contentAreaManager, menuStack, menuChoiceStack, choiceContentArea, weaveChoice);
 
                 var subWeaveContentList = weaveContent as Ink.Parsed.Weave;
                 if (subWeaveContentList != null)
                 {
-                    ProcesWeave(contentAreaManager, subWeaveContentList);
+                    Handle(contentAreaManager, subWeaveContentList);
                 }
             }
             if (choiceContentArea != null)
@@ -294,9 +278,11 @@ namespace Ink.Ink2FountainExp.Adapting
                     contentAreaManager.PopCurrentContentArea();
                 }
             }
+
+            return true;
         }
 
-        private ContentArea ProcesChoice(ContentAreaManager contentAreaManager, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack, ContentArea choiceContentArea, Parsed.Choice weaveChoice)
+        private ContentArea ProcesWeaveChoice(ContentAreaManager contentAreaManager, Stack<Menu> menuStack, Stack<MenuChoice> menuChoiceStack, ContentArea choiceContentArea, Parsed.Choice weaveChoice)
         {
             if (weaveChoice != null)
             {
@@ -352,54 +338,50 @@ namespace Ink.Ink2FountainExp.Adapting
             return choiceContentArea;
         }
 
-        private void ProcesText(ContentAreaManager contentAreaManager, Parsed.Text weaveText)
+        private ContentArea PushChoiceContentArea(ContentAreaManager contentAreaManager, string labelName, MenuChoice menuChoice)
         {
-            if (weaveText != null)
-            {
-                var actionDescription = new ActionDescription() { TextContent = weaveText.text, IndentLevel = new IndentLevel() };
+            if (contentAreaManager == null)
+                return null;
 
-                var actionContentArea = contentAreaManager.CurrentContentArea;
-                actionContentArea.AddSyntacticalElement(actionDescription);
+            var originalContentArea = contentAreaManager.CurrentContentArea;
+            //var currentContentArea = GetCurrentContentArea(contentArea, contentAreaStack);
+
+            // We only push a new content area when the name is set of the Gather.
+            if (!MoveLabeledChoiceToSection || string.IsNullOrEmpty(labelName))
+            {
+                var indentedContentArea = contentAreaManager.CreateIndentedContentArea();
+                indentedContentArea.MenuChoice = menuChoice;
+                return indentedContentArea;
             }
-        }
-
-        private void ProcesDivert(ContentAreaManager contentAreaManager, Parsed.Divert weaveDivert)
-        {
-            if (weaveDivert != null)
+            else
             {
-                //var target = weaveDivert.target;
-                //var targetContent = weaveDivert.targetContent;
-                var deviation = new SeparatedDeviation()
+                var indentedContentArea = contentAreaManager.CreateIndentedContentArea();
+                indentedContentArea.MenuChoice = menuChoice;
+
+
+                var detour = new SeparatedDetour()
                 {
                     FlowTargetToken = new FlowTargetToken()
-                    {
-                        Label = weaveDivert.target.dotSeparatedComponents
-                    },
-                    IndentLevel = new IndentLevel(),
+                    //{
+                    //    Label = newContentArea.GetCurrentSectionName()1
+                    //}
+                    ,
+                    //IndentLevel = new IndentLevel(),
                     SpaceToken = new SpaceToken(),
-                    SeparatedDeviationToken = new SeparatedDeviationToken(),
+                    SeparatedDetourToken = new SeparatedDetourToken(),
                     EndLine = new EndLine()
                 };
 
-                var divertContentArea = contentAreaManager.CurrentContentArea;
-                divertContentArea.AddSyntacticalElement(deviation);
-            }
-        }
+                indentedContentArea.AddSyntacticalElement(detour);
 
-        private void ProcesContentList(ContentAreaManager contentAreaManager, Parsed.ContentList weaveContentList)
-        {
-            if (weaveContentList != null)
-            {
+                contentAreaManager.PopCurrentContentArea();
 
-                foreach(var content in weaveContentList.content)
-                {
-                    //var actionDescription = new ActionDescription() { TextContent = weaveContentList.text, IndentLevel = new IndentLevel() };
 
-                    //var actionContentArea = contentAreaManager.CurrentContentArea;
-                    //actionContentArea.AddSyntacticalElement(actionDescription);
+                // if the weave has a name, it is labeled and we want to make it a separate section.
+                var newContentArea = contentAreaManager.CreateSubsectionContentArea(labelName);
+                detour.FlowTargetToken.Label = newContentArea.GetCurrentSectionName();
 
-                    //Process(contentAreaManager, content);
-                }
+                return newContentArea;
             }
         }
 
@@ -414,6 +396,35 @@ namespace Ink.Ink2FountainExp.Adapting
 
                 PushGatherContentArea(contentAreaManager, weaveGather.name);
             }
+        }
+
+        private ContentArea PushGatherContentArea(ContentAreaManager contentAreaManager, string labelName)
+        {
+            // We only push a new content area when the name is set of the Gather.
+            if (!MoveLabeledGatherToSection || string.IsNullOrEmpty(labelName))
+                return null;
+
+            var originalContentArea = contentAreaManager.CurrentContentArea;
+
+            // if the weave has a name, it is labeled and we want to make it a separate section.
+            var subsectionContentArea = contentAreaManager.CreateSubsectionContentArea(labelName);
+
+
+            var detour = new SeparatedDetour()
+            {
+                FlowTargetToken = new FlowTargetToken()
+                {
+                    Label = subsectionContentArea.GetCurrentSectionName()
+                },
+                IndentLevel = new IndentLevel(),
+                SpaceToken = new SpaceToken(),
+                SeparatedDetourToken = new SeparatedDetourToken(),
+                EndLine = new EndLine()
+            };
+
+            originalContentArea.AddSyntacticalElement(detour);
+
+            return subsectionContentArea;
         }
 
         private static void HandleChoiceContent(Parsed.Choice weaveChoice, ContentArea contentArea, MenuChoice menuChoice)
@@ -528,13 +539,22 @@ namespace Ink.Ink2FountainExp.Adapting
                 if (parsedObject.typeName == "Function")
                 {
                     var function = parsedObject as Ink.Parsed.Knot;
-                    if (function != null)
-                    {
-                        var definingCodeBlock = new DefiningCodeBlock();
-                        definingCodeBlock.TextContent = CreateCodeContainerContent(function);
-                        file.SyntacticalElements.Add(definingCodeBlock);
-                    }
+                    var contentArea = new ContentArea() { File = file, IndentLevel = 0 };
+                    var contentAreaManager = new ContentAreaManager(contentArea);
+                    Handle(contentAreaManager, function);
                 }
+            }
+        }
+
+        private void Handle(ContentAreaManager contentAreaManager, Parsed.Knot function)
+        {
+            if (function != null)
+            {
+                var definingCodeBlock = new DefiningCodeBlock();
+                definingCodeBlock.TextContent = CreateCodeContainerContent(function);
+                var currentContentArea = contentAreaManager.CurrentContentArea;
+                if (currentContentArea != null)
+                    currentContentArea.AddSyntacticalElement(definingCodeBlock);
             }
         }
 

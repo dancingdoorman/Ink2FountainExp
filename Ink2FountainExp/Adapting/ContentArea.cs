@@ -26,15 +26,21 @@ namespace Ink.Ink2FountainExp.Adapting
         public MicroSlice MicroSlice { get; set; }
         public NanoSlice NanoSlice { get; set; }
 
+        public FountainFile File { get; set; }
 
-        public bool LabelDetoured { get; set; } = false;
+        
+        //public bool LabelDetoured { get; set; } = false;
 
         public int IndentLevel { get; set; } = 0;
+
+        /// <summary>Initializes a new instance of the <see cref="ContentArea" /> class.</summary>
         public ContentArea()
         {
 
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ContentArea" /> class.</summary>
+        /// <param name="contentArea">The content area.</param>
         public ContentArea(ContentArea contentArea)
         {
             if (contentArea == null)
@@ -50,7 +56,10 @@ namespace Ink.Ink2FountainExp.Adapting
             this.MicroSlice = contentArea.MicroSlice;
             this.NanoSlice = contentArea.NanoSlice;
 
-            this.LabelDetoured = contentArea.LabelDetoured;
+            this.File = contentArea.File;
+            
+
+            //this.LabelDetoured = contentArea.LabelDetoured;
 
             this.IndentLevel = contentArea.IndentLevel;
         }
@@ -77,6 +86,9 @@ namespace Ink.Ink2FountainExp.Adapting
                 if (NanoSlice != null)
                     return NanoSlice.SyntacticalElements;
 
+                if (File != null)
+                    return File.SyntacticalElements;
+                
                 return null;
             }
         }
