@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponential.LanguageStructures.Lexical.Data
+namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class YamlBlockToken : ILexicalElementable
+    public class LinkLabelEndToken : ILexicalElementable
     {
     }
 }

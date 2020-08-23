@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
 {
     public class ImageToken : ILexicalElementable
     {
+        public const string Sign = "!";
+        public const string Keyword = "!";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

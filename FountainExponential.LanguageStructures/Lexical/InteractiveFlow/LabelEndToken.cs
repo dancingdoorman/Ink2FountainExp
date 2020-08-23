@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
     public class LabelEndToken : ILexicalElementable
     {
+        public const char Sign = ']';
+        public const string Keyword = "]";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

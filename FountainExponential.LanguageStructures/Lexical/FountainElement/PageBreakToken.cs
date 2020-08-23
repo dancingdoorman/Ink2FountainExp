@@ -7,5 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical.FountainElement
 {
     public class PageBreakToken : ILexicalElementable
     {
+        public const string Keyword = "===";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

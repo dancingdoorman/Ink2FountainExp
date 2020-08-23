@@ -5,7 +5,12 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.Code
 {
-    public class CodeBlockToken : ILexicalElementable
+    public class CodeBlockStartToken : ILexicalElementable
     {
+        public const string Keyword = "```";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

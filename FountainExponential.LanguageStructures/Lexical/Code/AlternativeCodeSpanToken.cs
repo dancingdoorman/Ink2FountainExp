@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.Code
 {
     public class AlternativeCodeSpanToken : ILexicalElementable
     {
+        public const string Sign = ":";
+        public const string Keyword = CodeSpanStartToken.Keyword + Sign + CodeSpanEndToken.Keyword; //"`:`";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

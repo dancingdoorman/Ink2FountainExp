@@ -8,10 +8,11 @@ namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
     public class ContinuingMenuChoiceToken : MenuChoiceToken, ILexicalElementable
     {
         public const char Sign = '-';
+        public const string Keyword = "-";
 
-        //* Consuming Choice
-        //+ Sticky Choice
-        //- Gather /end choice /continuing
-
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

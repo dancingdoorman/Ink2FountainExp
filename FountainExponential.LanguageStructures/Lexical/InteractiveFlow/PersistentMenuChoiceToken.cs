@@ -9,10 +9,6 @@ namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
     {
         public const char Sign = '+';
 
-        //* Consuming Choice
-        //+ Sticky Choice
-        //- Gather /end choice /continuing
-
         public override string ToString()
         {
             return Sign.ToString();

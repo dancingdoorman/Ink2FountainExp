@@ -5,10 +5,9 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.FountainElement
 {
-    public class TransitionStartToken : ILexicalElementable
+    public class IntExteriorSceneHeadingSideToken : SceneHeadingSideToken, ILexicalElementable
     {
-        public const string Sign = ">";
-        public const string Keyword = ">";
+        public const string Keyword = "INT./EXT."; // Also "INT/EXT" or "I/E"
         public override string ToString()
         {
             return Keyword;

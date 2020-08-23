@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class LinkTextStartToken : ILexicalElementable
+    public class InteractiveFlowTargetToken : ITargetLabellable
     {
-        public const char Sign = '[';
-        public const string Keyword = "[";
+        public string Label { get; set; }
+
         public override string ToString()
         {
-            return Keyword;
+            return Label;
         }
     }
 }
-

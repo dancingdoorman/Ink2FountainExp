@@ -8,6 +8,7 @@ namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
     public class ConsumableMenuChoiceToken : MenuChoiceToken, ILexicalElementable
     {
         public const char Sign = '*';
+        public const string Keyword = "*";
 
         public override string ToString()
         {

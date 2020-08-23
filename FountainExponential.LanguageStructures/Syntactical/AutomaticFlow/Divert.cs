@@ -10,7 +10,7 @@ namespace FountainExponential.LanguageStructures.Syntactical.AutomaticFlow
 {
     public class Divert : ISyntacticalElementable, IIndentable
     {
-        public FlowTargetToken FlowTargetToken { get; set; }
+        public AutomaticFlowTargetToken FlowTargetToken { get; set; }
         public SpaceToken SpaceToken { get; set; }
         
         public EndLine EndLine { get; set; }

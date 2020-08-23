@@ -12,27 +12,79 @@ namespace Ink.Ink2FountainExp.Adapting
     /// <summary>The FountainLexicalRenderer encapsulates the rendering of lexical tokens.</summary>
     public class FountainLexicalRenderer
     {
-        #region Write MetaData
+        #region Write Automatic Flow Tokens
 
-        public void Write(StringBuilder builder, KeyValuePairKeyToken key)
+        public void Write(StringBuilder builder, AutomaticFlowTargetToken target)
         {
-            if (builder == null || key == null)
+            if (builder == null || target == null)
                 return;
 
-            builder.Append(key.Keyword);
+            builder.Append(target.Label);
         }
 
-        public void Write(StringBuilder builder, KeyValuePairAssignmentToken assignmentToken)
+        public void Write(StringBuilder builder, IntegratedDetourToken detour)
         {
-            if (builder == null || assignmentToken == null)
+            if (builder == null || detour == null)
                 return;
 
-            builder.Append(KeyValuePairAssignmentToken.Sign);
+            builder.Append(IntegratedDetourToken.Keyword);
         }
 
-        #endregion Write MetaData
+        public void Write(StringBuilder builder, IntegratedDeviationToken deviation)
+        {
+            if (builder == null || deviation == null)
+                return;
 
-        #region InteractiveFlow
+            builder.Append(IntegratedDeviationToken.Keyword);
+        }
+
+        public void Write(StringBuilder builder, SeparatedDetourToken detour)
+        {
+            if (builder == null || detour == null)
+                return;
+
+            builder.Append(SeparatedDetourToken.Keyword);
+        }
+
+        public void Write(StringBuilder builder, SeparatedDeviationToken deviation)
+        {
+            if (builder == null || deviation == null)
+                return;
+
+            builder.Append(SeparatedDeviationToken.Keyword);
+        }
+
+        #endregion Write Automatic Flow
+
+        #region Write Code Tokens
+
+        //public void Write(StringBuilder builder, FlowTargetToken target)
+        //{
+        //    if (builder == null || target == null)
+        //        return;
+
+        //    builder.Append(target.Label);
+        //}
+
+        #endregion Write Code Tokens
+
+        #region Write Comment Tokens
+
+        #endregion Write Comment Tokens
+
+        #region Write Data Tokens
+
+        #endregion Write Data Tokens
+
+        #region Write Emphasis Tokens
+
+        #endregion Write Emphasis Tokens
+
+        #region Write FountainElement Tokens
+
+        #endregion Write FountainElement Tokens
+
+        #region Interactive Flow Tokens
 
         public void Write(StringBuilder builder, PersistentMenuChoiceToken choice)
         {
@@ -58,7 +110,7 @@ namespace Ink.Ink2FountainExp.Adapting
             builder.Append(ContinuingMenuChoiceToken.Sign);
         }
 
-        public void Write(StringBuilder builder, FlowTargetToken target)
+        public void Write(StringBuilder builder, InteractiveFlowTargetToken target)
         {
             if (builder == null || target == null)
                 return;
@@ -66,9 +118,33 @@ namespace Ink.Ink2FountainExp.Adapting
             builder.Append(target.Label);
         }
 
-        #endregion InteractiveFlow
+        #endregion Interactive Flow Tokens
 
-        #region Write Sections
+        #region Write MarkdownElement Tokens
+
+        #endregion Write MarkdownElement Tokens
+
+        #region Write MetaData Tokens
+
+        public void Write(StringBuilder builder, KeyValuePairKeyToken key)
+        {
+            if (builder == null || key == null)
+                return;
+
+            builder.Append(key.Keyword);
+        }
+
+        public void Write(StringBuilder builder, KeyValuePairAssignmentToken assignmentToken)
+        {
+            if (builder == null || assignmentToken == null)
+                return;
+
+            builder.Append(KeyValuePairAssignmentToken.Sign);
+        }
+
+        #endregion Write MetaData Tokens
+
+        #region Write Section Tokens
 
         public void Write(StringBuilder builder, ActToken act)
         {
@@ -126,23 +202,10 @@ namespace Ink.Ink2FountainExp.Adapting
             builder.Append(NanoSliceToken.Keyword);
         }
 
-        #endregion Write Sections 
-        public void Write(StringBuilder builder, SeparatedDetourToken detour)
-        {
-            if (builder == null || detour == null)
-                return;
+        #endregion Write Section Tokens 
 
-            builder.Append(SeparatedDetourToken.Keyword);
-        }
+        #region Write Basic Tokens
 
-        public void Write(StringBuilder builder, SeparatedDeviationToken deviation)
-        {
-            if (builder == null || deviation == null)
-                return;
-
-            builder.Append(SeparatedDeviationToken.Keyword);
-        }
-        
         public void Write(StringBuilder builder, SpaceToken spaceToken)
         {
             if (builder == null || spaceToken == null)
@@ -152,5 +215,6 @@ namespace Ink.Ink2FountainExp.Adapting
             builder.Append(" ");
         }
 
+        #endregion Write Basic Tokens
     }
 }

@@ -74,7 +74,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             foreach (var line in keyMultiLineValuePair.ValueLineList)
             {
-                builder.Append(KeyValuePairIndentToken.Indent);
+                builder.Append(KeyValuePairIndentToken.Keyword);
                 builder.Append(line.Value);
 
                 Write(builder, line.EndLine);
@@ -129,28 +129,54 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #region Write Automatic Flow Elements
 
-        public void Write(StringBuilder builder, SeparatedDetour separatedDetour)
+        public void Write(StringBuilder builder, IntegratedDetour detour)
         {
-            if (builder == null || separatedDetour == null)
+            if (builder == null || detour == null)
                 return;
 
-            Write(builder, separatedDetour.IndentLevel);
-            LexicalRenderer.Write(builder, separatedDetour.SeparatedDetourToken);
-            LexicalRenderer.Write(builder, separatedDetour.SpaceToken);
-            LexicalRenderer.Write(builder, separatedDetour.FlowTargetToken);
+            Write(builder, detour.IndentLevel);
+            LexicalRenderer.Write(builder, detour.IntegratedDetourToken);
+            LexicalRenderer.Write(builder, detour.SpaceToken);
+            LexicalRenderer.Write(builder, detour.FlowTargetToken);
 
             builder.Append(EndLine.Pattern);
         }
 
-        public void Write(StringBuilder builder, SeparatedDeviation seperatedDeviation)
+        public void Write(StringBuilder builder, IntegratedDeviation deviation)
         {
-            if (builder == null || seperatedDeviation == null)
+            if (builder == null || deviation == null)
                 return;
 
-            Write(builder, seperatedDeviation.IndentLevel);
-            LexicalRenderer.Write(builder, seperatedDeviation.SeparatedDeviationToken);
-            LexicalRenderer.Write(builder, seperatedDeviation.SpaceToken);
-            LexicalRenderer.Write(builder, seperatedDeviation.FlowTargetToken);
+            Write(builder, deviation.IndentLevel);
+            LexicalRenderer.Write(builder, deviation.IntegratedDeviationToken);
+            LexicalRenderer.Write(builder, deviation.SpaceToken);
+            LexicalRenderer.Write(builder, deviation.FlowTargetToken);
+
+            builder.Append(EndLine.Pattern);
+        }
+
+        public void Write(StringBuilder builder, SeparatedDetour detour)
+        {
+            if (builder == null || detour == null)
+                return;
+
+            Write(builder, detour.IndentLevel);
+            LexicalRenderer.Write(builder, detour.SeparatedDetourToken);
+            LexicalRenderer.Write(builder, detour.SpaceToken);
+            LexicalRenderer.Write(builder, detour.FlowTargetToken);
+
+            builder.Append(EndLine.Pattern);
+        }
+
+        public void Write(StringBuilder builder, SeparatedDeviation deviation)
+        {
+            if (builder == null || deviation == null)
+                return;
+
+            Write(builder, deviation.IndentLevel);
+            LexicalRenderer.Write(builder, deviation.SeparatedDeviationToken);
+            LexicalRenderer.Write(builder, deviation.SpaceToken);
+            LexicalRenderer.Write(builder, deviation.FlowTargetToken);
 
             builder.Append(EndLine.Pattern);
         }

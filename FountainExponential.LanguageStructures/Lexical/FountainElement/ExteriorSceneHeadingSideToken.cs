@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponential.LanguageStructures.Lexical.AutomaticFlow
+namespace FountainExponential.LanguageStructures.Lexical.FountainElement
 {
-    public class IntegratedDetourToken : ILexicalElementable
+    public class ExteriorSceneHeadingSideToken : SceneHeadingSideToken, ILexicalElementable
     {
-        public const string Keyword = "=|";
+        public const string Keyword = "EXT.";
         public override string ToString()
         {
             return Keyword;

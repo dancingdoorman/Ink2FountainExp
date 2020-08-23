@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.Emphasis
 {
     public class UnderlinedTextStartToken : ILexicalElementable
     {
+        public const string Sign = "_";
+        public const string Keyword = "_";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

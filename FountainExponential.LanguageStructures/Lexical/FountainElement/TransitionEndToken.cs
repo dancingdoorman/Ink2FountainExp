@@ -7,5 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical.FountainElement
 {
     public class TransitionEndToken : ILexicalElementable
     {
+        public const string Keyword = "TO:";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

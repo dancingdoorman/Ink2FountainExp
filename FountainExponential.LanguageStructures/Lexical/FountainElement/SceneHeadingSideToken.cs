@@ -5,7 +5,8 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.FountainElement
 {
-    public class SceneNumberToken : ILexicalElementable
+    public class SceneHeadingSideToken : ILexicalElementable
     {
+        // base for the Int Ext and ENT/EXT
     }
 }

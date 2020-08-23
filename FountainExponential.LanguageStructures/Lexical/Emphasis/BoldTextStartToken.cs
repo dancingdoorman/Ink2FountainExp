@@ -7,5 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical.Emphasis
 {
     public class BoldTextStartToken : ILexicalElementable
     {
+        public const string Keyword = "**";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

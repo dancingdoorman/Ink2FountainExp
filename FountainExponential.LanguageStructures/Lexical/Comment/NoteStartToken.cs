@@ -7,5 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical.Comment
 {
     public class NoteStartToken : ILexicalElementable
     {
+        public const string Keyword = "[[";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

@@ -8,7 +8,11 @@ namespace FountainExponential.LanguageStructures.Lexical.MetaData
     public class KeyValuePairAssignmentToken : ILexicalElementable
     {
         public const char Sign = ':';
+        public const string Keyword = ":";
 
-
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

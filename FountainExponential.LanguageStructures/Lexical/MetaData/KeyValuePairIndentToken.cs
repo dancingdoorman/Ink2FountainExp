@@ -7,6 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.MetaData
 {
     public class KeyValuePairIndentToken : ILexicalElementable
     {
-        public const char Indent = '\t';
+        public const char Sign = '\t';
+        public const string Keyword = "\t";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

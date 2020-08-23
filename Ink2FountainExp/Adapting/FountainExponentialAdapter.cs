@@ -311,7 +311,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             var deviation = new SeparatedDeviation()
             {
-                FlowTargetToken = new FlowTargetToken()
+                FlowTargetToken = new AutomaticFlowTargetToken()
                 {
                     Label = divert.target.dotSeparatedComponents
                 },
@@ -515,7 +515,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
                 var detour = new SeparatedDetour()
                 {
-                    FlowTargetToken = new FlowTargetToken(),
+                    FlowTargetToken = new AutomaticFlowTargetToken(),
                     SpaceToken = new SpaceToken(),
                     SeparatedDetourToken = new SeparatedDetourToken(),
                     EndLine = new EndLine()
@@ -572,7 +572,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             var detour = new SeparatedDetour()
             {
-                FlowTargetToken = new FlowTargetToken()
+                FlowTargetToken = new AutomaticFlowTargetToken()
                 {
                     Label = subsectionContentArea.GetCurrentSectionName()
                 },

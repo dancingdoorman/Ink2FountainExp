@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using FountainExponential.LanguageStructures.Lexical;
 
-namespace FountainExponential.LanguageStructures.Lexical.AutomaticFlow
+namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class SeparatedDetourToken : ILexicalElementable
+    public class LabelUrlToken : ILexicalElementable
     {
-        public const string Keyword = "=>";
+        public string Url { get; set; }
         public override string ToString()
         {
-            return Keyword;
+            return Url;
         }
     }
 }

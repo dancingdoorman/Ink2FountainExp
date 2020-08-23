@@ -7,5 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
 {
     public class HorizontalRule : ILexicalElementable
     {
+        public const string Keyword = "------"; // 6 times - is equal to code block opening and closing ---
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }
