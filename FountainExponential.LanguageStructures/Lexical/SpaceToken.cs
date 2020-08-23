@@ -7,6 +7,10 @@ namespace FountainExponential.LanguageStructures.Lexical
     /// <summary>The SpaceToken class encapsulates the space between words. It can be 1 or multiple spaces.</summary>
     public class SpaceToken : ILexicalElementable
     {
-        public const char Sign = ' ';
+        public const string Sign = " ";
+        public override string ToString()
+        {
+            return Sign;
+        }
     }
 }

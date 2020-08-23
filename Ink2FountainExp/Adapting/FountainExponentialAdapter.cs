@@ -60,9 +60,9 @@ namespace Ink.Ink2FountainExp.Adapting
             mainFile.Acts.Add(actI);
             actI.SyntacticalElements.Add(new BlankLine());
 
-            //AddGlobalFunctions(mainFile, parsedFiction);
-
             AddSequences(actI, parsedFiction);
+
+            MergeCodeBlocks(mainFile, actI);
 
             return fountainPlay;
         }
@@ -231,6 +231,56 @@ namespace Ink.Ink2FountainExp.Adapting
         #endregion Map Automatic Flow
 
         #region Map Code
+        public void AddGlobalFunctions(FountainFile file, Parsed.Fiction parsedFiction)
+        {
+            foreach (var parsedObject in parsedFiction.content)
+            {
+                var knot = parsedObject as Parsed.Knot;
+                if (knot != null && knot.isFunction)
+                {
+                    var contentArea = new ContentArea() { File = file, IndentLevel = 0 };
+                    var contentAreaManager = new ContentAreaManager(contentArea);
+                    Handle(contentAreaManager, knot);
+                }
+            }
+        }
+
+        private static void MergeCodeBlocks(FountainFile mainFile, Act actI)
+        {
+            var codeBlocks = actI.SyntacticalElements.OfType<DefiningCodeBlock>().ToList();
+            var builder = new StringBuilder();
+
+            bool first = true;
+            bool previousIsConst = false;
+            bool previousIsVar = false;
+            foreach (var block in codeBlocks)
+            {
+                actI.SyntacticalElements.Remove(block);
+
+
+                bool currentIsConst = block.TextContent.StartsWith("const");
+                bool currentIsVar = block.TextContent.StartsWith("var");
+                bool currentIsFunction = block.TextContent.StartsWith("function"); 
+                if (!first && (previousIsConst != currentIsConst || previousIsVar != currentIsVar || currentIsFunction))
+                {
+                    builder.AppendLine();
+                }
+                previousIsConst = currentIsConst;
+                previousIsVar = currentIsVar;
+
+                builder.AppendLine(block.TextContent);
+                first = false;
+            }
+            var mergedDefiningCodeBlock = new DefiningCodeBlock()
+            {
+                CodeBlockStartToken = new CodeBlockStartToken(),
+                TextContent = builder.ToString(),
+                CodeBlockEndToken = new CodeBlockEndToken(),
+                DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+            };
+            mainFile.SyntacticalElements.Add(mergedDefiningCodeBlock);
+        }
+
 
         private bool Handle(ContentAreaManager contentAreaManager, Parsed.Conditional parsedConditional)
         {
@@ -248,26 +298,18 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        public void AddGlobalFunctions(FountainFile file, Parsed.Fiction parsedFiction)
-        {
-            foreach (var parsedObject in parsedFiction.content)
-            {
-                var knot = parsedObject as Parsed.Knot;
-                if (knot != null && knot.isFunction)
-                {
-                    var contentArea = new ContentArea() { File = file, IndentLevel = 0 };
-                    var contentAreaManager = new ContentAreaManager(contentArea);
-                    Handle(contentAreaManager, knot);
-                }
-            }
-        }
-
-
         private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConditionalSingleBranch parsedConditionalSingleBranch)
         {
             if (parsedConditionalSingleBranch == null)
                 return false;
 
+            var condition = new ConditioningCodeSpan()
+            {
+                TextContent = parsedConditionalSingleBranch.ToString()
+            };
+
+            var conditionContentArea = contentAreaManager.CurrentContentArea;
+            conditionContentArea.AddSyntacticalElement(condition);
 
             return true;
         }
@@ -278,13 +320,104 @@ namespace Ink.Ink2FountainExp.Adapting
                 return false;
 
 
+            var binaryExpression = parsedExpression as Parsed.BinaryExpression;
+            if (Handle(contentAreaManager, binaryExpression))
+                return true;
+
+            var divertTarget = parsedExpression as Parsed.DivertTarget;
+            if (Handle(contentAreaManager, divertTarget))
+                return true;
+
+            var functionCall = parsedExpression as Parsed.FunctionCall;
+            if (Handle(contentAreaManager, functionCall))
+                return true;
+
+            var incDecExpression = parsedExpression as Parsed.IncDecExpression;
+            if (Handle(contentAreaManager, incDecExpression))
+                return true;
+
+            var multipleConditionExpression = parsedExpression as Parsed.MultipleConditionExpression;
+            if (Handle(contentAreaManager, multipleConditionExpression))
+                return true;
+
+            var unaryExpression = parsedExpression as Parsed.UnaryExpression;
+            if (Handle(contentAreaManager, unaryExpression))
+                return true;
+
+            var variableReference = parsedExpression as Parsed.VariableReference;
+            if (Handle(contentAreaManager, variableReference))
+                return true;
+
+            // Expression is abstract so we shouldn't get here, unless we missed a derivative.
+
             return true;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.VariableAssignment parsedVariableAssignment)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.BinaryExpression binaryExpression)
         {
-            if (parsedVariableAssignment == null)
+            if (binaryExpression == null)
                 return false;
+
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.DivertTarget divertTarget)
+        {
+            if (divertTarget == null)
+                return false;
+
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.FunctionCall functionCall)
+        {
+            if (functionCall == null)
+                return false;
+
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.IncDecExpression incDecExpression)
+        {
+            if (incDecExpression == null)
+                return false;
+
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.MultipleConditionExpression multipleConditionExpression)
+        {
+            if (multipleConditionExpression == null)
+                return false;
+
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.UnaryExpression unaryExpression)
+        {
+            if (unaryExpression == null)
+                return false;
+
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.VariableReference variableReference)
+        {
+            if (variableReference == null)
+                return false;
+
 
 
             return true;
@@ -295,6 +428,47 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedConstantDeclaration == null)
                 return false;
 
+            var definingCodeBlock = new DefiningCodeBlock()
+            {
+                DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+                CodeBlockStartToken = new CodeBlockStartToken(),
+                CodeBlockEndToken = new CodeBlockEndToken(),
+            };
+            var builder = new StringBuilder();
+            builder.Append("const ");
+            builder.Append(parsedConstantDeclaration.constantName);
+            builder.Append(" = ");
+            builder.Append(parsedConstantDeclaration.expression.ToString());
+            builder.Append(";");
+            definingCodeBlock.TextContent = builder.ToString();
+            var currentContentArea = contentAreaManager.CurrentContentArea;
+            if (currentContentArea != null)
+                currentContentArea.AddSyntacticalElement(definingCodeBlock);
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.VariableAssignment parsedVariableAssignment)
+        {
+            if (parsedVariableAssignment == null)
+                return false;
+
+            var definingCodeBlock = new DefiningCodeBlock()
+            {
+                DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+                CodeBlockStartToken = new CodeBlockStartToken(),
+                CodeBlockEndToken = new CodeBlockEndToken(),
+            };
+            var builder = new StringBuilder();
+            builder.Append("var ");
+            builder.Append(parsedVariableAssignment.variableName);
+            builder.Append(" = ");
+            builder.Append(parsedVariableAssignment.expression.ToString());
+            builder.Append(";");
+            definingCodeBlock.TextContent = builder.ToString();
+            var currentContentArea = contentAreaManager.CurrentContentArea;
+            if (currentContentArea != null)
+                currentContentArea.AddSyntacticalElement(definingCodeBlock);
 
             return true;
         }
@@ -304,6 +478,16 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedExternalDeclaration == null)
                 return false;
 
+            var definingCodeBlock = new DefiningCodeBlock()
+            {
+                DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+                CodeBlockStartToken = new CodeBlockStartToken(),
+                CodeBlockEndToken = new CodeBlockEndToken(),
+            };
+            definingCodeBlock.TextContent = parsedExternalDeclaration.ToString();
+            var currentContentArea = contentAreaManager.CurrentContentArea;
+            if (currentContentArea != null)
+                currentContentArea.AddSyntacticalElement(definingCodeBlock);
 
             return true;
         }
@@ -313,6 +497,16 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedIncludedFile == null)
                 return false;
 
+            var definingCodeBlock = new DefiningCodeBlock()
+            {
+                DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+                CodeBlockStartToken = new CodeBlockStartToken(),
+                CodeBlockEndToken = new CodeBlockEndToken(),
+            };
+            definingCodeBlock.TextContent = parsedIncludedFile.ToString();
+            var currentContentArea = contentAreaManager.CurrentContentArea;
+            if (currentContentArea != null)
+                currentContentArea.AddSyntacticalElement(definingCodeBlock);
 
             return true;
         }
@@ -764,10 +958,29 @@ namespace Ink.Ink2FountainExp.Adapting
             //    Los Angeles, CA 93463
 
             mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
-            var title = new Title() { Key = new KeyValuePairKeyToken() { Keyword = "Title" }, AssignmentToken = new KeyValuePairAssignmentToken(), EndLine = new EndLine() };
+            var title = new Title() 
+            { 
+                Key = new KeyValuePairKeyToken() 
+                { 
+                    Keyword = "Title" 
+                }, 
+                AssignmentToken = new KeyValuePairAssignmentToken(), 
+                EndLine = new EndLine() 
+            };
             title.ValueLineList.Add(new ValueLine() { Value = System.IO.Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });
             mainFile.TitlePage.KeyInformationList.Add(title);
-
+            var draftDate = new DraftDate()
+            {
+                Key = new KeyValuePairKeyToken()
+                {
+                    Keyword = "Draft date"
+                },
+                AssignmentToken = new KeyValuePairAssignmentToken(),
+                SpaceToken = new SpaceToken(),
+                Value = DateTime.Now.ToShortDateString(),
+                EndLine = new EndLine(),
+            };
+            mainFile.TitlePage.KeyInformationList.Add(draftDate);
 
             mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
         }
