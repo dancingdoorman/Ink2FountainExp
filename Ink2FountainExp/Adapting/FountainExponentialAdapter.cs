@@ -314,20 +314,51 @@ namespace Ink.Ink2FountainExp.Adapting
             if (divert == null)
                 return false;
 
-            var deviation = new SeparatedDeviation()
+            if (divert.isTunnel)
             {
-                FlowTargetToken = new AutomaticFlowTargetToken()
+                var detour = new SeparatedDetour()
                 {
-                    Label = divert.target.dotSeparatedComponents
-                },
-                IndentLevel = new IndentLevel(),
-                SpaceToken = new SpaceToken(),
-                SeparatedDeviationToken = new SeparatedDeviationToken(),
-                EndLine = new EndLine()
-            };
+                    FlowTargetToken = new AutomaticFlowTargetToken()
+                    {
+                        Label = divert.target.dotSeparatedComponents
+                    },
+                    IndentLevel = new IndentLevel(),
+                    SpaceToken = new SpaceToken(),
+                    SeparatedDetourToken = new SeparatedDetourToken(),
+                    EndLine = new EndLine()
+                };
 
-            var divertContentArea = contentAreaManager.CurrentContentArea;
-            divertContentArea.AddSyntacticalElement(deviation);
+                var detouredContentArea = contentAreaManager.CurrentContentArea;
+                detouredContentArea.AddSyntacticalElement(detour);
+            }
+            else
+            {
+                var deviation = new SeparatedDeviation()
+                {
+                    FlowTargetToken = new AutomaticFlowTargetToken()
+                    {
+                        Label = divert.target.dotSeparatedComponents
+                    },
+                    IndentLevel = new IndentLevel(),
+                    SpaceToken = new SpaceToken(),
+                    SeparatedDeviationToken = new SeparatedDeviationToken(),
+                    EndLine = new EndLine()
+                };
+
+                var divertContentArea = contentAreaManager.CurrentContentArea;
+                divertContentArea.AddSyntacticalElement(deviation);
+            }
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.TunnelOnwards parsedTunnelOnwards)
+        {
+            if (parsedTunnelOnwards == null)
+                return false;
+
+            // The ->-> is a return to if a tunnel was used. A tunnel being -> crossing_the_date_line ->
+            // The Detour returns automatically after the section is done so we do not need to do anything here.
+
 
             return true;
         }
@@ -360,15 +391,6 @@ namespace Ink.Ink2FountainExp.Adapting
         private bool Handle(ContentAreaManager contentAreaManager, Parsed.Sequence parsedSequence)
         {
             if (parsedSequence == null)
-                return false;
-
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.TunnelOnwards parsedTunnelOnwards)
-        {
-            if (parsedTunnelOnwards == null)
                 return false;
 
 
