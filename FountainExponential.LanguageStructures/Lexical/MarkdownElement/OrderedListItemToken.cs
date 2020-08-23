@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
 {
     public class OrderedListItemToken : ILexicalElementable
     {
+        public const string Sign = ".";
+        public const string Keyword = "1.";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

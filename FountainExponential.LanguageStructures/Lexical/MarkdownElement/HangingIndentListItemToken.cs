@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
 {
     public class HangingIndentListItemToken : ILexicalElementable
     {
+        public const string Sign = "\t";
+        public const string Keyword = "\t>";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }

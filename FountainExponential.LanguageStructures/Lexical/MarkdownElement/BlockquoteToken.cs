@@ -7,5 +7,11 @@ namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
 {
     public class BlockquoteToken : ILexicalElementable
     {
+        public const string Sign = ">";
+        public const string Keyword = "\t>";
+        public override string ToString()
+        {
+            return Keyword;
+        }
     }
 }
