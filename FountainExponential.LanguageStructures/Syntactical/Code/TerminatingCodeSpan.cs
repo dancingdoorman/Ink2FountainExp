@@ -6,24 +6,16 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Code
 {
-    public class CodeSpan : CodeContainerBase, ISyntacticalElementable
-    {
-        public CodeSpanStartToken CodeSpanStartToken { get; set; }
-
-        public CodeSpanEndToken CodeSpanEndToken { get; set; }
-
-
+    /// <summary>The TerminatingCodeSpan class encapsulates a code span that marks the end of an alternative to the condition defined in the ConditioningCodeSpan</summary>
+    public class TerminatingCodeSpan : CodeSpan, ISyntacticalElementable
+    { 
+        
+        public TerminatingCodeSpanToken TerminatingCodeSpanToken { get; set; }
         public override string ToString()
         {
             var builder = new StringBuilder();
             builder.Append(CodeSpanStartToken);
-            if (SyntacticalElements != null)
-            {
-                foreach (var element in SyntacticalElements)
-                {
-                    builder.Append(element);
-                }
-            }
+            builder.Append(TerminatingCodeSpanToken);
             builder.Append(CodeSpanEndToken);
             return builder.ToString();
         }

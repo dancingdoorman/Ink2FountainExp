@@ -5,10 +5,10 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.Code
 {
-    public class DefiningCodeBlockToken : ILexicalElementable
+    public class AlternativeCodeSpanToken : ILexicalElementable
     {
-        public const string Sign = "+";
-        public const string Keyword = CodeBlockStartToken.Keyword + Sign;//"```+";
+        public const string Sign = ";";
+        public const string Keyword = CodeSpanStartToken.Keyword + Sign + CodeSpanEndToken.Keyword; //"`;`";
         public override string ToString()
         {
             return Sign;

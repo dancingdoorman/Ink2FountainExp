@@ -11,7 +11,7 @@ namespace FountainExponential.LanguageStructures.Lexical.Code
         public const string Keyword = CodeSpanStartToken.Keyword + Sign;//"`=";
         public override string ToString()
         {
-            return Keyword;
+            return Sign;
         }
     }
 }

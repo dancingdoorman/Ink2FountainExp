@@ -232,7 +232,12 @@ namespace Ink.Ink2FountainExp.Adapting
 
             if (knot.isFunction)
             {
-                var definingCodeBlock = new DefiningCodeBlock();
+                var definingCodeBlock = new DefiningCodeBlock() 
+                { 
+                    DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+                    CodeBlockStartToken = new CodeBlockStartToken(),
+                    CodeBlockEndToken = new CodeBlockEndToken(),
+                };
                 definingCodeBlock.TextContent = CreateCodeContainerContent(knot);
                 var currentContentArea = contentAreaManager.CurrentContentArea;
                 if (currentContentArea != null)

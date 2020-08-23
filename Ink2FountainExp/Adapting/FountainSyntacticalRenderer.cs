@@ -190,12 +190,12 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || definingCodeBlock == null)
                 return;
 
-            builder.Append(CodeBlock.Keyword);
-            builder.Append("+");
+            builder.Append(definingCodeBlock.CodeBlockStartToken);
+            builder.Append(definingCodeBlock.DefiningCodeBlockToken);
             builder.Append(EndLine.Pattern);
             builder.Append(definingCodeBlock.TextContent);
             builder.Append(EndLine.Pattern);
-            builder.Append(CodeBlock.Keyword);
+            builder.Append(definingCodeBlock.CodeBlockEndToken);
             builder.Append(EndLine.Pattern);
         }
 

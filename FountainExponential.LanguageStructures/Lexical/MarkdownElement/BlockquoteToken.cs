@@ -11,7 +11,7 @@ namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
         public const string Keyword = "\t>";
         public override string ToString()
         {
-            return Keyword;
+            return Sign;
         }
     }
 }

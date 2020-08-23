@@ -11,7 +11,7 @@ namespace FountainExponential.LanguageStructures.Lexical.FountainElement
         public const string Keyword = "@";
         public override string ToString()
         {
-            return Keyword;
+            return Sign;
         }
     }
 }

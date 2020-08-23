@@ -6,13 +6,9 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Code
 {
-    public class CodeSpan : CodeContainerBase, ISyntacticalElementable
+    /// <summary>The ExtendedCodeSpan class encapsulates a code span where it's statements are continuations of a previous code span</summary>
+    public class ExtendedCodeSpan : CodeSpan, ISyntacticalElementable
     {
-        public CodeSpanStartToken CodeSpanStartToken { get; set; }
-
-        public CodeSpanEndToken CodeSpanEndToken { get; set; }
-
-
         public override string ToString()
         {
             var builder = new StringBuilder();
