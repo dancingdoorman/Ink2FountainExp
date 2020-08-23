@@ -5,7 +5,12 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class LinkLabelEndToken : ILexicalElementable
+    public class LinkTitleToken : ILexicalElementable
     {
+        public string Title { get; set; }
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

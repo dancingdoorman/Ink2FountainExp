@@ -5,13 +5,12 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class LinkUrldEndToken : ILexicalElementable
+    public class LinkLabelTextToken : ILexicalElementable
     {
-        public const char Sign = ')';
-        public const string Keyword = ")";
+        public string Text { get; set; }
         public override string ToString()
         {
-            return Keyword;
+            return Text;
         }
     }
 }

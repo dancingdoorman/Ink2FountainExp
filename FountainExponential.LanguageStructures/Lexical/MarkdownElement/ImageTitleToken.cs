@@ -5,7 +5,12 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.MarkdownElement
 {
-    public class InlineImageToken : ImageToken, ILexicalElementable
+    public class ImageTitleToken : ILexicalElementable
     {
+        public string Title { get; set; }
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }
