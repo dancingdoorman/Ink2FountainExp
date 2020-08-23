@@ -67,33 +67,6 @@ namespace Ink.Ink2FountainExp.Adapting
             return fountainPlay;
         }
 
-        public void AddMetaData(string inputFileName, FountainFile mainFile)
-        {
-            // The optional Title Page is always the first thing in a Fountain document. 
-            // Information is encoding in the format key: value. 
-            // Keys can have spaces (e. g. Draft date), but must end with a colon.
-            // Example:
-            // Title:
-            //    _** BRICK &STEEL * *_
-            //    _** FULL RETIRED** _
-            //Credit: Written by
-            //Author: Stu Mark
-            //Source: Story by KTM
-            //Draft date: 1 / 20 / 2012
-            //Contact:
-            //    Next Level Productions
-            //    1588 Mission Dr.
-            //    Los Angeles, CA 93463
-
-            mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
-            var title = new Title() { Key = new KeyValuePairKeyToken() { Keyword = "Title" }, AssignmentToken = new KeyValuePairAssignmentToken(), EndLine = new EndLine() };
-            title.ValueLineList.Add(new ValueLine() { Value = System.IO.Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });
-            mainFile.TitlePage.KeyInformationList.Add(title);
-
-
-            mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
-        }
-
         public void AddSequences(Act act, Parsed.Fiction parsedFiction)
         {
             foreach (var parsedObject in parsedFiction.content)
@@ -199,115 +172,7 @@ namespace Ink.Ink2FountainExp.Adapting
             return handled;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.FlowBase flowBase)
-        {
-            if (flowBase == null)
-                return false;
-
-            var fiction = flowBase as Parsed.Fiction;
-            Handle(contentAreaManager, fiction);
-
-            var knot = flowBase as Parsed.Knot;
-            Handle(contentAreaManager, knot);
-
-            var stitch = flowBase as Parsed.Stitch;
-            Handle(contentAreaManager, stitch);
-
-            return true;
-        }
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Fiction fiction)
-        {
-            if (fiction == null)
-                return false;
-
-            // The Fiction is generally handled at a higher level, so getting here is probably an error.
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Knot knot)
-        {
-            if (knot == null)
-                return false;
-
-            if (knot.isFunction)
-            {
-                var definingCodeBlock = new DefiningCodeBlock() 
-                { 
-                    DefiningCodeBlockToken = new DefiningCodeBlockToken(),
-                    CodeBlockStartToken = new CodeBlockStartToken(),
-                    CodeBlockEndToken = new CodeBlockEndToken(),
-                };
-                definingCodeBlock.TextContent = CreateCodeContainerContent(knot);
-                var currentContentArea = contentAreaManager.CurrentContentArea;
-                if (currentContentArea != null)
-                    currentContentArea.AddSyntacticalElement(definingCodeBlock);
-            }
-            else
-            {
-                var currentContentArea = contentAreaManager.CreateSubsectionContentArea(knot.name);
-                var knotContentAreaManager = new ContentAreaManager(currentContentArea);
-
-                foreach (var content in knot.content)
-                {
-                    HandleParsedObject(knotContentAreaManager, content);
-                }
-            }
-            return true;
-        }
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Stitch stitch)
-        {
-            if (stitch == null)
-                return false;
-
-            var currentContentArea = contentAreaManager.CreateSubsectionContentArea(stitch.name);
-            var stitchContentAreaManager = new ContentAreaManager(currentContentArea);
-            foreach (var content in stitch.content)
-            {
-                HandleParsedObject(stitchContentAreaManager, content);
-            }
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Text parsedText)
-        {
-            if (parsedText == null)
-                return false;
-
-            var actionDescription = new ActionDescription() { TextContent = parsedText.text, IndentLevel = new IndentLevel() };
-
-            var actionContentArea = contentAreaManager.CurrentContentArea;
-            actionContentArea.AddSyntacticalElement(actionDescription);
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.AuthorWarning parsedAuthorWarning)
-        {
-            if (parsedAuthorWarning == null)
-                return false;
-
-            var actionDescription = new ActionDescription() { TextContent = parsedAuthorWarning.warningMessage, IndentLevel = new IndentLevel() };
-
-            var actionContentArea = contentAreaManager.CurrentContentArea;
-            actionContentArea.AddSyntacticalElement(actionDescription);
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ContentList parsedContentList)
-        {
-            if (parsedContentList == null)
-                return false;
-
-            foreach (var content in parsedContentList.content)
-            {
-                HandleParsedObject(contentAreaManager, content);
-            }
-
-            return true;
-        }
+        #region Map Automatic Flow
 
         private bool Handle(ContentAreaManager contentAreaManager, Parsed.Divert divert)
         {
@@ -363,6 +228,10 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
+        #endregion Map Automatic Flow
+
+        #region Map Code
+
         private bool Handle(ContentAreaManager contentAreaManager, Parsed.Conditional parsedConditional)
         {
             if (parsedConditional == null)
@@ -379,33 +248,182 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ListDefinition parsedListDefinition)
+        public void AddGlobalFunctions(FountainFile file, Parsed.Fiction parsedFiction)
         {
-            if (parsedListDefinition == null)
+            foreach (var parsedObject in parsedFiction.content)
+            {
+                var knot = parsedObject as Parsed.Knot;
+                if (knot != null && knot.isFunction)
+                {
+                    var contentArea = new ContentArea() { File = file, IndentLevel = 0 };
+                    var contentAreaManager = new ContentAreaManager(contentArea);
+                    Handle(contentAreaManager, knot);
+                }
+            }
+        }
+
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConditionalSingleBranch parsedConditionalSingleBranch)
+        {
+            if (parsedConditionalSingleBranch == null)
                 return false;
 
 
             return true;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Sequence parsedSequence)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Expression parsedExpression)
         {
-            if (parsedSequence == null)
+            if (parsedExpression == null)
                 return false;
 
 
             return true;
         }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.VariableAssignment parsedVariableAssignment)
+        {
+            if (parsedVariableAssignment == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConstantDeclaration parsedConstantDeclaration)
+        {
+            if (parsedConstantDeclaration == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ExternalDeclaration parsedExternalDeclaration)
+        {
+            if (parsedExternalDeclaration == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.IncludedFile parsedIncludedFile)
+        {
+            if (parsedIncludedFile == null)
+                return false;
+
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Return parsedReturn)
+        {
+            if (parsedReturn == null)
+                return false;
+
+            var actionDescription = new ActionDescription() { TextContent = parsedReturn.returnedExpression.ToString(), IndentLevel = new IndentLevel() };
+
+            var actionContentArea = contentAreaManager.CurrentContentArea;
+            actionContentArea.AddSyntacticalElement(actionDescription);
+
+            return true;
+        }
+
+        public string CreateCodeContainerContent(Parsed.Knot function)
+        {
+            var builder = new StringBuilder();
+            builder.Append("function ");
+            builder.Append(function.name);
+            builder.Append("(");
+            bool firstArgument = true;
+            foreach (var arg in function.arguments)
+            {
+                if (firstArgument == false)
+                    builder.Append(", ");
+
+                builder.Append(arg.name);
+
+                firstArgument = false;
+            }
+            builder.Append(")");
+            builder.Append(" {\r\n");
+
+            foreach (var functionContent in function.content)
+            {
+                var functionWeave = functionContent as Ink.Parsed.Weave;
+                if (functionWeave != null)
+                {
+                    foreach (var weaveContent in functionWeave.content)
+                    {
+                        var variableAssignment = weaveContent as Ink.Parsed.VariableAssignment;
+                        if (variableAssignment != null)
+                        {
+                            builder.Append("\t");
+                            builder.Append(variableAssignment.variableName);
+                            builder.Append(" = ");
+                            builder.Append(variableAssignment.expression.ToString());
+
+                            //foreach (var variableAssignmentContent in variableAssignment.content)
+                            //{
+                            //    var binaryExpression = variableAssignmentContent as Ink.Parsed.BinaryExpression;
+                            //    if (binaryExpression != null)
+                            //    {
+                            //        builder.Append(binaryExpression.leftExpression);
+                            //        builder.Append(" = ");
+                            //        builder.Append(binaryExpression.rightExpression);
+                            //    }
+                            //}
+                        }
+                    }
+                }
+            }
+            builder.Append("\r\n}");
+            return builder.ToString();
+        }
+
+        #endregion Map Code
+
+        #region Map Comment 
+
+        #endregion Map Comment
+
+        #region Map Data
+
+        #endregion Map Data
+
+        #region Map Emphasis
+
+        #endregion Map Emphasis
+
+        #region Map FountainElement
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Text parsedText)
+        {
+            if (parsedText == null)
+                return false;
+
+            var actionDescription = new ActionDescription() { TextContent = parsedText.text, IndentLevel = new IndentLevel() };
+
+            var actionContentArea = contentAreaManager.CurrentContentArea;
+            actionContentArea.AddSyntacticalElement(actionDescription);
+
+            return true;
+        }
+
+        #endregion Map FountainElement
+
+        #region Map Interactive Flow
 
         public bool Handle(ContentAreaManager contentAreaManager, Parsed.Weave weave)
         {
             if (contentAreaManager == null || weave == null)
                 return false;
-                                    
+
             var menuStack = new Stack<Menu>();
             var menuChoiceStack = new Stack<MenuChoice>();
             ContentArea choiceContentArea = null;
-            foreach(var weaveContent in weave.content)
+            foreach (var weaveContent in weave.content)
             {
                 var weaveGather = weaveContent as Ink.Parsed.Gather;
                 if (ProcessGather(contentAreaManager, weaveGather, menuStack, menuChoiceStack))
@@ -430,7 +448,7 @@ namespace Ink.Ink2FountainExp.Adapting
             // if a choice content area was created we have to remove it from the stack if we go out of the weave.
             if (choiceContentArea != null)
             {
-                if(choiceContentArea == contentAreaManager.CurrentContentArea)
+                if (choiceContentArea == contentAreaManager.CurrentContentArea)
                 {
                     contentAreaManager.PopCurrentContentArea();
                 }
@@ -719,81 +737,127 @@ namespace Ink.Ink2FountainExp.Adapting
             }
         }
 
-        public void AddGlobalFunctions(FountainFile file, Parsed.Fiction parsedFiction)
+        #endregion Map Interactive Flow
+
+        #region Map MarkdownElement
+
+        #endregion Map MarkdownElement
+
+        #region Map MetaData
+
+        public void AddMetaData(string inputFileName, FountainFile mainFile)
         {
-            foreach (var parsedObject in parsedFiction.content)
+            // The optional Title Page is always the first thing in a Fountain document. 
+            // Information is encoding in the format key: value. 
+            // Keys can have spaces (e. g. Draft date), but must end with a colon.
+            // Example:
+            // Title:
+            //    _** BRICK &STEEL * *_
+            //    _** FULL RETIRED** _
+            //Credit: Written by
+            //Author: Stu Mark
+            //Source: Story by KTM
+            //Draft date: 1 / 20 / 2012
+            //Contact:
+            //    Next Level Productions
+            //    1588 Mission Dr.
+            //    Los Angeles, CA 93463
+
+            mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
+            var title = new Title() { Key = new KeyValuePairKeyToken() { Keyword = "Title" }, AssignmentToken = new KeyValuePairAssignmentToken(), EndLine = new EndLine() };
+            title.ValueLineList.Add(new ValueLine() { Value = System.IO.Path.GetFileNameWithoutExtension(inputFileName), IndentToken = new KeyValuePairIndentToken(), EndLine = new EndLine() });
+            mainFile.TitlePage.KeyInformationList.Add(title);
+
+
+            mainFile.TitlePage.TitlePageBreakToken = new TitlePageBreakToken();
+        }
+
+        #endregion Map MetaData
+
+        #region Map Section
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.FlowBase flowBase)
+        {
+            if (flowBase == null)
+                return false;
+
+            var fiction = flowBase as Parsed.Fiction;
+            Handle(contentAreaManager, fiction);
+
+            var knot = flowBase as Parsed.Knot;
+            Handle(contentAreaManager, knot);
+
+            var stitch = flowBase as Parsed.Stitch;
+            Handle(contentAreaManager, stitch);
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Fiction fiction)
+        {
+            if (fiction == null)
+                return false;
+
+            // The Fiction is generally handled at a higher level, so getting here is probably an error.
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Knot knot)
+        {
+            if (knot == null)
+                return false;
+
+            if (knot.isFunction)
             {
-                var knot = parsedObject as Parsed.Knot;
-                if(knot != null && knot.isFunction)
+                var definingCodeBlock = new DefiningCodeBlock()
                 {
-                    var contentArea = new ContentArea() { File = file, IndentLevel = 0 };
-                    var contentAreaManager = new ContentAreaManager(contentArea);
-                    Handle(contentAreaManager, knot);
+                    DefiningCodeBlockToken = new DefiningCodeBlockToken(),
+                    CodeBlockStartToken = new CodeBlockStartToken(),
+                    CodeBlockEndToken = new CodeBlockEndToken(),
+                };
+                definingCodeBlock.TextContent = CreateCodeContainerContent(knot);
+                var currentContentArea = contentAreaManager.CurrentContentArea;
+                if (currentContentArea != null)
+                    currentContentArea.AddSyntacticalElement(definingCodeBlock);
+            }
+            else
+            {
+                var currentContentArea = contentAreaManager.CreateSubsectionContentArea(knot.name);
+                var knotContentAreaManager = new ContentAreaManager(currentContentArea);
+
+                foreach (var content in knot.content)
+                {
+                    HandleParsedObject(knotContentAreaManager, content);
                 }
             }
+            return true;
         }
-
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConditionalSingleBranch parsedConditionalSingleBranch)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Stitch stitch)
         {
-            if (parsedConditionalSingleBranch == null)
+            if (stitch == null)
                 return false;
 
+            var currentContentArea = contentAreaManager.CreateSubsectionContentArea(stitch.name);
+            var stitchContentAreaManager = new ContentAreaManager(currentContentArea);
+            foreach (var content in stitch.content)
+            {
+                HandleParsedObject(stitchContentAreaManager, content);
+            }
 
             return true;
         }
 
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Expression parsedExpression)
+        #endregion Map Section 
+
+        #region Map Basic
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.AuthorWarning parsedAuthorWarning)
         {
-            if (parsedExpression == null)
+            if (parsedAuthorWarning == null)
                 return false;
 
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.VariableAssignment parsedVariableAssignment)
-        {
-            if (parsedVariableAssignment == null)
-                return false;
-
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ConstantDeclaration parsedConstantDeclaration)
-        {
-            if (parsedConstantDeclaration == null)
-                return false;
-
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ExternalDeclaration parsedExternalDeclaration)
-        {
-            if (parsedExternalDeclaration == null)
-                return false;
-
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.IncludedFile parsedIncludedFile)
-        {
-            if (parsedIncludedFile == null)
-                return false;
-
-
-            return true;
-        }
-
-        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Return parsedReturn)
-        {
-            if (parsedReturn == null)
-                return false;
-
-            var actionDescription = new ActionDescription() { TextContent = parsedReturn.returnedExpression.ToString(), IndentLevel = new IndentLevel() };
+            var actionDescription = new ActionDescription() { TextContent = parsedAuthorWarning.warningMessage, IndentLevel = new IndentLevel() };
 
             var actionContentArea = contentAreaManager.CurrentContentArea;
             actionContentArea.AddSyntacticalElement(actionDescription);
@@ -801,56 +865,37 @@ namespace Ink.Ink2FountainExp.Adapting
             return true;
         }
 
-        public string CreateCodeContainerContent(Parsed.Knot function)
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.Sequence parsedSequence)
         {
-            var builder = new StringBuilder();
-            builder.Append("function ");
-            builder.Append(function.name);
-            builder.Append("(");
-            bool firstArgument = true;
-            foreach (var arg in function.arguments)
-            {
-                if (firstArgument == false)
-                    builder.Append(", ");
+            if (parsedSequence == null)
+                return false;
 
-                builder.Append(arg.name);
 
-                firstArgument = false;
-            }
-            builder.Append(")");
-            builder.Append(" {\r\n");
-
-            foreach (var functionContent in function.content)
-            {
-                var functionWeave = functionContent as Ink.Parsed.Weave;
-                if (functionWeave != null)
-                {
-                    foreach (var weaveContent in functionWeave.content)
-                    {
-                        var variableAssignment = weaveContent as Ink.Parsed.VariableAssignment;
-                        if (variableAssignment != null)
-                        {
-                            builder.Append("\t");
-                            builder.Append(variableAssignment.variableName);
-                            builder.Append(" = ");
-                            builder.Append(variableAssignment.expression.ToString());
-
-                            //foreach (var variableAssignmentContent in variableAssignment.content)
-                            //{
-                            //    var binaryExpression = variableAssignmentContent as Ink.Parsed.BinaryExpression;
-                            //    if (binaryExpression != null)
-                            //    {
-                            //        builder.Append(binaryExpression.leftExpression);
-                            //        builder.Append(" = ");
-                            //        builder.Append(binaryExpression.rightExpression);
-                            //    }
-                            //}
-                        }
-                    }
-                }
-            }
-            builder.Append("\r\n}");
-            return builder.ToString();
+            return true;
         }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ContentList parsedContentList)
+        {
+            if (parsedContentList == null)
+                return false;
+
+            foreach (var content in parsedContentList.content)
+            {
+                HandleParsedObject(contentAreaManager, content);
+            }
+
+            return true;
+        }
+
+        private bool Handle(ContentAreaManager contentAreaManager, Parsed.ListDefinition parsedListDefinition)
+        {
+            if (parsedListDefinition == null)
+                return false;
+
+
+            return true;
+        }
+
+        #endregion Map Basic
     }
 }

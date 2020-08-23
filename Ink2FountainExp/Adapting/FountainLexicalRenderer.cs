@@ -84,7 +84,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #endregion Write FountainElement Tokens
 
-        #region Interactive Flow Tokens
+        #region Write Interactive Flow Tokens
 
         public void Write(StringBuilder builder, PersistentMenuChoiceToken choice)
         {
@@ -118,7 +118,7 @@ namespace Ink.Ink2FountainExp.Adapting
             builder.Append(target.Label);
         }
 
-        #endregion Interactive Flow Tokens
+        #endregion Write Interactive Flow Tokens
 
         #region Write MarkdownElement Tokens
 
