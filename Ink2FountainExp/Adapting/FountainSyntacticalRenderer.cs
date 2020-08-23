@@ -257,20 +257,55 @@ namespace Ink.Ink2FountainExp.Adapting
             if (builder == null || menuChoice == null)
                 return;
 
+
+            var persistentMenuChoice = menuChoice as PersistentMenuChoice;
+            Write(builder, persistentMenuChoice);
+
+            var ConsumableMenuChoice = menuChoice as ConsumableMenuChoice;
+            Write(builder, ConsumableMenuChoice);
+
+            var ContinuingMenuChoice = menuChoice as ContinuingMenuChoice;
+            Write(builder, ContinuingMenuChoice);
+        }
+        public void Write(StringBuilder builder, PersistentMenuChoice menuChoice)
+        {
+            if (builder == null || menuChoice == null)
+                return;
+
             Write(builder, menuChoice.IndentLevel);
 
-            var stickyMenuChoiceToken = menuChoice.MenuChoiceToken as StickyMenuChoiceToken;
-            LexicalRenderer.Write(builder, stickyMenuChoiceToken);
+            LexicalRenderer.Write(builder, menuChoice.MenuChoiceToken);
 
-            var consumableMenuChoiceToken = menuChoice.MenuChoiceToken as ConsumableMenuChoiceToken;
-            LexicalRenderer.Write(builder, consumableMenuChoiceToken);
+            LexicalRenderer.Write(builder, menuChoice.SpaceToken);
+            builder.Append(menuChoice.Description);
+            Write(builder, menuChoice.EndLine);
 
-            var continuingMenuChoiceToken = menuChoice.MenuChoiceToken as ContinuingMenuChoiceToken;
-            LexicalRenderer.Write(builder, continuingMenuChoiceToken);
+            WriteContainerBlockElements(builder, menuChoice.SyntacticalElements);
+        }
 
-            // if no choice token is present we create a default choice token.
-            if(stickyMenuChoiceToken == null && consumableMenuChoiceToken == null && continuingMenuChoiceToken == null)
-                LexicalRenderer.Write(builder, new StickyMenuChoiceToken());
+        public void Write(StringBuilder builder, ConsumableMenuChoice menuChoice)
+        {
+            if (builder == null || menuChoice == null)
+                return;
+
+            Write(builder, menuChoice.IndentLevel);
+
+            LexicalRenderer.Write(builder, menuChoice.MenuChoiceToken);
+
+            LexicalRenderer.Write(builder, menuChoice.SpaceToken);
+            builder.Append(menuChoice.Description);
+            Write(builder, menuChoice.EndLine);
+
+            WriteContainerBlockElements(builder, menuChoice.SyntacticalElements);
+        }
+        public void Write(StringBuilder builder, ContinuingMenuChoice menuChoice)
+        {
+            if (builder == null || menuChoice == null)
+                return;
+
+            Write(builder, menuChoice.IndentLevel);
+
+            LexicalRenderer.Write(builder, menuChoice.MenuChoiceToken);
 
             LexicalRenderer.Write(builder, menuChoice.SpaceToken);
             builder.Append(menuChoice.Description);

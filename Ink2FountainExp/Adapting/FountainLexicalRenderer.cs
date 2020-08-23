@@ -34,12 +34,12 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #region InteractiveFlow
 
-        public void Write(StringBuilder builder, StickyMenuChoiceToken choice)
+        public void Write(StringBuilder builder, PersistentMenuChoiceToken choice)
         {
             if (builder == null || choice == null)
                 return;
 
-            builder.Append(StickyMenuChoiceToken.Sign);
+            builder.Append(PersistentMenuChoiceToken.Sign);
         }
 
         public void Write(StringBuilder builder, ConsumableMenuChoiceToken choice)

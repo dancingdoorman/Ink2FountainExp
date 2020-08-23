@@ -8,6 +8,7 @@ using System.Text;
 using FountainExponential.LanguageStructures;
 using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
+using FountainExponential.LanguageStructures.Lexical.Code;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using FountainExponential.LanguageStructures.Lexical.Sections;
@@ -104,11 +105,15 @@ namespace Ink.Ink2FountainExp.Adapting
                 var contentArea = new ContentArea() { Act = act, IndentLevel = 0 };
                 var contentAreaManager = new ContentAreaManager(contentArea);
                 // some non function, knot or stitch object can be handled.
-                Handle(contentAreaManager, parsedObject);
+                HandleParsedObject(contentAreaManager, parsedObject);
             }
         }
 
-        public bool Handle(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
+        /// <summary>Handles the parsed object. Did not function overload the handle function for the base object handling to avoid loops when the specific function is not defined.</summary>
+        /// <param name="contentAreaManager">The content area manager.</param>
+        /// <param name="parsedObject">The parsed object.</param>
+        /// <returns></returns>
+        public bool HandleParsedObject(ContentAreaManager contentAreaManager, Parsed.Object parsedObject)
         {
             bool handled = false;
 
@@ -240,7 +245,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
                 foreach (var content in knot.content)
                 {
-                    Handle(knotContentAreaManager, content);
+                    HandleParsedObject(knotContentAreaManager, content);
                 }
             }
             return true;
@@ -254,7 +259,7 @@ namespace Ink.Ink2FountainExp.Adapting
             var stitchContentAreaManager = new ContentAreaManager(currentContentArea);
             foreach (var content in stitch.content)
             {
-                Handle(stitchContentAreaManager, content);
+                HandleParsedObject(stitchContentAreaManager, content);
             }
 
             return true;
@@ -293,7 +298,7 @@ namespace Ink.Ink2FountainExp.Adapting
 
             foreach (var content in parsedContentList.content)
             {
-                Handle(contentAreaManager, content);
+                HandleParsedObject(contentAreaManager, content);
             }
 
             return true;
@@ -327,6 +332,13 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedConditional == null)
                 return false;
 
+            var condition = new ConditioningCodeSpan()
+            {
+                TextContent = parsedConditional.ToString()
+            };
+
+            var conditionContentArea = contentAreaManager.CurrentContentArea;
+            conditionContentArea.AddSyntacticalElement(condition);
 
             return true;
         }
@@ -385,7 +397,7 @@ namespace Ink.Ink2FountainExp.Adapting
                     continue;
 
                 // Do the non indent and flow handling.
-                Handle(contentAreaManager, weaveContent);
+                HandleParsedObject(contentAreaManager, weaveContent);
             }
 
             // if a choice content area was created we have to remove it from the stack if we go out of the weave.
@@ -416,17 +428,27 @@ namespace Ink.Ink2FountainExp.Adapting
             if (contentAreaManager == null || weaveChoice == null)
                 return false;
 
-            MenuChoiceToken token = new ConsumableMenuChoiceToken();
-            if(!weaveChoice.onceOnly)
-                token= new StickyMenuChoiceToken();
-
-            var menuChoice = new MenuChoice()
+            MenuChoice menuChoice = null;
+            if (!weaveChoice.onceOnly)
             {
-                MenuChoiceToken = token,
-                SpaceToken = new SpaceToken(),
-                EndLine = new EndLine(),
-                IndentLevel = new IndentLevel()
-            };
+                menuChoice = new PersistentMenuChoice()
+                {
+                    MenuChoiceToken = new PersistentMenuChoiceToken(),
+                    SpaceToken = new SpaceToken(),
+                    EndLine = new EndLine(),
+                    IndentLevel = new IndentLevel()
+                };
+            }
+            else
+            {
+                menuChoice = new ConsumableMenuChoice()
+                {
+                    MenuChoiceToken = new ConsumableMenuChoiceToken(),
+                    SpaceToken = new SpaceToken(),
+                    EndLine = new EndLine(),
+                    IndentLevel = new IndentLevel()
+                };
+            }
 
             var baseContentArea = contentAreaManager.CurrentContentArea;
             Menu menu = null;

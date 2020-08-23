@@ -5,7 +5,7 @@ using FountainExponential.LanguageStructures.Lexical;
 
 namespace FountainExponential.LanguageStructures.Lexical.InteractiveFlow
 {
-    public class StickyMenuChoiceToken : MenuChoiceToken, ILexicalElementable
+    public class PersistentMenuChoiceToken : MenuChoiceToken, ILexicalElementable
     {
         public const char Sign = '+';
 
