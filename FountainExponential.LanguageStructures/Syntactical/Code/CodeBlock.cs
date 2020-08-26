@@ -6,7 +6,7 @@ using FountainExponential.LanguageStructures.Syntactical;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Code
 {
-    public class CodeBlock : CodeContainerBase, ISyntacticalElementable
+    public class CodeBlock : CodeContainerBase, ISyntacticalElementable, ICodeBlockEnclosable
     {
         public CodeBlockStartToken CodeBlockStartToken { get; set; }
 

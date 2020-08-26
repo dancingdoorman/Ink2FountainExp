@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using FountainExponential.LanguageStructures.Lexical;
+using FountainExponential.LanguageStructures.Lexical.Code;
 
-namespace FountainExponential.LanguageStructures.Lexical.Code
+namespace FountainExponential.LanguageStructures.Lexical.Conditional
 {
-    public class TerminatingCodeSpanToken : ILexicalElementable
+    public class AlternativeConditionToken : ILexicalElementable
     {
         public const string Sign = ":";
         public const string Keyword = CodeSpanStartToken.Keyword + Sign + CodeSpanEndToken.Keyword; //"`:`";

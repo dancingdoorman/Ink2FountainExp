@@ -15,6 +15,7 @@ using FountainExponential.LanguageStructures.Lexical.Sections;
 using FountainExponential.LanguageStructures.Syntactical;
 using FountainExponential.LanguageStructures.Syntactical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Syntactical.Code;
+using FountainExponential.LanguageStructures.Syntactical.Conditional;
 using FountainExponential.LanguageStructures.Syntactical.Data;
 using FountainExponential.LanguageStructures.Syntactical.FountainElement;
 using FountainExponential.LanguageStructures.Syntactical.InteractiveFlow;
@@ -287,7 +288,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedConditional == null)
                 return false;
 
-            var condition = new ConditioningCodeSpan()
+            var condition = new BinaryCondition()
             {
                 TextContent = parsedConditional.ToString()
             };
@@ -303,7 +304,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedConditionalSingleBranch == null)
                 return false;
 
-            var condition = new ConditioningCodeSpan()
+            var condition = new SingularCondition()
             {
                 TextContent = parsedConditionalSingleBranch.ToString()
             };
