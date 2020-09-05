@@ -1,5 +1,7 @@
 ﻿using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
+using FountainExponential.LanguageStructures.Lexical.Code;
+using FountainExponential.LanguageStructures.Lexical.Conditional;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using FountainExponential.LanguageStructures.Lexical.Sections;
@@ -58,19 +60,45 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #region Write Code Tokens
 
-        //public void Write(StringBuilder builder, FlowTargetToken target)
-        //{
-        //    if (builder == null || target == null)
-        //        return;
+        public void Write(StringBuilder builder, ObtainerToken obtainerToken)
+        {
+            if (builder == null || obtainerToken == null)
+                return;
 
-        //    builder.Append(target.Label);
-        //}
+            builder.Append(ObtainerToken.Keyword);
+        }
 
         #endregion Write Code Tokens
 
         #region Write Comment Tokens
 
         #endregion Write Comment Tokens
+
+        #region Write Conditional Tokens
+        public void Write(StringBuilder builder, ConditionToken target)
+        {
+            if (builder == null || target == null)
+                return;
+
+            builder.Append(ConditionToken.Keyword);
+        }
+        public void Write(StringBuilder builder, ConditionDefaultToken target)
+        {
+            if (builder == null || target == null)
+                return;
+
+            builder.Append(ConditionDefaultToken.Keyword);
+        }
+
+        public void Write(StringBuilder builder, TerminatingConditionToken target)
+        {
+            if (builder == null || target == null)
+                return;
+
+            builder.Append(TerminatingConditionToken.Keyword);
+        }
+
+        #endregion Write Conditional Tokens
 
         #region Write Data Tokens
 

@@ -5,16 +5,19 @@ using System.Text;
 using FountainExponential.LanguageStructures;
 using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
+using FountainExponential.LanguageStructures.Lexical.Code;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using FountainExponential.LanguageStructures.Lexical.Sections;
 using FountainExponential.LanguageStructures.Syntactical;
 using FountainExponential.LanguageStructures.Syntactical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Syntactical.Code;
+using FountainExponential.LanguageStructures.Syntactical.Conditional;
 using FountainExponential.LanguageStructures.Syntactical.FountainElement;
 using FountainExponential.LanguageStructures.Syntactical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Syntactical.MetaData;
 using FountainExponential.LanguageStructures.Syntactical.Sections;
+using FountainExponential.LanguageStructures.Syntactical.Set;
 
 namespace Ink.Ink2FountainExp.Adapting
 {
@@ -110,6 +113,12 @@ namespace Ink.Ink2FountainExp.Adapting
                 var actionDescription = element as ActionDescription;
                 Write(builder, actionDescription);
 
+                var arrangement = element as Arrangement;
+                Write(builder, arrangement);
+
+                var conditional = element as Conditional;
+                Write(builder, conditional);
+
                 var definingCodeBlock = element as DefiningCodeBlock;
                 Write(builder, definingCodeBlock);
 
@@ -201,6 +210,267 @@ namespace Ink.Ink2FountainExp.Adapting
 
         #endregion Write Code Elements
 
+        #region Write Conditional
+
+        public void Write(StringBuilder builder, Conditional conditional)
+        {
+            if (builder == null || conditional == null)
+                return;
+
+
+            var singularConditional = conditional as SingularConditional;
+            Write(builder, singularConditional);
+
+            var multipleConditional = conditional as MultipleConditional;
+            Write(builder, multipleConditional);
+        }
+
+        public void Write(StringBuilder builder, SingularConditional singularConditional)
+        {
+            if (builder == null || singularConditional == null)
+                return;
+
+
+            var singularConditionedTranscriber = singularConditional as SingularConditionedTranscriber;
+            Write(builder, singularConditionedTranscriber);
+
+            var singularConditionedActivator = singularConditional as SingularConditionedActivator;
+            Write(builder, singularConditionedActivator);
+
+            var menuChoiceSingularConditional = singularConditional as MenuChoiceSingularConditional;
+            Write(builder, menuChoiceSingularConditional);
+
+            var inlineSingularConditional = singularConditional as InlineSingularConditional;
+            Write(builder, inlineSingularConditional);
+
+            var defaultedSingularConditional = singularConditional as DefaultedSingularConditional;
+            Write(builder, defaultedSingularConditional);
+
+            var codeSpanInlineSingularConditional = singularConditional as CodeSpanInlineSingularConditional;
+            Write(builder, codeSpanInlineSingularConditional);
+            if (
+                singularConditionedTranscriber == null &&
+                singularConditionedActivator == null &&
+                menuChoiceSingularConditional == null &&
+                inlineSingularConditional == null &&
+                defaultedSingularConditional == null &&
+                codeSpanInlineSingularConditional == null 
+                )
+            {
+                if (singularConditional.Condition != null)
+                {
+                    builder.Append(singularConditional.Condition.TextContent);
+                }
+                LexicalRenderer.Write(builder, singularConditional.SpaceTokenBeforeConditionToken);
+                LexicalRenderer.Write(builder, singularConditional.ConditionToken);
+                LexicalRenderer.Write(builder, singularConditional.SpaceTokenAfterConditionToken);
+                foreach (var caseElement in singularConditional.CaseSyntacticalElements)
+                {
+                    var actionDescription = caseElement as ActionDescription;
+                    Write(builder, actionDescription);
+                }
+
+                LexicalRenderer.Write(builder, singularConditional.SpaceTokenBeforeTerminatingConditionToken);
+                LexicalRenderer.Write(builder, singularConditional.TerminatingConditionToken);
+            }
+        }
+
+        public void Write(StringBuilder builder, SingularConditionedTranscriber singularConditionedTranscriber)
+        {
+            if (builder == null || singularConditionedTranscriber == null)
+                return;
+
+
+        }
+
+        public void Write(StringBuilder builder, SingularConditionedActivator singularConditionedActivator)
+        {
+            if (builder == null || singularConditionedActivator == null)
+                return;
+
+
+        }
+
+        public void Write(StringBuilder builder, MenuChoiceSingularConditional menuChoiceSingularConditional)
+        {
+            if (builder == null || menuChoiceSingularConditional == null)
+                return;
+
+            menuChoiceSingularConditional.ToString();
+        }
+
+        public void Write(StringBuilder builder, InlineSingularConditional inlineSingularConditional)
+        {
+            if (builder == null || inlineSingularConditional == null)
+                return;
+
+            if (inlineSingularConditional.Condition != null)
+            {
+                builder.Append(inlineSingularConditional.Condition.TextContent);
+            }
+            LexicalRenderer.Write(builder, inlineSingularConditional.SpaceTokenBeforeConditionToken);
+            LexicalRenderer.Write(builder, inlineSingularConditional.ConditionToken);
+            LexicalRenderer.Write(builder, inlineSingularConditional.SpaceTokenAfterConditionToken);
+            foreach (var caseElement in inlineSingularConditional.CaseSyntacticalElements)
+            {
+                var actionDescription = caseElement as ActionDescription;
+                Write(builder, actionDescription);
+            }
+
+            LexicalRenderer.Write(builder, inlineSingularConditional.SpaceTokenBeforeTerminatingConditionToken);
+            LexicalRenderer.Write(builder, inlineSingularConditional.TerminatingConditionToken);
+
+        }
+
+        public void Write(StringBuilder builder, DefaultedSingularConditional defaultedSingularConditional)
+        {
+            if (builder == null || defaultedSingularConditional == null)
+                return;
+
+
+            if (defaultedSingularConditional.Condition != null)
+            {
+                builder.Append(defaultedSingularConditional.Condition.TextContent);
+            }
+            LexicalRenderer.Write(builder, defaultedSingularConditional.SpaceTokenBeforeConditionToken);
+            LexicalRenderer.Write(builder, defaultedSingularConditional.ConditionToken);
+            LexicalRenderer.Write(builder, defaultedSingularConditional.SpaceTokenAfterConditionToken);
+            foreach (var caseElement in defaultedSingularConditional.CaseSyntacticalElements)
+            {
+                var actionDescription = caseElement as ActionDescription;
+                Write(builder, actionDescription);
+            }
+
+            LexicalRenderer.Write(builder, defaultedSingularConditional.SpaceTokenBeforeConditionDefaultToken);
+            LexicalRenderer.Write(builder, defaultedSingularConditional.ConditionDefaultToken);
+            LexicalRenderer.Write(builder, defaultedSingularConditional.SpaceTokenAfterConditionDefaultToken);
+
+            foreach (var caseElement in defaultedSingularConditional.DefaultSyntacticalElements)
+            {
+                var actionDescription = caseElement as ActionDescription;
+                Write(builder, actionDescription);
+            }
+
+            LexicalRenderer.Write(builder, defaultedSingularConditional.SpaceTokenBeforeTerminatingConditionToken);
+            LexicalRenderer.Write(builder, defaultedSingularConditional.TerminatingConditionToken);
+
+
+            //var inlineDefaultedSingularConditional = defaultedSingularConditional as InlineDefaultedSingularConditional;
+            //Write(builder, inlineDefaultedSingularConditional);
+
+            //var defaultedSingularConditionalTranscriber = defaultedSingularConditional as DefaultedSingularConditionalTranscriber;
+            //Write(builder, defaultedSingularConditionalTranscriber);
+
+            //var codeSpanInlineDefaultSingularConditional = defaultedSingularConditional as CodeSpanInlineDefaultSingularConditional;
+            //Write(builder, codeSpanInlineDefaultSingularConditional);
+        }
+
+        public void Write(StringBuilder builder, InlineDefaultedSingularConditional inlineDefaultedSingularConditional)
+        {
+            if (builder == null || inlineDefaultedSingularConditional == null)
+                return;
+
+
+        }
+
+        public void Write(StringBuilder builder, DefaultedSingularConditionalTranscriber defaultedSingularConditionalTranscriber)
+        {
+            if (builder == null || defaultedSingularConditionalTranscriber == null)
+                return;
+
+
+        }
+
+        public void Write(StringBuilder builder, CodeSpanInlineDefaultSingularConditional codeSpanInlineDefaultSingularConditional)
+        {
+            if (builder == null || codeSpanInlineDefaultSingularConditional == null)
+                return;
+
+
+        }
+
+        public void Write(StringBuilder builder, CodeSpanInlineSingularConditional codeSpanInlineSingularConditional)
+        {
+            if (builder == null || codeSpanInlineSingularConditional == null)
+                return;
+
+
+        }
+
+
+        public void Write(StringBuilder builder, MultipleConditional multipleConditional)
+        {
+            if (builder == null || multipleConditional == null)
+                return;
+
+
+            var defaultedMultipleConditional = multipleConditional as DefaultedMultipleConditional;
+            Write(builder, defaultedMultipleConditional);
+
+            var matchingMultipleConditional = multipleConditional as MatchingMultipleConditional;
+            Write(builder, matchingMultipleConditional);
+        }
+        
+        public void Write(StringBuilder builder, MatchingMultipleConditional matchingMultipleConditional)
+        {
+            if (builder == null || matchingMultipleConditional == null)
+                return;
+
+
+            var defaultedMatchingMultipleConditional = matchingMultipleConditional as DefaultedMatchingMultipleConditional;
+            if(defaultedMatchingMultipleConditional != null)
+                Write(builder, defaultedMatchingMultipleConditional);
+            else
+            {
+                builder.Append(matchingMultipleConditional.Expression);
+
+                LexicalRenderer.Write(builder, matchingMultipleConditional.SpaceTokenBeforeConditionToken);
+                LexicalRenderer.Write(builder, matchingMultipleConditional.ConditionToken);
+                LexicalRenderer.Write(builder, matchingMultipleConditional.SpaceTokenAfterConditionToken);
+
+                builder.Append(matchingMultipleConditional.TextContent);
+
+                LexicalRenderer.Write(builder, matchingMultipleConditional.SpaceTokenBeforeTerminatingConditionToken);
+                LexicalRenderer.Write(builder, matchingMultipleConditional.TerminatingConditionToken);
+            }
+
+        }
+
+        public void Write(StringBuilder builder, DefaultedMatchingMultipleConditional defaultedMatchingMultipleConditional)
+        {
+            if (builder == null || defaultedMatchingMultipleConditional == null)
+                return;
+
+
+            builder.Append(defaultedMatchingMultipleConditional.Expression);
+
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.SpaceTokenBeforeConditionToken);
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.ConditionToken);
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.SpaceTokenAfterConditionToken);
+
+            builder.Append(defaultedMatchingMultipleConditional.TextContent);
+
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.SpaceTokenBeforeConditionDefaultToken);
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.ConditionDefaultToken);
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.SpaceTokenAfterConditionDefaultToken);
+
+            builder.Append(defaultedMatchingMultipleConditional.TextContent);
+
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.SpaceTokenBeforeTerminatingConditionToken);
+            LexicalRenderer.Write(builder, defaultedMatchingMultipleConditional.TerminatingConditionToken);
+        }
+
+        public void Write(StringBuilder builder, DefaultedMultipleConditional defaultedMultipleConditional)
+        {
+            if (builder == null || defaultedMultipleConditional == null)
+                return;
+
+
+        }
+
+        #endregion Write Conditional
+
+
         #region Write Fountain Elements
 
         public void Write(StringBuilder builder, ActionDescription actionDescription)
@@ -248,6 +518,12 @@ namespace Ink.Ink2FountainExp.Adapting
 
                 var actionDescription = element as ActionDescription;
                 Write(builder, actionDescription);
+
+                var arrangement = element as Arrangement;
+                Write(builder, arrangement);
+
+                var conditional = element as Conditional;
+                Write(builder, conditional);
 
                 var containerBlock = element as ContainerBlock;
                 Write(builder, containerBlock);
@@ -592,6 +868,45 @@ namespace Ink.Ink2FountainExp.Adapting
         }
 
         #endregion Write Sections
+
+        #region Write Set
+
+        public void Write(StringBuilder builder, Arrangement arrangement)
+        {
+            if (builder == null || arrangement == null)
+                return;
+
+            LexicalRenderer.Write(builder, arrangement.ObtainerToken);
+            if(arrangement is LoopingLinearArrangment)
+            {
+                builder.Append("*-");
+            }
+            if (arrangement is LoopingRandomArrangment)
+            {
+                builder.Append("*~");
+            }
+            if (arrangement is EmptyingLinearArrangment)
+            {
+                builder.Append("!-");
+            }
+            if (arrangement is HangingLinearArrangment)
+            {
+                builder.Append("'-");
+            }
+            bool first = true;
+            foreach(var caseArrangment in arrangement.Cases)
+            {
+                if(!first)
+                    builder.Append("|");
+
+                Write(builder, caseArrangment.CaseSyntacticalElements);
+
+                first = false;
+            }
+            builder.Append(arrangement.TerminatingArrangementToken);
+        }
+
+        #endregion Write Set
 
         #region Write Basic elements
 

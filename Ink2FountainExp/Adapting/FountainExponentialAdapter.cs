@@ -9,9 +9,11 @@ using FountainExponential.LanguageStructures;
 using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Lexical.Code;
+using FountainExponential.LanguageStructures.Lexical.Conditional;
 using FountainExponential.LanguageStructures.Lexical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Lexical.MetaData;
 using FountainExponential.LanguageStructures.Lexical.Sections;
+using FountainExponential.LanguageStructures.Lexical.Set;
 using FountainExponential.LanguageStructures.Syntactical;
 using FountainExponential.LanguageStructures.Syntactical.AutomaticFlow;
 using FountainExponential.LanguageStructures.Syntactical.Code;
@@ -21,6 +23,8 @@ using FountainExponential.LanguageStructures.Syntactical.FountainElement;
 using FountainExponential.LanguageStructures.Syntactical.InteractiveFlow;
 using FountainExponential.LanguageStructures.Syntactical.MetaData;
 using FountainExponential.LanguageStructures.Syntactical.Sections;
+using FountainExponential.LanguageStructures.Syntactical.Set;
+using Ink.Parsed;
 
 namespace Ink.Ink2FountainExp.Adapting
 {
@@ -288,13 +292,158 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedConditional == null)
                 return false;
 
-            var condition = new BinaryCondition()
+            var theConditionText = string.Empty;
+            var theInitialCondition = parsedConditional.initialCondition;
+            if (theInitialCondition != null)
             {
-                TextContent = parsedConditional.ToString()
-            };
+                var variableReference = theInitialCondition as Parsed.VariableReference;
+                if (variableReference != null)
+                {
+                    theConditionText = variableReference.name;
+                }
+                else
+                {
+                    var unaryExpression = theInitialCondition as Parsed.UnaryExpression;
+                    if (unaryExpression != null)
+                    {
+
+                        var innerVariableReference = unaryExpression.innerExpression as Parsed.VariableReference;
+                        if (innerVariableReference != null)
+                        {
+                            theConditionText = "!" + innerVariableReference.name;
+                        }
+                    }
+                    else
+                    {
+                        var binaryExpression = theInitialCondition as Parsed.BinaryExpression;
+                        if (binaryExpression != null)
+                        {
+                            var leftExpression = binaryExpression.leftExpression as Parsed.VariableReference;
+                            var rightExpression = binaryExpression.rightExpression as Parsed.VariableReference;
+                            if (leftExpression != null && rightExpression)
+                            {
+                                theConditionText = leftExpression.name + binaryExpression.opName + rightExpression;
+                            }
+                        }
+                        else
+                        {
+                            theInitialCondition.ToString();
+                        }
+                    }
+                }
+            }
+            FountainExponential.LanguageStructures.Syntactical.Conditional.Conditional conditional = null;
+
+            var theBranches = parsedConditional.branches;
+            var brancheCount = theBranches.Count;
+            var elseBranches = theBranches.Count(b => b.isElse);
+            if (brancheCount == 1)
+            {
+                var singularConditional = new SingularConditional()
+                {
+                    TextContent = parsedConditional.ToString(),
+                    Condition = new Condition() { TextContent = theConditionText }
+                };
+                var theFirstBranche = theBranches[0].content[0];
+                foreach (var firstBranchContent in theFirstBranche.content)
+                {
+                    var theText = firstBranchContent as Parsed.Text;
+                    if (theText != null)
+
+                    {
+                        singularConditional.CaseSyntacticalElements.Add(new ActionDescription() { TextContent = theText.text });
+                    }
+                }
+                conditional = singularConditional;
+            }
+            else if (brancheCount == 2)
+            {
+                var theFirstBranche = theBranches[0].content[0];
+                var theSecondBranche = theBranches[1].content[0];
+                if (elseBranches != 0)
+                {
+                    var defaultedSingularConditional = new DefaultedSingularConditional()
+                    {
+                        TextContent = parsedConditional.ToString(),
+                        Condition = new Condition() { TextContent = theConditionText },
+                        ConditionDefaultToken = new ConditionDefaultToken(),
+                    };
+                    defaultedSingularConditional.SpaceTokenBeforeConditionDefaultToken = new SpaceToken();
+                    defaultedSingularConditional.SpaceTokenAfterConditionDefaultToken = new SpaceToken();
+
+                    foreach (var firstBranchContent in theFirstBranche.content)
+                    {
+                        var theText = firstBranchContent as Parsed.Text;
+                        if (theText != null)
+                        {
+                            defaultedSingularConditional.CaseSyntacticalElements.Add(new ActionDescription() { TextContent = theText.text });
+                        }
+                    }
+                    foreach (var secondBranchContent in theSecondBranche.content)
+                    {
+                        var theText = secondBranchContent as Parsed.Text;
+                        if (theText != null)
+                        {
+                            defaultedSingularConditional.DefaultSyntacticalElements.Add(new ActionDescription() { TextContent = theText.text } );
+                        }
+                    }
+                    conditional = defaultedSingularConditional;
+                }
+                else
+                {
+                    var multipleConditional = new MatchingMultipleConditional()
+                    {
+                        TextContent = parsedConditional.ToString(),
+                        Expression = theConditionText,
+                    };
+                    var caseCondition = new CaseCondition() { TextContent = theConditionText };
+                    multipleConditional.Cases.Add(caseCondition);
+
+                    conditional = multipleConditional;
+                }
+            }
+            else if (brancheCount == 0)
+            {
+                // zero should not be possible, but technically it can happen
+            }
+            else
+            {
+                if (elseBranches == 0)
+                {
+                    var multipleConditional = new MatchingMultipleConditional()
+                    {
+                        TextContent = parsedConditional.ToString(),
+                        Expression = theConditionText,
+                    };
+                    var caseCondition = new CaseCondition() { TextContent = theConditionText };
+                    multipleConditional.Cases.Add(caseCondition);
+
+                    conditional = multipleConditional;
+                }
+                else
+                {
+                    var defaultedMultipleConditional = new DefaultedMatchingMultipleConditional()
+                    {
+                        TextContent = parsedConditional.ToString(),
+                        Expression = theConditionText,
+                        ConditionDefaultToken = new ConditionDefaultToken(),
+                    };
+                    var caseCondition = new CaseCondition() { TextContent = theConditionText };
+                    defaultedMultipleConditional.Cases.Add(caseCondition);
+
+                    defaultedMultipleConditional.SpaceTokenBeforeConditionDefaultToken = new SpaceToken();
+                    defaultedMultipleConditional.SpaceTokenAfterConditionDefaultToken = new SpaceToken();
+
+                    conditional = defaultedMultipleConditional;
+                }
+            }
+            conditional.ConditionToken = new ConditionToken();
+            conditional.SpaceTokenAfterConditionToken = new SpaceToken();
+            conditional.SpaceTokenBeforeTerminatingConditionToken = new SpaceToken();
+            conditional.TerminatingConditionToken = new TerminatingConditionToken();            
 
             var conditionContentArea = contentAreaManager.CurrentContentArea;
-            conditionContentArea.AddSyntacticalElement(condition);
+            conditionContentArea.AddSyntacticalElement(conditional);
 
             return true;
         }
@@ -304,7 +453,7 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedConditionalSingleBranch == null)
                 return false;
 
-            var condition = new SingularCondition()
+            var condition = new SingularConditional()
             {
                 TextContent = parsedConditionalSingleBranch.ToString()
             };
@@ -689,6 +838,7 @@ namespace Ink.Ink2FountainExp.Adapting
                     IndentLevel = new IndentLevel()
                 };
             }
+            ProcessChoiceCondition(weaveChoice, menuChoice);
 
             var baseContentArea = contentAreaManager.CurrentContentArea;
             Menu menu = null;
@@ -731,6 +881,33 @@ namespace Ink.Ink2FountainExp.Adapting
             HandleChoiceContent(weaveChoice, contentAreaManager.CurrentContentArea, menuChoice);
 
             return true;
+        }
+
+        private void ProcessChoiceCondition(Parsed.Choice weaveChoice, MenuChoice menuChoice)
+        {
+            var theCondition = weaveChoice.condition;
+            if (theCondition == null)
+                return;
+
+
+            //MenuChoiceSingularConditional
+            //CodeSpanMenuChoiceSingularConditional
+            //ObtainerMenuChoiceSingularConditional
+            //NamespacedObtainerMenuChoiceSingularConditional
+
+
+            var theConditionContents = theCondition.content;
+            if (theConditionContents != null)
+            {
+                foreach (var conditionContent in theConditionContents)
+                {
+                    var variableReference = conditionContent as Parsed.VariableReference;
+                    if (variableReference != null)
+                    {
+                        variableReference.ToString();
+                    }
+                }
+            }
         }
 
         private ContentArea PushChoiceContentArea(ContentAreaManager contentAreaManager, string labelName, MenuChoice menuChoice)
@@ -1084,6 +1261,46 @@ namespace Ink.Ink2FountainExp.Adapting
             if (parsedSequence == null)
                 return false;
 
+            Arrangement theArrangement = null;
+            switch (parsedSequence.sequenceType)
+            {
+                case SequenceType.Cycle:    theArrangement = new LoopingLinearArrangment(); break;
+                case SequenceType.Shuffle:  theArrangement = new LoopingRandomArrangment(); break;
+                case SequenceType.Once:     theArrangement = new EmptyingLinearArrangment(); break;
+                case SequenceType.Stopping: theArrangement = new HangingLinearArrangment(); break;
+            }
+            theArrangement.ObtainerToken = new ObtainerToken();
+            theArrangement.TerminatingArrangementToken = new TerminatingArrangementToken();
+
+            var theContentArea = contentAreaManager.CurrentContentArea;
+            theContentArea.AddSyntacticalElement(theArrangement);
+
+            foreach (var element in parsedSequence.sequenceElements)
+            {
+                var caseArrangement = new CaseArrangement();
+                theArrangement.Cases.Add(caseArrangement);
+
+                var parsedContentList = element as Parsed.ContentList;
+                if (parsedContentList != null && parsedContentList.content != null)
+                {
+                    // The content list is a placeholder for an empty case of the sequence
+                    caseArrangement.TextContent = string.Empty;
+                }
+                var parsedWeave = element as Parsed.Weave;
+                if (parsedWeave != null && parsedWeave.content != null)
+                {
+                    foreach (var parsedWeaveContent in parsedWeave.content)
+                    {
+                        var textContent = parsedWeaveContent as Parsed.Text;
+                        if (textContent != null)
+                        {
+
+                            var actionDescription = new ActionDescription() { TextContent = textContent.text, IndentLevel = new IndentLevel() };
+                            caseArrangement.CaseSyntacticalElements.Add(actionDescription);
+                        }
+                    }
+                }
+            }
 
             return true;
         }

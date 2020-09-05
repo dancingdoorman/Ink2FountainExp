@@ -9,10 +9,8 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public interface ICodeConditionEnclosable
+    public class ObtainerMenuChoiceSingularConditional : MenuChoiceSingularConditional, ISyntacticalElementable, IConditionable, ISingularConditionable, IConditionEvaluatable
     {
-        ConditionOpenToken ConditionOpenToken { get; set; }
-
-        ConditionCloseToken ConditionCloseToken { get; set; }
+        public ObtainerToken ObtainerToken { get; set; }
     }
 }

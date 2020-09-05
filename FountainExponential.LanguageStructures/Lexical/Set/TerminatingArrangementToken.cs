@@ -4,9 +4,9 @@ using System.Text;
 using FountainExponential.LanguageStructures.Lexical;
 using FountainExponential.LanguageStructures.Lexical.Code;
 
-namespace FountainExponential.LanguageStructures.Lexical.Conditional
+namespace FountainExponential.LanguageStructures.Lexical.Set
 {
-    public class TerminatingConditionToken : ILexicalElementable
+    public class TerminatingArrangementToken : ILexicalElementable
     {
         // $SomeValue == 1 ? 1# The first : Some other value ;
         // $SomeValue == 1 ? 1# The first : $SomeValue == 2 ? The second : Some other value ;

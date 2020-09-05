@@ -8,7 +8,7 @@ namespace FountainExponential.LanguageStructures.Lexical.Code
     public class ObtainerToken : ILexicalElementable
     {
         public const string Sign = "$";
-        public const string Keyword = CodeSpanStartToken.Keyword + Sign;//"$";
+        public const string Keyword = Sign;//"$";
 
         public override string ToString()
         {

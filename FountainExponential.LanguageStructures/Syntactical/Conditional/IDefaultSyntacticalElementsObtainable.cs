@@ -9,9 +9,12 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public interface IConditionable : IConditionEvaluatable
+    public interface IDefaultSyntacticalElementsObtainable
     {
-        ConditionToken ConditionToken { get; set; }
+        ConditionDefaultToken ConditionDefaultToken { get; set; }
 
+        /// <summary>Gets or sets the code container syntactical elements. This list is expected to hold all the syntactical elements in the code container.</summary>
+        /// <value>The code container syntactical elements.</value>
+        List<ISyntacticalElementable> DefaultSyntacticalElements { get; set; }
     }
 }

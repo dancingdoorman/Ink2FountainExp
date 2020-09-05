@@ -5,16 +5,14 @@ using System.Text;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Code
 {
-    public class InlineActivator : ISyntacticalElementable, ITranscribable
+    public class InlineActivator : ISyntacticalElementable, IActivationDeternminable
     {        
         public ActivatorToken ActivatorToken { get; set; }
 
-        public string Transcription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        // The visitor should handle the activating, not the object itself
+
+        public string IsActivatable { get; }
+
+        public string ActivatingFunction { get; }
     }
 }

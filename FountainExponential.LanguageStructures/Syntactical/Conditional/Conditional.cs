@@ -9,7 +9,7 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public class Condition : ISyntacticalElementable, ITextContentSummarizable, ILexicalElementsContainable, ISyntacticalElementsContainable, IConditionEvaluatable
+    public class Conditional : ISyntacticalElementable, ITextContentSummarizable, ILexicalElementsContainable, ISyntacticalElementsContainable, IConditionable, IConditionEvaluatable
     {
         /// <summary>Gets or sets the text content of the code container.</summary>
         /// <value>The text content of the code container.</value>
@@ -23,6 +23,14 @@ namespace FountainExponential.LanguageStructures.Syntactical.Conditional
         /// <summary>Gets or sets the code container syntactical elements. This list is expected to hold all the syntactical elements in the code container.</summary>
         /// <value>The code container syntactical elements.</value>
         public List<ISyntacticalElementable> SyntacticalElements { get; set; } = new List<ISyntacticalElementable>();
+
+        public SpaceToken SpaceTokenBeforeConditionToken { get; set; }
+        public ConditionToken ConditionToken { get; set; }
+        public SpaceToken SpaceTokenAfterConditionToken { get; set; }
+
+
+        public SpaceToken SpaceTokenBeforeTerminatingConditionToken { get; set; }
+        public TerminatingConditionToken TerminatingConditionToken { get; set; } // can be ; or end-line
 
 
         public virtual bool IsTrue

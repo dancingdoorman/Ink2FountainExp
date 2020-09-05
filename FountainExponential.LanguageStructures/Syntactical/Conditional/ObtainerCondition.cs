@@ -9,8 +9,15 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public class MenuChoiceConditioningObtainer : MenuChoiceConditional, ISyntacticalElementable, IConditionable, IConditionEvaluatable
+    public class ObtainerCondition : Condition, ISyntacticalElementable, IConditionEvaluatable
     {
-        public ObtainerToken ObtainerToken { get; set; }
+        public NamespaceToken NamespaceToken { get; set; }
+
+        //public override string ToString()
+        //{
+        //    var builder = new StringBuilder();
+
+        //    return builder.ToString();
+        //}
     }
 }

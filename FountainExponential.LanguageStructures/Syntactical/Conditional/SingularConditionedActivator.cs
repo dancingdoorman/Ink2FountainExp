@@ -9,17 +9,8 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    /// <summary>The BinaryConditionedTranscriber class encapsulates a binary condition that obtains a value when true and another value when false</summary>
-    public class BinaryConditionedTranscriber : BinaryCondition, ISyntacticalElementable, IConditionable, IConditionEvaluatable, ITranscribable
+    public class SingularConditionedActivator : SingularConditional, ISyntacticalElementable, IConditionable, ISingularConditionable, IConditionEvaluatable
     {
 
-
-        public string Transcription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
     }
 }

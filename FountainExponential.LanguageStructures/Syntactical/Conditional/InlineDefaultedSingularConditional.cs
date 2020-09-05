@@ -9,9 +9,7 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    /// <summary>The ConditionInverter class encapsulates the functionality of inverting the value of a condition making true into false and false into true.
-    /// This is also called the unary operator ! because it's the only operator that acts on one element.</summary>
-    public class ConditionInverter : Condition, ISyntacticalElementable, IConditionEvaluatable
+    public class InlineDefaultedSingularConditional : DefaultedSingularConditional, ISyntacticalElementable, IConditionable, ISingularConditionable, IConditionEvaluatable
     {
 
     }

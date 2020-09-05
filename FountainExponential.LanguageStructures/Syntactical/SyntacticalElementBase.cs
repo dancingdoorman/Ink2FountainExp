@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FountainExponential.LanguageStructures.Syntactical
 {
-    public class SyntacticalElementBase : ISyntacticalElementable
+    public class SyntacticalElementBase : ISyntacticalElementable, ILexicalElementsContainable, ITextContentSummarizable
     {
         /// <summary>Gets or sets the text content of the section.</summary>
         /// <value>The text content of the section.</value>

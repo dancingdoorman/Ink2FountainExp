@@ -9,26 +9,21 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public class SingularCondition : CodeContainerBase, ISyntacticalElementable, IConditionable, IConditionEvaluatable, ICodeConditionEnclosable
+    public class CodeSpanCondition : Condition, ISyntacticalElementable, IConditionEvaluatable, IConditionalEnclosable, ICodeSpanEnclosable
     {
-        public ConditionToken ConditioningToken { get; set; }
-        
-        public Condition Condition { get; set; }
+        public CodeSpanStartToken CodeSpanStartToken { get; set; }
+
+        public CodeSpanEndToken CodeSpanEndToken { get; set; }
 
         public ConditionOpenToken ConditionOpenToken { get; set; }
 
         public ConditionCloseToken ConditionCloseToken { get; set; }
 
-        public bool IsTrue
-        {
-            get
-            {
-                if(Condition != null)
-                {
-                    return Condition.IsTrue;
-                }
-                return true;
-            }
-        }
+        //public override string ToString()
+        //{
+        //    var builder = new StringBuilder();
+
+        //    return builder.ToString();
+        //}
     }
 }

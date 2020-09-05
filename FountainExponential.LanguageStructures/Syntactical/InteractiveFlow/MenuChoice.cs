@@ -13,6 +13,7 @@ namespace FountainExponential.LanguageStructures.Syntactical.InteractiveFlow
         public IndentLevel IndentLevel { get; set; }
 
         //public MenuChoiceToken MenuChoiceToken { get; set; }
+
         public SpaceToken SpaceToken { get; set; }
 
         /// <summary>Gets or sets the description.</summary>

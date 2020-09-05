@@ -7,11 +7,10 @@ using FountainExponential.LanguageStructures.Lexical.Conditional;
 using FountainExponential.LanguageStructures.Syntactical;
 using FountainExponential.LanguageStructures.Syntactical.Code;
 
-namespace FountainExponential.LanguageStructures.Syntactical.Conditional
+namespace FountainExponential.LanguageStructures.Syntactical.Set
 {
-    public interface IConditionable : IConditionEvaluatable
+    public interface ICaseArrangeable : ICaseArrangementSyntacticalElementsObtainable
     {
-        ConditionToken ConditionToken { get; set; }
 
     }
 }

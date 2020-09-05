@@ -9,9 +9,9 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public interface IConditionable : IConditionEvaluatable
+    public interface ISingularConditionable : IConditionEvaluatable
     {
-        ConditionToken ConditionToken { get; set; }
+        Condition Condition { get; set; }
 
     }
 }

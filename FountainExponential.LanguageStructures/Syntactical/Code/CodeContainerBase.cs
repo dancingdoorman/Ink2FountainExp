@@ -5,9 +5,8 @@ using System.Text;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Code
 {
-    public class CodeContainerBase
+    public class CodeContainerBase : ISyntacticalElementable, ITextContentSummarizable, ILexicalElementsContainable, ISyntacticalElementsContainable
     {
-
         /// <summary>Gets or sets the text content of the code container.</summary>
         /// <value>The text content of the code container.</value>
         public string TextContent { get; set; }

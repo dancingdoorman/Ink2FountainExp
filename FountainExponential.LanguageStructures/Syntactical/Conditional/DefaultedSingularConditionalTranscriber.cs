@@ -9,8 +9,11 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public class SingularConditionedTranscriber : SingularConditional, ISyntacticalElementable, IConditionable, ISingularConditionable, IConditionEvaluatable, ITranscribable
+    /// <summary>The DefaultedSingularConditionalTranscriber class encapsulates a binary condition that obtains a value when true and another value when false</summary>
+    public class DefaultedSingularConditionalTranscriber : DefaultedSingularConditional, ISyntacticalElementable, IConditionable, ISingularConditionable, IConditionEvaluatable, ITranscribable
     {
+
+
         public string Transcription
         {
             get

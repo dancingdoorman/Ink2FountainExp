@@ -8,8 +8,9 @@ namespace FountainExponential.LanguageStructures.Lexical.Conditional
 {
     public class ConditionToken : ILexicalElementable
     {
+        // The Condition token follows the condition
         public const string Sign = "?";
-        public const string Keyword = CodeSpanStartToken.Keyword + Sign;//"&?";
+        public const string Keyword = Sign;//"&?";
         public override string ToString()
         {
             return Sign;

@@ -9,7 +9,7 @@ using FountainExponential.LanguageStructures.Syntactical.Code;
 
 namespace FountainExponential.LanguageStructures.Syntactical.Conditional
 {
-    public class MenuChoiceConditioningNamespacedObtainer : MenuChoiceConditional, ISyntacticalElementable, IConditionable, IConditionEvaluatable
+    public class NamespacedObtainerMenuChoiceSingularConditional : MenuChoiceSingularConditional, ISyntacticalElementable, IConditionable, ISingularConditionable, IConditionEvaluatable
     {
         public NamespaceToken NamespaceToken { get; set; }
     }

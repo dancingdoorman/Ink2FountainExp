@@ -6,15 +6,16 @@ using FountainExponential.LanguageStructures.Lexical.Code;
 
 namespace FountainExponential.LanguageStructures.Lexical.Conditional
 {
-    public class TerminatingConditionToken : ILexicalElementable
+    public class ValueCaseSeparatorToken : ILexicalElementable
     {
-        // $SomeValue == 1 ? 1# The first : Some other value ;
-        // $SomeValue == 1 ? 1# The first : $SomeValue == 2 ? The second : Some other value ;
-
+        // It is cleaner to do
         // $SomeValue ? 1# The first | 2# The second : Some other value ;
 
-        public const string Sign = ";";
-        public const string Keyword = Sign; //"`;`";
+        // then
+        // $SomeValue == 1 ? 1# The first : $SomeValue == 2 ? The second : Some other value ;
+
+        public const string Sign = "#";
+        public const string Keyword = CodeSpanStartToken.Keyword + Sign + CodeSpanEndToken.Keyword; //"`#`";
         public override string ToString()
         {
             return Sign;
